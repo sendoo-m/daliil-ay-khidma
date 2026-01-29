@@ -23,6 +23,15 @@ from .category import Category
 class Business(models.Model):
     """نموذج المحلات التجارية - شامل ومتقدم"""
     
+    # ========================================
+    # Business Type Choices
+    # ========================================
+    BUSINESS_TYPE_CHOICES = [
+        ('shop', 'محل تجاري / Commercial Shop'),
+        ('craft', 'حرفة أو خدمة حرفية / Craft or Trade Service'),
+        ('public', 'خدمة عامة / Public Service'),
+    ]
+    
     # Egyptian Phone Validator
     phone_regex = RegexValidator(
         regex=r'^01[0-2,5]{1}[0-9]{8}$',
@@ -41,20 +50,32 @@ class Business(models.Model):
     )
     
     # ========================================
+    # Business Type
+    # ========================================
+    business_type = models.CharField(
+        max_length=10,
+        choices=BUSINESS_TYPE_CHOICES,
+        default='shop',
+        verbose_name='نوع المحل / Business Type',
+        db_index=True,
+        help_text='اختر نوع المحل: تجاري، حرفي، أو خدمة عامة'
+    )
+    
+    # ========================================
     # Basic Info (Bilingual)
     # ========================================
     name_en = models.CharField(
         max_length=200,
         verbose_name='Business Name (English)',
         db_index=True,
-        help_text='Example: Golden Restaurant, City Pharmacy'
+        help_text='Example: Golden Restaurant, City Pharmacy, Ahmed the Plumber'
     )
     
     name_ar = models.CharField(
         max_length=200,
         verbose_name='اسم المحل',
         db_index=True,
-        help_text='مثال: مطعم الذهبي، صيدلية المدينة'
+        help_text='مثال: مطعم الذهبي، صيدلية المدينة، أحمد السباك'
     )
     
     slug = models.SlugField(
@@ -219,13 +240,13 @@ class Business(models.Model):
     working_hours_en = models.TextField(
         blank=True,
         verbose_name='Working Hours (English)',
-        help_text='Example: Sat-Thu: 9 AM - 10 PM | Fri: 2 PM - 10 PM'
+        help_text='Example: Sat-Thu: 9 AM - 10 PM | Fri: 2 PM - 10 PM | For public services: 24/7 or specific hours'
     )
     
     working_hours_ar = models.TextField(
         blank=True,
         verbose_name='ساعات العمل',
-        help_text='مثال: السبت-الخميس: 9 ص-10 م | الجمعة: 2 م-10 م'
+        help_text='مثال: السبت-الخميس: 9 ص-10 م | الجمعة: 2 م-10 م | للخدمات العامة: 24 ساعة أو ساعات محددة'
     )
     
     # ========================================
@@ -298,6 +319,8 @@ class Business(models.Model):
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['slug']),
+            models.Index(fields=['business_type']),
+            models.Index(fields=['business_type', 'is_active']),
             models.Index(fields=['is_active', 'is_verified']),
             models.Index(fields=['category', 'is_active']),
             models.Index(fields=['district', 'is_active']),
@@ -327,7 +350,8 @@ class Business(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.name_en} / {self.name_ar} - {self.district.name_en}"
+        type_display = self.get_business_type_display()
+        return f"{self.name_en} / {self.name_ar} - {type_display} - {self.district.name_en}"
     
     # ========================================
     # Properties
@@ -359,6 +383,36 @@ class Business(models.Model):
         from django.utils.translation import get_language
         lang = get_language()
         return self.working_hours_ar if lang == 'ar' else self.working_hours_en
+    
+    @property
+    def business_type_display(self):
+        """Get business type display name"""
+        return self.get_business_type_display()
+    
+    @property
+    def is_shop(self):
+        """Check if business is a shop"""
+        return self.business_type == 'shop'
+    
+    @property
+    def is_craft(self):
+        """Check if business is a craft/trade service"""
+        return self.business_type == 'craft'
+    
+    @property
+    def is_public_service(self):
+        """Check if business is a public service"""
+        return self.business_type == 'public'
+    
+    @property
+    def business_type_icon(self):
+        """Get icon for business type"""
+        icons = {
+            'shop': '🏪',
+            'craft': '🔧',
+            'public': '🏛️',
+        }
+        return icons.get(self.business_type, '📍')
     
     @property
     def city(self):
