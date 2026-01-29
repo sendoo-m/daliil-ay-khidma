@@ -30,19 +30,30 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_cleanup.apps.CleanupConfig',
     
-    # Local apps
+    # Local apps - Core
     'apps.core',
     'apps.accounts',
-    'apps.services',
-    'apps.categories',
-    'apps.reviews',
-    'apps.search',
-    'apps.dashboard',
+    
+    # Local apps - Main Features
+    'apps.directory',      # Business directory (Governorate, City, District, Business)
+    'apps.products',       # Products & Services
+    'apps.categories',     # Categories system
+    'apps.reviews',        # Reviews & Ratings
+    
+    # Local apps - Advanced Features
+    'apps.subscriptions',  # Subscription plans & management
+    'apps.deals',          # Deals & Special offers
+    
+    # Local apps - Utilities
+    'apps.services',       # Services app
+    'apps.search',         # Search functionality
+    'apps.dashboard',      # User dashboard
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Language support
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -64,6 +75,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'django.template.context_processors.i18n',  # Internationalization
             ],
         },
     },
@@ -88,11 +100,24 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = 'ar'
+from django.utils.translation import gettext_lazy as _
+
+LANGUAGE_CODE = 'ar'  # Default language
+
+LANGUAGES = [
+    ('ar', _('Arabic')),
+    ('en', _('English')),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 TIME_ZONE = 'Africa/Cairo'
 
 USE_I18N = True
+
+USE_L10N = True
 
 USE_TZ = True
 
@@ -114,5 +139,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # Login/Logout URLs
 LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'core:home'
+LOGIN_REDIRECT_URL = 'dashboard:dashboard'
 LOGOUT_REDIRECT_URL = 'core:home'
+
+# Custom User Model (if you have one in accounts app)
+AUTH_USER_MODEL = 'accounts.User'
