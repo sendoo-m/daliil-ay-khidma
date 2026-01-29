@@ -72,7 +72,7 @@ class BusinessViewSet(viewsets.ModelViewSet):
     """Business ViewSet"""
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'district', 'is_verified', 'is_featured']
+    filterset_fields = ['business_type', 'category', 'district', 'is_verified', 'is_featured']  # Added business_type
     search_fields = ['name_en', 'name_ar', 'description_en', 'description_ar']
     ordering_fields = ['view_count', 'created_at', 'name_en']
     ordering = ['-is_featured', '-created_at']
@@ -101,28 +101,70 @@ class BusinessViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def increment_view(self, request, slug=None):
-        """Increment view count"""
+        """زيادة عداد المشاهدات"""
         business = self.get_object()
         business.increment_view_count()
         return Response({'view_count': business.view_count})
     
     @action(detail=True, methods=['post'])
     def increment_click(self, request, slug=None):
-        """Increment click count"""
+        """زيادة عداد النقرات"""
         business = self.get_object()
         business.increment_click_count()
         return Response({'click_count': business.click_count})
     
     @action(detail=False, methods=['get'])
     def featured(self, request):
-        """Get featured businesses"""
+        """الحصول على المحلات المميزة"""
         businesses = self.get_queryset().filter(is_featured=True)[:10]
         serializer = self.get_serializer(businesses, many=True)
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
+    def shops(self, request):
+        """الحصول على المحلات التجارية فقط"""
+        businesses = self.get_queryset().filter(business_type='shop')
+        
+        # Apply pagination
+        page = self.paginate_queryset(businesses)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(businesses, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def crafts(self, request):
+        """الحصول على الحرف والخدمات الحرفية"""
+        businesses = self.get_queryset().filter(business_type='craft')
+        
+        # Apply pagination
+        page = self.paginate_queryset(businesses)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(businesses, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def public_services(self, request):
+        """الحصول على الخدمات العامة"""
+        businesses = self.get_queryset().filter(business_type='public')
+        
+        # Apply pagination
+        page = self.paginate_queryset(businesses)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(businesses, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
     def my_businesses(self, request):
-        """Get current user's businesses"""
+        """الحصول على محلات المستخدم الحالي"""
         if not request.user.is_authenticated:
             return Response({'detail': 'Authentication required'}, status=401)
         
@@ -146,7 +188,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def toggle(self, request):
-        """Toggle favorite status"""
+        """تبديل حالة المفضلة"""
         business_id = request.data.get('business_id')
         
         if not business_id:
