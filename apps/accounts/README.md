@@ -1,142 +1,235 @@
-# 👤 Accounts System
+# 👤 Accounts System - نظام الحسابات
 
-نظام إدارة الحسابات لدليل أي خدمة
+نظام إدارة حسابات متكامل لدليل أي خدمة مع Custom User Model ونظام مصادقة كامل.
+
+---
 
 ## 🎯 Overview
 
-نظام حسابات كامل مع Custom User Model وجميع وظائف المصادقة وإدارة المستخدمين.
+نظام حسابات احترافي مع:
+- ✅ Custom User Model مخصص
+- ✅ نظام تسجيل ودخول كامل
+- ✅ إدارة الملف الشخصي
+- ✅ استرجاع كلمة المرور
+- ✅ صلاحيات متعددة
+- ✅ Django Admin مخصص
 
 ---
 
 ## ✨ Features
 
 ### 🔐 Authentication
-- ✅ **التسجيل** - إنشاء حساب جديد
-- ✅ **تسجيل الدخول** - دخول آمن
-- ✅ **تسجيل الخروج** - خروج من الحساب
+- ✅ **التسجيل (Register)** - إنشاء حساب جديد مع تحقق من البيانات
+- ✅ **تسجيل الدخول (Login)** - دخول آمن مع session management
+- ✅ **تسجيل الخروج (Logout)** - خروج آمن
 - ✅ **استرجاع كلمة المرور** - عبر البريد الإلكتروني
+- ✅ **تغيير كلمة المرور** - للمستخدمين المسجلين
 
 ### 👤 Profile Management
-- ✅ **الملف الشخصي** - عرض وتحديث
-- ✅ **الصورة الشخصية** - رفع وتعديل
-- ✅ **تغيير كلمة المرور** - تحديث الأمان
+- ✅ **عرض الملف الشخصي** - صفحة profile كاملة
+- ✅ **تحديث البيانات** - تعديل المعلومات الشخصية
+- ✅ **رفع صورة شخصية** - مع معاينة
+- ✅ **نبذة شخصية (Bio)** - وصف عن المستخدم
+- ✅ **معلومات الموقع** - المدينة
 
 ### 📱 Custom User Model
-- ✅ **رقم الهاتف** - إلزامي مع تحقق
-- ✅ **البريد الإلكتروني** - فريد مع تحقق
-- ✅ **نبذة** - Bio شخصية
+- ✅ **رقم الهاتف** - إلزامي مع تحقق من الصيغة المصرية
+- ✅ **البريد الإلكتروني** - فريد مع إمكانية التحقق
+- ✅ **صورة شخصية** - مع رابط افتراضي
 - ✅ **نوع الحساب** - Owner/Admin/User
+- ✅ **حالة التفعيل** - email_verified
 
 ---
 
-## 📚 User Model Fields
+## 📚 User Model Documentation
+
+### Model Fields
 
 ```python
 class User(AbstractUser):
-    # الحقول المخصصة
-    phone = CharField(unique=True)          # رقم الهاتف المصري
-    profile_picture = ImageField()          # الصورة الشخصية
-    bio = TextField()                       # نبذة
-    city = CharField()                      # المدينة
+    # الحقول الأساسية من AbstractUser
+    username            # اسم المستخدم (فريد)
+    first_name          # الاسم الأول
+    last_name           # الاسم الأخير
+    email               # البريد الإلكتروني (فريد)
     
-    # الحالة
-    email_verified = BooleanField()         # تم التحقق من البريد
-    is_business_owner = BooleanField()      # صاحب محل
+    # الحقول المخصصة
+    phone               # رقم الهاتف المصري (01xxxxxxxxx) - فريد وإلزامي
+    profile_picture     # الصورة الشخصية (اختياري)
+    bio                 # نبذة شخصية (500 حرف كحد أقصى)
+    city                # المدينة (اختياري)
+    
+    # حالة الحساب
+    email_verified      # تم التحقق من البريد؟ (Boolean)
+    is_business_owner   # صاحب محل؟ (Boolean)
+    is_active           # الحساب نشط؟
+    is_staff            # موظف إداري؟
+    is_superuser        # مدير أعلى؟
     
     # التواريخ
-    created_at = DateTimeField()            # تاريخ الإنشاء
-    updated_at = DateTimeField()            # تاريخ التحديث
+    date_joined         # تاريخ الانضمام
+    last_login          # آخر تسجيل دخول
+    created_at          # تاريخ الإنشاء (auto)
+    updated_at          # تاريخ التحديث (auto)
 ```
 
-### 🔑 Properties
+### Properties & Methods
 
 ```python
-user.full_name              # الاسم الكامل
-user.has_businesses         # هل لديه محلات
-user.total_businesses       # عدد المحلات
-user.get_profile_picture_url()  # رابط الصورة
+# Properties
+user.full_name                    # الاسم الكامل (first + last) أو username
+user.has_businesses               # هل لديه محلات نشطة؟ (Boolean)
+user.total_businesses             # عدد المحلات النشطة (Integer)
+
+# Methods
+user.get_profile_picture_url()    # رابط الصورة الشخصية أو الافتراضية
+user.__str__()                    # إرجاع username
 ```
 
 ---
 
 ## 🛣️ URL Structure
 
+### Authentication URLs
 ```
-/accounts/register/                     # التسجيل
-/accounts/login/                        # تسجيل الدخول
-/accounts/logout/                       # تسجيل الخروج
+/accounts/register/                              # صفحة التسجيل
+/accounts/login/                                 # صفحة تسجيل الدخول
+/accounts/logout/                                # تسجيل الخروج
+```
 
-/accounts/profile/                      # الملف الشخصي
+### Profile URLs
+```
+/accounts/profile/                               # الملف الشخصي
+```
 
-/accounts/password/change/              # تغيير كلمة المرور
-/accounts/password/reset/               # استرجاع كلمة المرور
-/accounts/password/reset/done/          # تم الإرسال
-/accounts/password/reset/<uidb64>/<token>/  # تأكيد الاسترجاع
-/accounts/password/reset/complete/      # اكتمل
+### Password Management URLs
+```
+/accounts/password/change/                       # تغيير كلمة المرور
+/accounts/password/reset/                        # طلب استرجاع كلمة المرور
+/accounts/password/reset/done/                   # تم إرسال البريد
+/accounts/password/reset/<uidb64>/<token>/       # تأكيد الاسترجاع
+/accounts/password/reset/complete/               # تم الاسترجاع بنجاح
 ```
 
 ---
 
-## 📝 Forms
+## 📝 Forms Documentation
 
 ### 1️⃣ RegistrationForm
-نموذج إنشاء حساب جديد
-- Username (unique)
-- Email (unique)
-- Phone (unique, Egyptian format)
-- Password
-- Password Confirmation
+**الغرض:** إنشاء حساب مستخدم جديد
+
+**الحقول:**
+- `username` - اسم المستخدم (فريد، إلزامي)
+- `email` - البريد الإلكتروني (فريد، إلزامي)
+- `phone` - رقم الهاتف المصري (فريد، إلزامي)
+- `password1` - كلمة المرور (إلزامي)
+- `password2` - تأكيد كلمة المرور (إلزامي)
+
+**التحقق:**
+- التأكد من عدم تكرار البريد الإلكتروني
+- التأكد من عدم تكرار رقم الهاتف
+- التحقق من صيغة رقم الهاتف المصري
+- تطابق كلمتي المرور
 
 ### 2️⃣ LoginForm
-نموذج تسجيل الدخول
-- Username/Email
-- Password
+**الغرض:** تسجيل دخول المستخدم
+
+**الحقول:**
+- `username` - اسم المستخدم أو البريد الإلكتروني
+- `password` - كلمة المرور
 
 ### 3️⃣ ProfileUpdateForm
-نموذج تحديث الملف الشخصي
-- First Name
-- Last Name
-- Email
-- Phone
-- Profile Picture
-- Bio
-- City
+**الغرض:** تحديث بيانات الملف الشخصي
+
+**الحقول:**
+- `first_name` - الاسم الأول (اختياري)
+- `last_name` - الاسم الأخير (اختياري)
+- `email` - البريد الإلكتروني (فريد)
+- `phone` - رقم الهاتف (فريد)
+- `profile_picture` - الصورة الشخصية (اختياري)
+- `bio` - نبذة شخصية (اختياري، 500 حرف)
+- `city` - المدينة (اختياري)
+
+**التحقق:**
+- عدم تكرار البريد (باستثناء المستخدم الحالي)
+- عدم تكرار الهاتف (باستثناء المستخدم الحالي)
 
 ### 4️⃣ PasswordChangeForm
-تغيير كلمة المرور
-- Old Password
-- New Password
-- Confirm New Password
+**الغرض:** تغيير كلمة المرور للمستخدم المسجل
+
+**الحقول:**
+- `old_password` - كلمة المرور الحالية
+- `new_password1` - كلمة المرور الجديدة
+- `new_password2` - تأكيد كلمة المرور الجديدة
 
 ### 5️⃣ PasswordResetForm
-استرجاع كلمة المرور
-- Email
+**الغرض:** طلب استرجاع كلمة المرور
+
+**الحقول:**
+- `email` - البريد الإلكتروني
+
+### 6️⃣ SetPasswordForm
+**الغرض:** تعيين كلمة مرور جديدة بعد الاسترجاع
+
+**الحقول:**
+- `new_password1` - كلمة المرور الجديدة
+- `new_password2` - تأكيد كلمة المرور
 
 ---
 
 ## 🛠️ Setup Instructions
 
-### 1. Update Settings
+### 1. Install App (Already Done ✅)
 
 ```python
-# config/settings.py or settings/base.py
+# settings/base.py or config/settings.py
 
 INSTALLED_APPS = [
-    # ...
-    'apps.accounts',
+    # Django Apps
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    # Local Apps
+    'apps.accounts',        # ✅
+    'apps.dashboard',
+    'apps.directory',
     # ...
 ]
+```
 
-# تحديد Custom User Model
+### 2. Set Custom User Model (Required)
+
+```python
+# settings/base.py
+
+# Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
+```
 
-# التوجيه بعد الدخول/الخروج
+### 3. Configure Authentication Settings
+
+```python
+# settings/base.py
+
+# Login/Logout URLs
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# Password Validators
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
 ```
 
-### 2. Add URLs
+### 4. Add URLs (Already Done ✅)
 
 ```python
 # config/urls.py
@@ -145,49 +238,103 @@ from django.urls import path, include
 
 urlpatterns = [
     # ...
-    path('accounts/', include('apps.accounts.urls', namespace='accounts')),
+    path('accounts/', include('apps.accounts.urls', namespace='accounts')),  # ✅
     # ...
 ]
 ```
 
-### 3. Run Migrations
+### 5. Configure Media Files
+
+```python
+# settings/base.py
+
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Media files (uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+```
+
+### 6. Run Migrations
 
 ```bash
+# Create migrations
 python manage.py makemigrations accounts
+
+# Apply migrations
 python manage.py migrate
 ```
 
-### 4. Create Superuser
+### 7. Create Superuser
 
 ```bash
 python manage.py createsuperuser
+
+# سيطلب منك:
+# - Username
+# - Email
+# - Phone (01xxxxxxxxx)
+# - Password
+```
+
+### 8. Collect Static Files (Production)
+
+```bash
+python manage.py collectstatic
 ```
 
 ---
 
-## 📊 Admin Panel
+## 📊 Django Admin Panel
 
-Django Admin مخصص مع:
+### Features
 
-### 📋 List Display
+#### 📋 List Display
 - Username
 - Email
-- Phone
+- Phone Number
 - Full Name
 - Profile Picture (thumbnail)
-- Account Type (badge)
-- Email Status (verified/not)
+- Account Type Badge (Superuser/Admin/Owner/User)
+- Email Verification Status
 - Active Status
 - Date Joined
 
-### 🔍 Search & Filter
-**Search:** Username, Email, Phone, Name  
-**Filters:** Account Type, Email Verified, Active, Staff, Superuser, Date Joined
+#### 🔍 Search & Filter
 
-### ⚡ Actions
-- تفعيل البريد الإلكتروني
-- تحويل لصاحب محل
-- تفعيل المستخدمين
+**Search Fields:**
+- Username
+- Email
+- Phone
+- First Name
+- Last Name
+
+**Filter Options:**
+- Account Type (Business Owner)
+- Email Verified Status
+- Active Status
+- Staff Status
+- Superuser Status
+- Date Joined
+
+#### ⚡ Bulk Actions
+
+1. **تفعيل البريد الإلكتروني** - Verify emails for selected users
+2. **تحويل لصاحب محل** - Convert to business owner
+3. **تفعيل المستخدمين** - Activate selected users
+
+#### 🎨 Custom Display
+
+- **Profile Picture:** Shows circular thumbnail or initial letter
+- **Account Type Badge:** Color-coded badges
+  - 🔑 Red: Superuser
+  - ⚙️ Orange: Admin
+  - 🏪 Blue: Business Owner
+  - 👤 Green: Regular User
+- **Email Status:** ✓ مفعّل or ⚠ غير مفعّل
 
 ---
 
@@ -197,71 +344,202 @@ Django Admin مخصص مع:
 
 ```python
 from django.contrib.auth.decorators import login_required
+from apps.accounts.models import User
 
 @login_required
 def my_view(request):
     user = request.user
     
     # الوصول للحقول
-    print(user.phone)
-    print(user.full_name)
-    print(user.is_business_owner)
+    print(f"Username: {user.username}")
+    print(f"Email: {user.email}")
+    print(f"Phone: {user.phone}")
+    print(f"Full Name: {user.full_name}")
+    print(f"Profile Picture: {user.get_profile_picture_url()}")
+    
+    # التحقق من نوع الحساب
+    if user.is_business_owner:
+        print("This user is a business owner")
     
     # التحقق من المحلات
     if user.has_businesses:
         businesses = user.businesses.all()
+        print(f"Total businesses: {user.total_businesses}")
+    
+    # التحقق من تفعيل البريد
+    if user.email_verified:
+        print("Email is verified")
 ```
 
 ### في Templates
 
 ```django
 {% if user.is_authenticated %}
-    <p>مرحباً {{ user.full_name }}</p>
-    <img src="{{ user.get_profile_picture_url }}" alt="Profile">
-    
-    {% if user.is_business_owner %}
-        <span>صاحب محل</span>
-    {% endif %}
+    <div class="user-info">
+        <img src="{{ user.get_profile_picture_url }}" alt="Profile">
+        <h3>مرحباً {{ user.full_name }}</h3>
+        <p>{{ user.email }}</p>
+        <p>{{ user.phone }}</p>
+        
+        {% if user.is_business_owner %}
+            <span class="badge">🏪 صاحب محل</span>
+            <p>عدد المحلات: {{ user.total_businesses }}</p>
+        {% endif %}
+        
+        {% if not user.email_verified %}
+            <div class="alert alert-warning">
+                ⚠️ يرجى تفعيل بريدك الإلكتروني
+            </div>
+        {% endif %}
+    </div>
+{% else %}
+    <a href="{% url 'accounts:login' %}">تسجيل الدخول</a>
+    <a href="{% url 'accounts:register' %}">إنشاء حساب</a>
 {% endif %}
+```
+
+### في Models (Foreign Key)
+
+```python
+from django.db import models
+from django.conf import settings
+
+class Business(models.Model):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='businesses'
+    )
+    name = models.CharField(max_length=200)
+    # ...
 ```
 
 ---
 
 ## 🔒 Security Features
 
-✅ **Password Validation** - قواعد Django لكلمات المرور  
-✅ **Phone Validation** - Egyptian format only (01xxxxxxxxx)  
-✅ **Email Uniqueness** - منع التكرار  
-✅ **Phone Uniqueness** - منع التكرار  
-✅ **CSRF Protection** - محمي في كل النماذج  
-✅ **Session Auth** - جلسات آمنة  
+### ✅ Implemented
+
+1. **Password Validation**
+   - Minimum length requirement
+   - Common password check
+   - User attribute similarity check
+   - Numeric-only password prevention
+
+2. **Phone Validation**
+   - Egyptian format only: `01[0-2,5]{1}[0-9]{8}`
+   - Examples: 01012345678, 01123456789, 01234567890, 01512345678
+   - Uniqueness enforced
+
+3. **Email Protection**
+   - Uniqueness enforced
+   - Format validation
+   - Verification system ready
+
+4. **Form Security**
+   - CSRF protection on all forms
+   - XSS prevention through Django templates
+   - SQL injection prevention (ORM)
+
+5. **Session Management**
+   - Secure session cookies
+   - Session invalidation on logout
+   - Password change updates session
+
+6. **Access Control**
+   - `@login_required` decorator
+   - Permission-based views
+   - Owner-only access checks
 
 ---
 
-## 🔧 Future Enhancements
+## 🧪 Testing
 
-- [ ] Email Verification (2FA)
-- [ ] Social Login (Google, Facebook)
-- [ ] Phone SMS Verification
-- [ ] Profile Completion Progress
-- [ ] Activity Logs
-- [ ] API Authentication (JWT)
-
----
-
-## ✅ Testing
+### Run Tests
 
 ```bash
-# Run tests
+# Run all account tests
 python manage.py test apps.accounts
 
-# Check migrations
-python manage.py makemigrations --dry-run
-python manage.py migrate --plan
+# Run with verbosity
+python manage.py test apps.accounts -v 2
+
+# Test specific module
+python manage.py test apps.accounts.tests.test_models
 ```
+
+### Check Migrations
+
+```bash
+# Dry run
+python manage.py makemigrations --dry-run
+
+# Show plan
+python manage.py migrate --plan
+
+# Check for issues
+python manage.py check
+```
+
+### Manual Testing Checklist
+
+- [ ] التسجيل بحساب جديد
+- [ ] تسجيل الدخول
+- [ ] تحديث الملف الشخصي
+- [ ] رفع صورة شخصية
+- [ ] تغيير كلمة المرور
+- [ ] استرجاع كلمة المرور (يتطلب إعداد SMTP)
+- [ ] تسجيل الخروج
+- [ ] التحقق من صلاحيات الوصول
+
+---
+
+## 🚀 Future Enhancements
+
+### Planned Features
+
+- [ ] **Email Verification (2FA)**
+  - Send verification email on registration
+  - Verify email before full access
+  
+- [ ] **Social Login**
+  - Google OAuth
+  - Facebook Login
+  - Twitter/X Login
+
+- [ ] **Phone SMS Verification**
+  - Send OTP on registration
+  - Verify phone number
+
+- [ ] **Profile Completion Progress**
+  - Show percentage complete
+  - Encourage users to complete profile
+
+- [ ] **Activity Logs**
+  - Track user actions
+  - Login history
+  - Profile changes log
+
+- [ ] **API Authentication**
+  - JWT tokens
+  - Token refresh
+  - API key management
+
+- [ ] **Two-Factor Authentication (2FA)**
+  - TOTP (Google Authenticator)
+  - SMS backup codes
+
+---
+
+## 📞 Contact & Support
+
+**Project:** Daliil Ay Khidma  
+**Module:** Accounts System  
+**Version:** 1.0.0  
+**Status:** ✅ Production Ready
 
 ---
 
 ## 📝 License
 
-Part of Daliil Ay Khidma project
+Part of Daliil Ay Khidma project.
