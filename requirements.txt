@@ -1,1 +1,27 @@
+# Django Framework
+Django==5.1.5
 
+# Database
+psycopg2-binary==2.9.10
+
+# Images
+Pillow==11.0.0
+
+# Forms
+django-crispy-forms==2.3
+crispy-bootstrap5==2.0.0
+
+# File cleanup
+django-cleanup==9.0.0
+
+# Environment variables
+python-decouple==3.8
+
+# Development tools
+django-debug-toolbar==4.4.6
+
+# WSGI server for production
+gunicorn==23.0.0
+
+# Utilities
+python-slugify==8.0.4
