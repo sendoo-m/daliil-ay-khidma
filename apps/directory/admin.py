@@ -12,7 +12,6 @@ from .models import (
     Governorate,
     City,
     District,
-    Category,
     Business,
     BusinessImage,
     Favorite
@@ -122,56 +121,6 @@ class DistrictAdmin(admin.ModelAdmin):
 
 
 # ========================================
-# Category Admin
-# ========================================
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = [
-        'name_en',
-        'name_ar',
-        'parent',
-        'icon_preview',
-        'order',
-        'is_active',
-        'businesses_count'
-    ]
-    list_filter = ['parent', 'is_active']
-    search_fields = ['name_en', 'name_ar']
-    prepopulated_fields = {'slug': ('name_en',)}
-    list_editable = ['order', 'is_active']
-    autocomplete_fields = ['parent']
-    
-    fieldsets = (
-        (_('Basic Information'), {
-            'fields': ('parent', 'name_en', 'name_ar', 'slug')
-        }),
-        (_('Description'), {
-            'fields': ('description_en', 'description_ar')
-        }),
-        (_('Media'), {
-            'fields': ('icon', 'image')
-        }),
-        (_('SEO'), {
-            'fields': ('meta_keywords_en', 'meta_keywords_ar'),
-            'classes': ('collapse',)
-        }),
-        (_('Settings'), {
-            'fields': ('is_active', 'order')
-        }),
-    )
-    
-    def icon_preview(self, obj):
-        if obj.icon:
-            return format_html('<i class="{}"></i>', obj.icon)
-        return '-'
-    icon_preview.short_description = 'Icon'
-    
-    def businesses_count(self, obj):
-        return obj.get_business_count()
-    businesses_count.short_description = 'Businesses'
-
-
-# ========================================
 # Business Image Inline
 # ========================================
 class BusinessImageInline(admin.TabularInline):
@@ -197,7 +146,7 @@ class BusinessAdmin(admin.ModelAdmin):
         'created_at'
     ]
     list_filter = [
-        'business_type',  # NEW
+        'business_type',
         'is_active',
         'is_verified',
         'is_featured',
@@ -229,7 +178,7 @@ class BusinessAdmin(admin.ModelAdmin):
         (_('Basic Information'), {
             'fields': (
                 'owner',
-                'business_type',  # NEW
+                'business_type',
                 'name_en',
                 'name_ar',
                 'slug',
