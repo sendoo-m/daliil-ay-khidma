@@ -64,11 +64,14 @@ GET    /api/v1/districts/{slug}/       # Get district details
 
 ---
 
-### 🏢 Businesses (المحال التجارية)
+### 🏪 Businesses (المحال التجارية)
 
 ```http
 GET    /api/v1/businesses/                    # List all businesses
 GET    /api/v1/businesses/featured/           # Featured businesses
+GET    /api/v1/businesses/shops/              # المحلات التجارية (Shop type only)
+GET    /api/v1/businesses/crafts/             # الحرف والخدمات (Craft/Trade services)
+GET    /api/v1/businesses/public_services/    # الخدمات العامة (Public services)
 GET    /api/v1/businesses/my_businesses/      # My businesses (Auth required)
 GET    /api/v1/businesses/{slug}/             # Business details
 POST   /api/v1/businesses/                    # Create business (Auth required)
@@ -79,12 +82,18 @@ POST   /api/v1/businesses/{slug}/increment_click/  # Increment click count
 ```
 
 **Query Parameters:**
+- `business_type` - Filter by type (`shop`, `craft`, `public`) ⭐ NEW
 - `category` - Filter by category ID
 - `district` - Filter by district ID
 - `is_verified` - Filter verified businesses
 - `is_featured` - Filter featured businesses
 - `search` - Search in name/description
 - `ordering` - Order by field (e.g., `-created_at`, `view_count`)
+
+**Business Types (أنواع المحال):**
+- `shop` - 🏪 محل تجاري (Commercial shop with products)
+- `craft` - 🔧 حرفة أو خدمة حرفية (Plumber, electrician, carpenter, etc.)
+- `public` - 🏛️ خدمة عامة (Public hospital, fire station, public park, etc.)
 
 **Example Response:**
 ```json
@@ -93,6 +102,12 @@ POST   /api/v1/businesses/{slug}/increment_click/  # Increment click count
   "name_en": "Tech Store",
   "name_ar": "متجر التكنولوجيا",
   "slug": "tech-store",
+  "business_type": "shop",
+  "business_type_display": "محل تجاري / Commercial Shop",
+  "business_type_icon": "🏪",
+  "is_shop": true,
+  "is_craft": false,
+  "is_public_service": false,
   "category": {...},
   "district": {...},
   "phone": "+20123456789",
@@ -101,6 +116,23 @@ POST   /api/v1/businesses/{slug}/increment_click/  # Increment click count
   "is_verified": true,
   "is_featured": false
 }
+```
+
+**Usage Examples:**
+```bash
+# Get all commercial shops
+curl "http://localhost:8000/api/v1/businesses/?business_type=shop"
+
+# Get all crafts/trade services (plumber, electrician, etc.)
+curl "http://localhost:8000/api/v1/businesses/?business_type=craft"
+
+# Get all public services (hospitals, fire stations, etc.)
+curl "http://localhost:8000/api/v1/businesses/?business_type=public"
+
+# Using custom endpoints
+curl "http://localhost:8000/api/v1/businesses/shops/"
+curl "http://localhost:8000/api/v1/businesses/crafts/"
+curl "http://localhost:8000/api/v1/businesses/public_services/"
 ```
 
 ---
@@ -280,6 +312,7 @@ GET /api/v1/businesses/?search=tech
 **Filtering:**
 ```http
 GET /api/v1/businesses/?category=1&is_verified=true
+GET /api/v1/businesses/?business_type=craft&district=5
 ```
 
 **Ordering:**
@@ -290,7 +323,7 @@ GET /api/v1/products/?ordering=price,-view_count
 
 **Combined:**
 ```http
-GET /api/v1/businesses/?category=1&search=shop&ordering=-view_count&page=2
+GET /api/v1/businesses/?business_type=shop&category=1&search=shop&ordering=-view_count&page=2
 ```
 
 ---
@@ -356,44 +389,62 @@ import requests
 response = requests.get('http://localhost:8000/api/v1/businesses/')
 data = response.json()
 
+# Get all craft services (plumber, electrician, etc.)
+response = requests.get('http://localhost:8000/api/v1/businesses/crafts/')
+crafts = response.json()
+
 # Get business details
 response = requests.get('http://localhost:8000/api/v1/businesses/tech-store/')
 business = response.json()
 
-# Create product (with authentication)
+# Create business (with authentication)
 session = requests.Session()
 session.auth = ('username', 'password')
 
-product_data = {
-    'name_en': 'New Product',
-    'name_ar': 'منتج جديد',
-    'product_type': 'product',
-    'price': 100.00,
-    'business': 1
+business_data = {
+    'name_en': 'Ahmed the Plumber',
+    'name_ar': 'أحمد السباك',
+    'business_type': 'craft',  # NEW
+    'category': 15,
+    'district': 5,
+    'phone': '01234567890'
 }
 
 response = session.post(
-    'http://localhost:8000/api/v1/products/',
-    json=product_data
+    'http://localhost:8000/api/v1/businesses/',
+    json=business_data
 )
 ```
 
 ### JavaScript (fetch)
 
 ```javascript
-// Get all products
-fetch('http://localhost:8000/api/v1/products/')
+// Get all public services
+fetch('http://localhost:8000/api/v1/businesses/public_services/')
   .then(response => response.json())
   .then(data => console.log(data));
 
-// Claim a deal (with authentication)
-fetch('http://localhost:8000/api/v1/deals/50-off/claim/', {
+// Filter by business type
+fetch('http://localhost:8000/api/v1/businesses/?business_type=shop&category=1')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+// Create craft service business
+fetch('http://localhost:8000/api/v1/businesses/', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
     'X-CSRFToken': getCookie('csrftoken')
   },
-  credentials: 'include'
+  credentials: 'include',
+  body: JSON.stringify({
+    name_en: 'Ali the Electrician',
+    name_ar: 'علي الكهربائي',
+    business_type: 'craft',
+    category: 16,
+    district: 3,
+    phone: '01098765432'
+  })
 })
 .then(response => response.json())
 .then(data => console.log(data));
@@ -402,21 +453,29 @@ fetch('http://localhost:8000/api/v1/deals/50-off/claim/', {
 ### cURL
 
 ```bash
-# Get businesses
+# Get all businesses
 curl http://localhost:8000/api/v1/businesses/
 
-# Search businesses
-curl "http://localhost:8000/api/v1/businesses/?search=tech&category=1"
+# Get all craft services
+curl http://localhost:8000/api/v1/businesses/crafts/
 
-# Create product (with auth)
-curl -X POST http://localhost:8000/api/v1/products/ \
+# Filter by business type
+curl "http://localhost:8000/api/v1/businesses/?business_type=public"
+
+# Search craft services
+curl "http://localhost:8000/api/v1/businesses/?business_type=craft&search=سباك"
+
+# Create public service (with auth)
+curl -X POST http://localhost:8000/api/v1/businesses/ \
   -H "Content-Type: application/json" \
   -u username:password \
   -d '{
-    "name_en": "Product",
-    "name_ar": "منتج",
-    "price": 100,
-    "business": 1
+    "name_en": "City Hospital",
+    "name_ar": "مستشفى المدينة",
+    "business_type": "public",
+    "category": 20,
+    "district": 1,
+    "phone": "0123456789"
   }'
 ```
 
@@ -429,6 +488,7 @@ curl -X POST http://localhost:8000/api/v1/products/ \
 3. **احفظ البيانات** - Cache responses لتقليل عدد الطلبات
 4. **استخدم HTTPS** - دائماً في الإنتاج
 5. **معالجة الأخطاء** - تعامل مع جميع رموز الأخطاء
+6. **استخدم business_type** - استخدم الفلتر الجديد لتحسين تجربة المستخدم
 
 ---
 
