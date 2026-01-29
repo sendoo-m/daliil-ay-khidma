@@ -1,0 +1,270 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="mb-4">
+    <h1 class="page-title">
+        <i class="fas {% if business %}fa-edit{% else %}fa-plus{% endif %}"></i> {{ title }}
+    </h1>
+</div>
+
+<!-- Form -->
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-lg-8">
+            
+            <!-- Basic Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> المعلومات الأساسية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.business_type.label_tag }}
+                        {{ form.business_type }}
+                        {% if form.business_type.errors %}
+                        <div class="text-danger small">{{ form.business_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.name_ar.label_tag }}
+                            {{ form.name_ar }}
+                            {% if form.name_ar.errors %}
+                            <div class="text-danger small">{{ form.name_ar.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.name_en.label_tag }}
+                            {{ form.name_en }}
+                            {% if form.name_en.errors %}
+                            <div class="text-danger small">{{ form.name_en.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.category.label_tag }}
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                            <div class="text-danger small">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.district.label_tag }}
+                            {{ form.district }}
+                            {% if form.district.errors %}
+                            <div class="text-danger small">{{ form.district.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-align-left"></i> الوصف</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.description_ar.label_tag }}
+                        {{ form.description_ar }}
+                        {% if form.description_ar.errors %}
+                        <div class="text-danger small">{{ form.description_ar.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description_en.label_tag }}
+                        {{ form.description_en }}
+                        {% if form.description_en.errors %}
+                        <div class="text-danger small">{{ form.description_en.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-phone"></i> معلومات الاتصال</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.phone.label_tag }}
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            <div class="text-danger small">{{ form.phone.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.whatsapp.label_tag }}
+                            {{ form.whatsapp }}
+                            {% if form.whatsapp.errors %}
+                            <div class="text-danger small">{{ form.whatsapp.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="text-danger small">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.website.label_tag }}
+                            {{ form.website }}
+                            {% if form.website.errors %}
+                            <div class="text-danger small">{{ form.website.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Location -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> العنوان</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.address_ar.label_tag }}
+                        {{ form.address_ar }}
+                        {% if form.address_ar.errors %}
+                        <div class="text-danger small">{{ form.address_ar.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.address_en.label_tag }}
+                        {{ form.address_en }}
+                        {% if form.address_en.errors %}
+                        <div class="text-danger small">{{ form.address_en.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.location_url.label_tag }}
+                        {{ form.location_url }}
+                        <small class="form-text text-muted">رابط Google Maps</small>
+                        {% if form.location_url.errors %}
+                        <div class="text-danger small">{{ form.location_url.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Working Hours -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> ساعات العمل</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.working_hours_ar.label_tag }}
+                        {{ form.working_hours_ar }}
+                        {% if form.working_hours_ar.errors %}
+                        <div class="text-danger small">{{ form.working_hours_ar.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.working_hours_en.label_tag }}
+                        {{ form.working_hours_en }}
+                        {% if form.working_hours_en.errors %}
+                        <div class="text-danger small">{{ form.working_hours_en.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="col-lg-4">
+            
+            <!-- Images -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-image"></i> الصور</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.logo.label_tag }}
+                        {{ form.logo }}
+                        {% if business.logo %}
+                        <img src="{{ business.logo.url }}" class="img-thumbnail mt-2" style="max-height: 150px;">
+                        {% endif %}
+                        {% if form.logo.errors %}
+                        <div class="text-danger small">{{ form.logo.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.cover_image.label_tag }}
+                        {{ form.cover_image }}
+                        {% if business.cover_image %}
+                        <img src="{{ business.cover_image.url }}" class="img-thumbnail mt-2" style="max-height: 150px;">
+                        {% endif %}
+                        {% if form.cover_image.errors %}
+                        <div class="text-danger small">{{ form.cover_image.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Social Media (Optional) -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fab fa-facebook"></i> السوشيال ميديا (اختياري)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label><i class="fab fa-facebook text-primary"></i> Facebook</label>
+                        {{ form.facebook }}
+                    </div>
+                    <div class="mb-3">
+                        <label><i class="fab fa-instagram text-danger"></i> Instagram</label>
+                        {{ form.instagram }}
+                    </div>
+                    <div class="mb-3">
+                        <label><i class="fab fa-twitter text-info"></i> Twitter</label>
+                        {{ form.twitter }}
+                    </div>
+                    <div class="mb-3">
+                        <label><i class="fab fa-tiktok text-dark"></i> TikTok</label>
+                        {{ form.tiktok }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-save"></i> حفظ
+                    </button>
+                    <a href="{% url 'dashboard:business_list' %}" class="btn btn-secondary w-100">
+                        <i class="fas fa-times"></i> إلغاء
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</form>
+
+{% endblock %}
