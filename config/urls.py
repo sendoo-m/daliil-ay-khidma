@@ -19,7 +19,7 @@ urlpatterns = [
     path('api/v1/', include('apps.api.urls', namespace='api')),
     
     # Account URLs (Login, Register, etc.)
-    # path('account/', include('apps.accounts.urls', namespace='account')),
+    path('accounts/', include('apps.accounts.urls', namespace='accounts')),
     
     # Directory URLs (Homepage, Businesses, etc.)
     # path('', include('apps.directory.urls', namespace='directory')),
