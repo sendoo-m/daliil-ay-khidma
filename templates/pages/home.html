@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}الرئيسية - دليل أي خدمة{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5 mb-5">
+    <h1 class="display-4 fw-bold mb-3">
+        <i class="fas fa-compass text-primary"></i>
+        مرحباً بك في دليل أي خدمة
+    </h1>
+    <p class="lead text-muted mb-4">دليلك الشامل للوصول إلى جميع الخدمات في مكان واحد</p>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form method="get" action="{% url 'search:results' %}" class="d-flex gap-2">
+                <input type="text" name="q" class="form-control form-control-lg" placeholder="ابحث عن أي خدمة..." required>
+                <button type="submit" class="btn btn-primary btn-lg px-4">
+                    <i class="fas fa-search"></i> بحث
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-3">
+        <div class="card text-center h-100 fade-in">
+            <div class="card-body">
+                <i class="fas fa-list fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">آلاف الخدمات</h5>
+                <p class="card-text text-muted">اكتشف مجموعة واسعة من الخدمات في جميع المجالات</p>
+                <a href="{% url 'services:list' %}" class="btn btn-outline-primary">تصفح الخدمات</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center h-100 fade-in">
+            <div class="card-body">
+                <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">تقييمات موثوقة</h5>
+                <p class="card-text text-muted">اقرأ تقييمات المستخدمين واختر الأفضل</p>
+                <a href="{% url 'reviews:list' %}" class="btn btn-outline-warning">عرض التقييمات</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center h-100 fade-in">
+            <div class="card-body">
+                <i class="fas fa-search fa-3x text-success mb-3"></i>
+                <h5 class="card-title">بحث متقدم</h5>
+                <p class="card-text text-muted">ابحث وفلتر للوصول السريع لما تحتاجه</p>
+                <a href="{% url 'search:advanced' %}" class="btn btn-outline-success">بحث متقدم</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-5">
+    <h3 class="mb-4">ابدأ الآن</h3>
+    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-5">
+        <i class="fas fa-user-plus me-2"></i>
+        سجل حسابك مجاناً
+    </a>
+</div>
+{% endblock %}

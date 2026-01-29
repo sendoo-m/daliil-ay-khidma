@@ -1,0 +1,56 @@
+{% load static %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'core:home' %}">
+            <i class="fas fa-compass me-2"></i>
+            دليل أي خدمة
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:home' %}"><i class="fas fa-home me-1"></i> الرئيسية</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'services:list' %}"><i class="fas fa-list me-1"></i> الخدمات</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'categories:list' %}"><i class="fas fa-folder me-1"></i> التصنيفات</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:about' %}"><i class="fas fa-info-circle me-1"></i> من نحن</a>
+                </li>
+            </ul>
+            
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-start">
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-user me-1"></i> الملف الشخصي</a></li>
+                            {% if user.is_staff %}
+                            <li><a class="dropdown-item" href="{% url 'dashboard:index' %}"><i class="fas fa-tachometer-alt me-1"></i> لوحة التحكم</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-1"></i> تسجيل الخروج</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:login' %}"><i class="fas fa-sign-in-alt me-1"></i> دخول</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary btn-sm" href="{% url 'accounts:register' %}"><i class="fas fa-user-plus me-1"></i> تسجيل جديد</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,53 @@
+<footer class="mt-auto py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <h5 class="mb-3">
+                    <i class="fas fa-compass me-2"></i>
+                    دليل أي خدمة
+                </h5>
+                <p class="text-muted">دليلك الشامل للوصول إلى جميع الخدمات التي تحتاجها في مكان واحد.</p>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <h5 class="mb-3">روابط سريعة</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'core:home' %}"><i class="fas fa-angle-left me-1"></i> الرئيسية</a></li>
+                    <li><a href="{% url 'services:list' %}"><i class="fas fa-angle-left me-1"></i> الخدمات</a></li>
+                    <li><a href="{% url 'categories:list' %}"><i class="fas fa-angle-left me-1"></i> التصنيفات</a></li>
+                    <li><a href="{% url 'core:about' %}"><i class="fas fa-angle-left me-1"></i> من نحن</a></li>
+                    <li><a href="{% url 'core:contact' %}"><i class="fas fa-angle-left me-1"></i> اتصل بنا</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <h5 class="mb-3">تواصل معنا</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@daliilaykhidma.com</li>
+                    <li class="mb-2"><i class="fas fa-phone me-2"></i> +20 123 456 7890</li>
+                    <li class="mb-3"><i class="fas fa-map-marker-alt me-2"></i> القاهرة، مصر</li>
+                </ul>
+                <div>
+                    <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+                </div>
+            </div>
+        </div>
+        
+        <hr class="border-secondary">
+        
+        <div class="row">
+            <div class="col-12 text-center">
+                <p class="mb-0">
+                    &copy; {% now "Y" %} دليل أي خدمة. جميع الحقوق محفوظة.
+                    <span class="text-muted">|</span>
+                    <a href="{% url 'core:privacy' %}" class="text-decoration-none">سياسة الخصوصية</a>
+                    <span class="text-muted">|</span>
+                    <a href="{% url 'core:terms' %}" class="text-decoration-none">شروط الاستخدام</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
