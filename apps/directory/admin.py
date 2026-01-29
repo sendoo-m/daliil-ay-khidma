@@ -187,6 +187,7 @@ class BusinessImageInline(admin.TabularInline):
 class BusinessAdmin(admin.ModelAdmin):
     list_display = [
         'name_en',
+        'business_type_badge',
         'category',
         'district',
         'owner',
@@ -196,6 +197,7 @@ class BusinessAdmin(admin.ModelAdmin):
         'created_at'
     ]
     list_filter = [
+        'business_type',  # NEW
         'is_active',
         'is_verified',
         'is_featured',
@@ -227,6 +229,7 @@ class BusinessAdmin(admin.ModelAdmin):
         (_('Basic Information'), {
             'fields': (
                 'owner',
+                'business_type',  # NEW
                 'name_en',
                 'name_ar',
                 'slug',
@@ -285,6 +288,31 @@ class BusinessAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+    
+    def business_type_badge(self, obj):
+        """Display business type with icon"""
+        colors = {
+            'shop': '#3498db',
+            'craft': '#e67e22',
+            'public': '#2ecc71',
+        }
+        icons = {
+            'shop': '🏪',
+            'craft': '🔧',
+            'public': '🏛️',
+        }
+        type_name = obj.get_business_type_display()
+        color = colors.get(obj.business_type, '#95a5a6')
+        icon = icons.get(obj.business_type, '📍')
+        
+        return format_html(
+            '<span style="background: {}; color: white; padding: 3px 8px; '
+            'border-radius: 3px; font-size: 11px; font-weight: bold;">{} {}</span>',
+            color,
+            icon,
+            type_name
+        )
+    business_type_badge.short_description = 'نوع المحل / Type'
     
     def status_badges(self, obj):
         badges = []
