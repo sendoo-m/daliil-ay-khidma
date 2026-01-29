@@ -1,58 +1,386 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}الصفحة الرئيسية - دليل أي خدمة{% endblock %}
+{% block title %}الرئيسية - دليل أي خدمة{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h1 class="text-center mb-4">مرحباً بك في دليل أي خدمة 🎉</h1>
-    
-    <div class="row">
-        <div class="col-md-12">
-            <div class="alert alert-success text-center">
-                <h3>المشروع يعمل بنجاح! 🚀</h3>
-                <p>يمكنك الآن البدء في إضافة المحتوى</p>
-                <a href="{% url 'admin:index' %}" class="btn btn-primary">الذهاب للوحة التحكم</a>
-            </div>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="animate__animated animate__fadeInDown">اكتشف أفضل المحلات والخدمات</h1>
+        <p class="animate__animated animate__fadeInUp">دليلك الشامل لآلاف المحلات والعروض المميزة بالقرب منك</p>
+        
+        <!-- Search Box -->
+        <div class="search-box">
+            <form method="get" action="#" class="d-flex align-items-center">
+                <i class="bi bi-search text-muted fs-5 me-3 ms-3"></i>
+                <input type="text" name="q" class="form-control border-0 flex-grow-1" placeholder="ابحث عن محلات، منتجات، خدمات...">
+                <button type="submit" class="btn btn-primary px-4 me-1">
+                    <i class="bi bi-search me-1"></i> بحث
+                </button>
+            </form>
         </div>
     </div>
-    
-    {% if featured_businesses %}
-    <div class="row mt-5">
-        <div class="col-12">
-            <h2>المحلات المميزة</h2>
-        </div>
-        {% for business in featured_businesses %}
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ business.name_ar }}</h5>
-                    <p class="card-text">{{ business.description_ar|truncatewords:20 }}</p>
+</section>
+
+<!-- Stats Section -->
+<section class="py-4 bg-white shadow-sm">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <i class="bi bi-building fs-1 text-primary mb-2"></i>
+                    <h3 class="fw-bold mb-0">{{ stats.total_businesses }}+</h3>
+                    <p class="text-muted mb-0">محل تجاري</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <i class="bi bi-tags-fill fs-1 text-success mb-2"></i>
+                    <h3 class="fw-bold mb-0">{{ stats.total_deals }}+</h3>
+                    <p class="text-muted mb-0">عرض نشط</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <i class="bi bi-grid-3x3-gap-fill fs-1 text-warning mb-2"></i>
+                    <h3 class="fw-bold mb-0">{{ stats.total_categories }}+</h3>
+                    <p class="text-muted mb-0">تصنيف</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <i class="bi bi-geo-alt-fill fs-1 text-danger mb-2"></i>
+                    <h3 class="fw-bold mb-0">{{ stats.total_governorates }}+</h3>
+                    <p class="text-muted mb-0">محافظة</p>
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
-    {% endif %}
-    
-    {% if categories %}
-    <div class="row mt-5">
-        <div class="col-12">
-            <h2>التصنيفات</h2>
+</section>
+
+<!-- Categories Section -->
+{% if categories %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">تصفح حسب التصنيف</h2>
+            <p class="section-subtitle">اختر التصنيف المناسب لك</p>
         </div>
-        {% for category in categories %}
-        <div class="col-md-3 mb-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    {% if category.icon %}
-                    <i class="{{ category.icon }} fa-3x mb-2"></i>
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="card category-card h-100 text-center">
+                        <div class="card-body">
+                            <i class="bi bi-{{ category.icon|default:'shop' }} display-4 mb-3"></i>
+                            <h5 class="card-title text-white mb-2">{{ category.name_ar }}</h5>
+                            <p class="text-white-50 mb-0 small">{{ category.business_count }} محل</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="#" class="btn btn-outline-primary">
+                <i class="bi bi-grid-3x3-gap me-1"></i> كل التصنيفات
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Businesses -->
+{% if featured_businesses %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">المحلات المميزة</h2>
+            <p class="section-subtitle">أفضل المحلات الموصى بها من مجتمعنا</p>
+        </div>
+        <div class="row g-4">
+            {% for business in featured_businesses %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card business-card h-100">
+                    {% if business.logo %}
+                    <img src="{{ business.logo.url }}" class="card-img-top business-img" alt="{{ business.name_ar }}">
+                    {% else %}
+                    <div class="card-img-top business-img bg-gradient d-flex align-items-center justify-content-center">
+                        <i class="bi bi-building display-1 text-white"></i>
+                    </div>
                     {% endif %}
-                    <h5 class="card-title">{{ category.name_ar }}</h5>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0 flex-grow-1">{{ business.name_ar }}</h5>
+                            <span class="badge-featured">مميز</span>
+                        </div>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                            {{ business.district.city.governorate.name_ar }}
+                        </p>
+                        <p class="card-text text-muted small">{{ business.description_ar|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted small">
+                                <i class="bi bi-eye-fill me-1"></i> {{ business.view_count|default:"0" }}
+                            </div>
+                            <a href="#" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-arrow-left me-1"></i> التفاصيل
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-    {% endif %}
-</div>
+</section>
+{% endif %}
+
+<!-- Governorates Section -->
+{% if governorates %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">تصفح حسب المحافظة</h2>
+            <p class="section-subtitle">اختر محافظتك لاستكشاف المحلات القريبة منك</p>
+        </div>
+        <div class="row g-4">
+            {% for governorate in governorates %}
+            <div class="col-lg-4 col-md-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="card governorate-card h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="governorate-icon me-3">
+                                <i class="bi bi-geo-alt-fill fs-2"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ governorate.name_ar }}</h5>
+                                <p class="text-muted mb-0 small">{{ governorate.cities.count }} مدينة</p>
+                            </div>
+                            <i class="bi bi-chevron-left fs-4 text-muted"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="#" class="btn btn-outline-primary">
+                <i class="bi bi-geo-alt me-1"></i> كل المحافظات
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Businesses -->
+{% if latest_businesses %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">أحدث المحلات</h2>
+            <p class="section-subtitle">المحلات التي انضمت مؤخراً لدليلنا</p>
+        </div>
+        <div class="row g-4">
+            {% for business in latest_businesses %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card business-card-small h-100">
+                    {% if business.logo %}
+                    <img src="{{ business.logo.url }}" class="card-img-top business-img-small" alt="{{ business.name_ar }}">
+                    {% else %}
+                    <div class="card-img-top business-img-small bg-secondary d-flex align-items-center justify-content-center">
+                        <i class="bi bi-building fs-2 text-white"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body p-3">
+                        <h6 class="card-title mb-2">{{ business.name_ar }}</h6>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-geo-alt text-danger me-1"></i>
+                            {{ business.district.name_ar }}
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success small">جديد</span>
+                            <a href="#" class="btn btn-sm btn-link p-0">عرض</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Active Deals -->
+{% if active_deals %}
+<section class="py-5 bg-warning bg-opacity-10">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">عروض مميزة</h2>
+            <p class="section-subtitle">لا تفوت هذه العروض الرائعة!</p>
+        </div>
+        <div class="row g-4">
+            {% for deal in active_deals %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card deal-card h-100 border-warning">
+                    <div class="card-body">
+                        <div class="deal-badge mb-2">
+                            {% if deal.discount_percentage %}
+                            <span class="badge bg-warning text-dark fw-bold">خصم {{ deal.discount_percentage }}%</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark fw-bold">عرض خاص</span>
+                            {% endif %}
+                        </div>
+                        <h6 class="card-title">{{ deal.title_ar }}</h6>
+                        <p class="card-text small text-muted">{{ deal.description_ar|truncatewords:10 }}</p>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-shop me-1"></i> {{ deal.business.name_ar }}
+                        </p>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-clock me-1"></i> ينتهي {{ deal.end_date|date:"d M" }}
+                        </p>
+                        <a href="#" class="btn btn-warning btn-sm w-100">
+                            <i class="bi bi-tag-fill me-1"></i> احصل على العرض
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="#" class="btn btn-warning">
+                <i class="bi bi-tags-fill me-1"></i> كل العروض
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Most Viewed -->
+{% if most_viewed_businesses %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">الأكثر مشاهدة</h2>
+            <p class="section-subtitle">المحلات الأكثر زيارة من قبل المستخدمين</p>
+        </div>
+        <div class="row g-4">
+            {% for business in most_viewed_businesses %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card business-card h-100">
+                    {% if business.logo %}
+                    <img src="{{ business.logo.url }}" class="card-img-top business-img" alt="{{ business.name_ar }}">
+                    {% else %}
+                    <div class="card-img-top business-img bg-gradient d-flex align-items-center justify-content-center">
+                        <i class="bi bi-building display-1 text-white"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ business.name_ar }}</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                            {{ business.district.city.name_ar }}
+                        </p>
+                        <p class="card-text text-muted small">{{ business.description_ar|truncatewords:12 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-primary small fw-bold">
+                                <i class="bi bi-eye-fill me-1"></i> {{ business.view_count|default:"0" }} مشاهدة
+                            </div>
+                            <a href="#" class="btn btn-sm btn-outline-primary">التفاصيل</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white position-relative overflow-hidden">
+    <div class="cta-pattern"></div>
+    <div class="container text-center position-relative">
+        <i class="bi bi-shop display-1 mb-3"></i>
+        <h2 class="fw-bold mb-3">تملك محل تجاري؟</h2>
+        <p class="lead mb-4">أضف محلك لدليلنا واصل لآلاف العملاء المحتملين!</p>
+        <a href="#" class="btn btn-light btn-lg me-2">
+            <i class="bi bi-plus-circle-fill me-2"></i> أضف محلك الآن
+        </a>
+        <a href="#" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-info-circle me-2"></i> معرفة المزيد
+        </a>
+    </div>
+</section>
+
+<style>
+    .business-img {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .business-img-small {
+        height: 150px;
+        object-fit: cover;
+    }
+    
+    .business-card,
+    .business-card-small,
+    .deal-card,
+    .governorate-card {
+        transition: all 0.3s ease;
+    }
+    
+    .business-card:hover,
+    .business-card-small:hover,
+    .deal-card:hover {
+        transform: translateY(-8px);
+    }
+    
+    .governorate-card {
+        border-right: 4px solid #0d6efd;
+    }
+    
+    .governorate-card:hover {
+        background-color: #f8f9fa;
+        border-right-color: #0a58ca;
+    }
+    
+    .governorate-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .bg-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stat-item {
+        transition: all 0.3s ease;
+    }
+    
+    .stat-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .cta-pattern {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(255,255,255,.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255,255,255,.1) 0%, transparent 50%);
+    }
+</style>
+
 {% endblock %}

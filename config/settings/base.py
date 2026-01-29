@@ -106,6 +106,8 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.template.context_processors.static',
                 'django.template.context_processors.i18n',
+                'apps.core.context_processors.language_context',  # ← أضف هذا
+
             ],
         },
     },

@@ -1,53 +1,177 @@
-<footer class="mt-auto py-4">
+<!-- templates/includes/footer.html -->
+<footer class="bg-dark text-white py-5 mt-5">
     <div class="container">
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <h5 class="mb-3">
-                    <i class="fas fa-compass me-2"></i>
+        <div class="row g-4">
+            <!-- Column 1: About -->
+            <div class="col-lg-4 col-md-6">
+                <h5 class="text-white mb-3 fw-bold">
+                    <i class="bi bi-geo-alt-fill text-primary me-2"></i>
                     دليل أي خدمة
                 </h5>
-                <p class="text-muted">دليلك الشامل للوصول إلى جميع الخدمات التي تحتاجها في مكان واحد.</p>
-            </div>
-            
-            <div class="col-md-4 mb-3">
-                <h5 class="mb-3">روابط سريعة</h5>
-                <ul class="list-unstyled">
-                    <li><a href="{% url 'core:home' %}"><i class="fas fa-angle-left me-1"></i> الرئيسية</a></li>
-                    <li><a href="{% url 'services:list' %}"><i class="fas fa-angle-left me-1"></i> الخدمات</a></li>
-                    <li><a href="{% url 'categories:list' %}"><i class="fas fa-angle-left me-1"></i> التصنيفات</a></li>
-                    <li><a href="{% url 'core:about' %}"><i class="fas fa-angle-left me-1"></i> من نحن</a></li>
-                    <li><a href="{% url 'core:contact' %}"><i class="fas fa-angle-left me-1"></i> اتصل بنا</a></li>
-                </ul>
-            </div>
-            
-            <div class="col-md-4 mb-3">
-                <h5 class="mb-3">تواصل معنا</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@daliilaykhidma.com</li>
-                    <li class="mb-2"><i class="fas fa-phone me-2"></i> +20 123 456 7890</li>
-                    <li class="mb-3"><i class="fas fa-map-marker-alt me-2"></i> القاهرة، مصر</li>
-                </ul>
-                <div>
-                    <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
-                    <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
-                    <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
-                    <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+                <p class="text-white-50 mb-3">
+                    دليلك الشامل للعثور على أفضل المحلات والخدمات والعروض بالقرب منك. اكتشف آلاف الأنشطة التجارية والعروض المميزة.
+                </p>
+                <div class="social-links">
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle me-2" style="width: 40px; height: 40px;">
+                        <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle me-2" style="width: 40px; height: 40px;">
+                        <i class="bi bi-twitter"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle me-2" style="width: 40px; height: 40px;">
+                        <i class="bi bi-instagram"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle" style="width: 40px; height: 40px;">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
                 </div>
+            </div>
+            
+            <!-- Column 2: Quick Links -->
+            <div class="col-lg-2 col-md-6">
+                <h5 class="text-white mb-3 fw-bold">روابط سريعة</h5>
+                <ul class="list-unstyled footer-links">
+                    <li class="mb-2">
+                        <a href="{% url 'core:home' %}" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-chevron-left text-primary me-2"></i>
+                            الرئيسية
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-chevron-left text-primary me-2"></i>
+                            تصفح المحلات
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-chevron-left text-primary me-2"></i>
+                            أحدث العروض
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'core:about' %}" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-chevron-left text-primary me-2"></i>
+                            من نحن
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'core:contact' %}" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-chevron-left text-primary me-2"></i>
+                            تواصل معنا
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Column 3: Categories -->
+            <div class="col-lg-3 col-md-6">
+                <h5 class="text-white mb-3 fw-bold">التصنيفات</h5>
+                <ul class="list-unstyled footer-links">
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-cup-hot-fill text-warning me-2"></i>
+                            مطاعم
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-cup-straw text-warning me-2"></i>
+                            كافيهات
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-cart-fill text-success me-2"></i>
+                            تسوق
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-hospital-fill text-danger me-2"></i>
+                            رعاية صحية
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none d-flex align-items-center">
+                            <i class="bi bi-mortarboard-fill text-info me-2"></i>
+                            تعليم
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Column 4: Contact Info -->
+            <div class="col-lg-3 col-md-6">
+                <h5 class="text-white mb-3 fw-bold">تواصل معنا</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-geo-alt-fill text-primary mt-1 me-3 fs-5"></i>
+                        <span class="text-white-50">القاهرة، مصر</span>
+                    </li>
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-telephone-fill text-primary mt-1 me-3 fs-5"></i>
+                        <a href="tel:+201234567890" class="text-white-50 text-decoration-none">
+                            +20 123 456 7890
+                        </a>
+                    </li>
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-envelope-fill text-primary mt-1 me-3 fs-5"></i>
+                        <a href="mailto:info@daliilaaykhidma.com" class="text-white-50 text-decoration-none">
+                            info@daliilaaykhidma.com
+                        </a>
+                    </li>
+                    <li class="mb-3 d-flex">
+                        <i class="bi bi-clock-fill text-primary mt-1 me-3 fs-5"></i>
+                        <span class="text-white-50">24/7 خدمة متاحة</span>
+                    </li>
+                </ul>
             </div>
         </div>
         
-        <hr class="border-secondary">
-        
-        <div class="row">
-            <div class="col-12 text-center">
-                <p class="mb-0">
-                    &copy; {% now "Y" %} دليل أي خدمة. جميع الحقوق محفوظة.
-                    <span class="text-muted">|</span>
-                    <a href="{% url 'core:privacy' %}" class="text-decoration-none">سياسة الخصوصية</a>
-                    <span class="text-muted">|</span>
-                    <a href="{% url 'core:terms' %}" class="text-decoration-none">شروط الاستخدام</a>
+        <!-- Bottom Bar -->
+        <hr class="border-secondary my-4">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <p class="text-white-50 mb-0">
+                    <i class="bi bi-c-circle me-1"></i> 2026 <strong>دليل أي خدمة</strong>. جميع الحقوق محفوظة.
                 </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="#" class="text-white-50 text-decoration-none me-3 small">
+                    <i class="bi bi-shield-check me-1"></i> سياسة الخصوصية
+                </a>
+                <a href="#" class="text-white-50 text-decoration-none me-3 small">
+                    <i class="bi bi-file-text me-1"></i> الشروط والأحكام
+                </a>
+                <a href="#" class="text-white-50 text-decoration-none small">
+                    <i class="bi bi-map me-1"></i> خريطة الموقع
+                </a>
             </div>
         </div>
     </div>
 </footer>
+
+<style>
+    .footer-links a {
+        transition: all 0.3s ease;
+    }
+    
+    .footer-links a:hover {
+        color: #fff !important;
+        transform: translateX(-5px);
+    }
+    
+    .social-links a {
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .social-links a:hover {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        transform: translateY(-3px);
+    }
+</style>
