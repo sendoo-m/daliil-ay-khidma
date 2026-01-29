@@ -26,6 +26,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Third party apps
+    'rest_framework',           # Django REST Framework
+    'corsheaders',              # CORS headers
+    'django_filters',           # Filtering for DRF
     'crispy_forms',
     'crispy_bootstrap5',
     'django_cleanup.apps.CleanupConfig',
@@ -33,25 +36,27 @@ INSTALLED_APPS = [
     # Local apps - Core
     'apps.core',
     'apps.accounts',
+    'apps.api',                 # REST API
     
     # Local apps - Main Features
-    'apps.directory',      # Business directory (Governorate, City, District, Business)
-    'apps.products',       # Products & Services
-    'apps.categories',     # Categories system
-    'apps.reviews',        # Reviews & Ratings
+    'apps.directory',           # Business directory (Governorate, City, District, Business)
+    'apps.products',            # Products & Services
+    'apps.categories',          # Categories system
+    'apps.reviews',             # Reviews & Ratings
     
     # Local apps - Advanced Features
-    'apps.subscriptions',  # Subscription plans & management
-    'apps.deals',          # Deals & Special offers
+    'apps.subscriptions',       # Subscription plans & management
+    'apps.deals',               # Deals & Special offers
     
     # Local apps - Utilities
-    'apps.services',       # Services app
-    'apps.search',         # Search functionality
-    'apps.dashboard',      # User dashboard
+    'apps.services',            # Services app
+    'apps.search',              # Search functionality
+    'apps.dashboard',           # User dashboard
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',  # Language support
     'django.middleware.common.CommonMiddleware',
@@ -144,3 +149,70 @@ LOGOUT_REDIRECT_URL = 'core:home'
 
 # Custom User Model (if you have one in accounts app)
 AUTH_USER_MODEL = 'accounts.User'
+
+# ========================================
+# Django REST Framework
+# ========================================
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'apps.api.pagination.StandardResultsSetPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ],
+    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
+    'DATE_FORMAT': '%Y-%m-%d',
+    'TIME_FORMAT': '%H:%M:%S',
+}
+
+# ========================================
+# CORS Headers
+# ========================================
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=True, cast=bool)
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8080',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
