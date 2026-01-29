@@ -95,11 +95,18 @@ class BusinessListSerializer(serializers.ModelSerializer):
     district = DistrictSerializer(read_only=True)
     average_rating = serializers.ReadOnlyField()
     total_reviews = serializers.ReadOnlyField()
+    business_type_display = serializers.CharField(source='get_business_type_display', read_only=True)
+    business_type_icon = serializers.ReadOnlyField()
+    is_shop = serializers.ReadOnlyField()
+    is_craft = serializers.ReadOnlyField()
+    is_public_service = serializers.ReadOnlyField()
     
     class Meta:
         model = Business
         fields = [
             'id', 'name_en', 'name_ar', 'slug',
+            'business_type', 'business_type_display', 'business_type_icon',
+            'is_shop', 'is_craft', 'is_public_service',
             'logo', 'category', 'district',
             'phone', 'average_rating', 'total_reviews',
             'is_verified', 'is_featured', 'view_count'
@@ -115,6 +122,11 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
     total_reviews = serializers.ReadOnlyField()
     city = serializers.SerializerMethodField()
     governorate = serializers.SerializerMethodField()
+    business_type_display = serializers.CharField(source='get_business_type_display', read_only=True)
+    business_type_icon = serializers.ReadOnlyField()
+    is_shop = serializers.ReadOnlyField()
+    is_craft = serializers.ReadOnlyField()
+    is_public_service = serializers.ReadOnlyField()
     
     class Meta:
         model = Business
