@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}الصفحة الرئيسية - دليل أي خدمة{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">مرحباً بك في دليل أي خدمة 🎉</h1>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-success text-center">
+                <h3>المشروع يعمل بنجاح! 🚀</h3>
+                <p>يمكنك الآن البدء في إضافة المحتوى</p>
+                <a href="{% url 'admin:index' %}" class="btn btn-primary">الذهاب للوحة التحكم</a>
+            </div>
+        </div>
+    </div>
+    
+    {% if featured_businesses %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2>المحلات المميزة</h2>
+        </div>
+        {% for business in featured_businesses %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ business.name_ar }}</h5>
+                    <p class="card-text">{{ business.description_ar|truncatewords:20 }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if categories %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2>التصنيفات</h2>
+        </div>
+        {% for category in categories %}
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    {% if category.icon %}
+                    <i class="{{ category.icon }} fa-3x mb-2"></i>
+                    {% endif %}
+                    <h5 class="card-title">{{ category.name_ar }}</h5>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

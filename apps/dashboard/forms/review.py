@@ -1,35 +1,33 @@
-"""
-Review Reply Form
-"""
-
+# apps/dashboard/forms/review.py
 from django import forms
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit
 
-try:
-    from apps.reviews.models import Review
-    REVIEWS_AVAILABLE = True
-except ImportError:
-    REVIEWS_AVAILABLE = False
-    # Create dummy class
-    class Review:
-        pass
+from apps.reviews.models import ReviewReply
 
 
 class ReviewReplyForm(forms.ModelForm):
-    """Review Reply Form"""
+    """فورم رد صاحب المحل على التقييم"""
     
     class Meta:
-        model = Review
-        fields = ['reply']
-        
+        model = ReviewReply  # ← ReviewReply مش Review
+        fields = ['comment']
         widgets = {
-            'reply': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
+            'comment': forms.Textarea(attrs={
+                'rows': 3,
                 'placeholder': 'اكتب ردك على التقييم...',
-                'dir': 'rtl'
+                'class': 'form-control',
             }),
         }
-        
         labels = {
-            'reply': 'الرد',
+            'comment': 'الرد',
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            'comment',
+            Submit('submit', 'إرسال الرد', css_class='btn btn-success'),
+        )
