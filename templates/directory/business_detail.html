@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load translation_tags %}
+
+{% block title %}{{ business.name }} - {% t "Business Details" %}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% t "Home" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'directory:business_list' %}">{% t "Businesses" %}</a></li>
+            <li class="breadcrumb-item active">{{ business.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Business Header -->
+            <div class="card shadow-lg mb-4">
+                {% if business.logo %}
+                <img src="{{ business.logo.url }}" 
+                     class="card-img-top" 
+                     alt="{{ business.name }}"
+                     style="height: 400px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center" 
+                     style="height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-store fa-5x text-white"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h2 class="card-title mb-2">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                    {{ business.name_ar }}
+                                {% else %}
+                                    {{ business.name_en }}
+                                {% endif %}
+                            </h2>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-th-large me-2"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                    {{ business.category.name_ar }}
+                                {% else %}
+                                    {{ business.category.name_en }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="text-end">
+                            {% if business.is_verified %}
+                            <span class="badge bg-success mb-2">
+                                <i class="fas fa-check-circle me-1"></i>
+                                {% t "Verified" %}
+                            </span>
+                            <br>
+                            {% endif %}
+                            {% if business.is_featured %}
+                            <span class="badge bg-warning">
+                                <i class="fas fa-star me-1"></i>
+                                {% t "Featured" %}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4 col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-eye fa-2x text-primary mb-2"></i>
+                                <h5 class="mb-0">{{ business.view_count }}</h5>
+                                <small class="text-muted">{% t "Views" %}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-mouse-pointer fa-2x text-info mb-2"></i>
+                                <h5 class="mb-0">{{ business.click_count }}</h5>
+                                <small class="text-muted">{% t "Claims" %}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-calendar fa-2x text-success mb-2"></i>
+                                <h5 class="mb-0">{{ business.created_at|date:"M Y" }}</h5>
+                                <small class="text-muted">Joined</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    {% if business.description_en or business.description_ar %}
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {% t "About" %}
+                        </h5>
+                        <p class="lead">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ business.description_ar|linebreaks }}
+                            {% else %}
+                                {{ business.description_en|linebreaks }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex">
+                        {% if business.phone %}
+                        <a href="tel:{{ business.phone }}" class="btn btn-success flex-fill">
+                            <i class="fas fa-phone me-2"></i>
+                            {% t "Call Now" %}
+                        </a>
+                        {% endif %}
+                        
+                        {% if business.website %}
+                        <a href="{{ business.website }}" target="_blank" class="btn btn-primary flex-fill">
+                            <i class="fas fa-globe me-2"></i>
+                            {% t "Visit Website" %}
+                        </a>
+                        {% endif %}
+                        
+                        {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'directory:favorite_toggle' business.slug %}" class="flex-fill">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-heart me-2"></i>
+                                {% if is_favorited %}
+                                    {% t "Remove from Favorites" %}
+                                {% else %}
+                                    {% t "Add to Favorites" %}
+                                {% endif %}
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Business Images -->
+            {% if images %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-images me-2"></i>
+                        Gallery
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for image in images %}
+                        <div class="col-md-4 col-6">
+                            <img src="{{ image.image.url }}" 
+                                 class="img-fluid rounded" 
+                                 alt="{{ business.name }}"
+                                 style="height: 200px; width: 100%; object-fit: cover;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Contact Info -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-address-card me-2"></i>
+                        {% t "Contact Information" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Location -->
+                    <div class="mb-3">
+                        <h6 class="text-primary">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            {% t "Location" %}
+                        </h6>
+                        <p class="mb-1">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ business.district.name_ar }}، {{ business.district.city.name_ar }}
+                            {% else %}
+                                {{ business.district.name_en }}, {{ business.district.city.name_en }}
+                            {% endif %}
+                        </p>
+                        <p class="text-muted small">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ business.district.city.governorate.name_ar }}
+                            {% else %}
+                                {{ business.district.city.governorate.name_en }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    {% if business.address_en or business.address_ar %}
+                    <div class="mb-3">
+                        <h6 class="text-primary">
+                            <i class="fas fa-location-arrow me-2"></i>
+                            {% t "Address" %}
+                        </h6>
+                        <p class="text-muted">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ business.address_ar }}
+                            {% else %}
+                                {{ business.address_en }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if business.phone %}
+                    <div class="mb-3">
+                        <h6 class="text-primary">
+                            <i class="fas fa-phone me-2"></i>
+                            {% t "Phone" %}
+                        </h6>
+                        <p class="mb-0">
+                            <a href="tel:{{ business.phone }}">{{ business.phone }}</a>
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if business.email %}
+                    <div class="mb-3">
+                        <h6 class="text-primary">
+                            <i class="fas fa-envelope me-2"></i>
+                            {% t "Email" %}
+                        </h6>
+                        <p class="mb-0">
+                            <a href="mailto:{{ business.email }}">{{ business.email }}</a>
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if business.website %}
+                    <div class="mb-3">
+                        <h6 class="text-primary">
+                            <i class="fas fa-globe me-2"></i>
+                            {% t "Website" %}
+                        </h6>
+                        <p class="mb-0">
+                            <a href="{{ business.website }}" target="_blank">
+                                {{ business.website|truncatechars:30 }}
+                            </a>
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Related Businesses -->
+            {% if related_businesses %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">
+                        <i class="fas fa-store me-2"></i>
+                        {% t "Related Businesses" %}
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for related in related_businesses %}
+                    <a href="{% url 'directory:business_detail' related.slug %}" 
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex align-items-center">
+                            {% if related.logo %}
+                            <img src="{{ related.logo.url }}" 
+                                 alt="{{ related.name }}"
+                                 class="rounded me-3"
+                                 width="50" height="50"
+                                 style="object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px;">
+                                <i class="fas fa-store text-muted"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                        {{ related.name_ar|truncatewords:5 }}
+                                    {% else %}
+                                        {{ related.name_en|truncatewords:5 }}
+                                    {% endif %}
+                                </h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-eye me-1"></i>
+                                    {{ related.view_count }}
+                                </small>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

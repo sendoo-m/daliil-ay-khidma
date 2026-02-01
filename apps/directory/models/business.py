@@ -7,17 +7,20 @@ Business Model - نموذج المحلات التجارية
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from django.urls import reverse
 from django.core.validators import (
     RegexValidator,
     MinValueValidator,
     MaxValueValidator
 )
-from django.urls import reverse
 from django.db.models import Avg
 from django.utils import timezone
 
+# Import Category from categories app
+from apps.categories.models import Category
+
+# Import Location models from same package
 from .location import District
-from .category import Category
 
 
 class Business(models.Model):
@@ -110,7 +113,7 @@ class Business(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
-        related_name='businesses',
+        related_name='business_set',
         related_query_name='business',
         verbose_name='Category'
     )
@@ -272,24 +275,28 @@ class Business(models.Model):
     is_active = models.BooleanField(
         default=False,
         verbose_name='Active',
+        db_index=True,
         help_text='Enable/disable business visibility on the site'
     )
     
     is_verified = models.BooleanField(
         default=False,
         verbose_name='Verified',
+        db_index=True,
         help_text='Business has been verified by admin'
     )
     
     is_featured = models.BooleanField(
         default=False,
         verbose_name='Featured',
+        db_index=True,
         help_text='Display in featured businesses section'
     )
     
     is_promoted = models.BooleanField(
         default=False,
         verbose_name='Promoted',
+        db_index=True,
         help_text='Promoted businesses (paid promotion)'
     )
     
@@ -331,6 +338,7 @@ class Business(models.Model):
         ]
     
     def save(self, *args, **kwargs):
+        """Auto-generate slug and handle verification timestamp"""
         # Auto-generate slug
         if not self.slug:
             base_slug = slugify(self.name_en)
@@ -351,7 +359,7 @@ class Business(models.Model):
     
     def __str__(self):
         type_display = self.get_business_type_display()
-        return f"{self.name_en} / {self.name_ar} - {type_display} - {self.district.name_en}"
+        return f"{self.name_en} / {self.name_ar} - {type_display}"
     
     # ========================================
     # Properties
@@ -417,12 +425,14 @@ class Business(models.Model):
     @property
     def city(self):
         """الحصول على المدينة"""
-        return self.district.city
+        return self.district.city if self.district else None
     
     @property
     def governorate(self):
         """الحصول على المحافظة"""
-        return self.district.city.governorate
+        if self.district and self.district.city:
+            return self.district.city.governorate
+        return None
     
     @property
     def has_location(self):
@@ -449,7 +459,7 @@ class Business(models.Model):
             if reviews.exists():
                 avg = reviews.aggregate(Avg('rating'))['rating__avg']
                 return round(avg, 1) if avg else 0
-        except ImportError:
+        except (ImportError, Exception):
             pass
         return 0
     
@@ -462,7 +472,7 @@ class Business(models.Model):
                 business=self,
                 is_approved=True
             ).count()
-        except ImportError:
+        except (ImportError, Exception):
             return 0
     
     # ========================================
@@ -550,6 +560,62 @@ class BusinessImage(models.Model):
     
     @property
     def caption(self):
+        """Get caption based on current language"""
         from django.utils.translation import get_language
         lang = get_language()
         return self.caption_ar if lang == 'ar' else self.caption_en
+
+
+# ========================================
+# ساعات العمل - Business Working Hours
+# ========================================
+class BusinessWorkingHours(models.Model):
+    """نموذج ساعات العمل المفصلة"""
+    
+    DAYS_OF_WEEK = [
+        (0, 'Sunday'),
+        (1, 'Monday'),
+        (2, 'Tuesday'),
+        (3, 'Wednesday'),
+        (4, 'Thursday'),
+        (5, 'Friday'),
+        (6, 'Saturday'),
+    ]
+    
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name='working_hours_detailed',
+        related_query_name='working_hour',
+        verbose_name='Business'
+    )
+    
+    day = models.IntegerField(
+        choices=DAYS_OF_WEEK,
+        verbose_name='Day of Week'
+    )
+    
+    opening_time = models.TimeField(
+        verbose_name='Opening Time'
+    )
+    
+    closing_time = models.TimeField(
+        verbose_name='Closing Time'
+    )
+    
+    is_closed = models.BooleanField(
+        default=False,
+        verbose_name='Closed on this day'
+    )
+    
+    class Meta:
+        verbose_name = 'Working Hours'
+        verbose_name_plural = 'Working Hours'
+        ordering = ['day']
+        unique_together = [['business', 'day']]
+    
+    def __str__(self):
+        day_name = self.get_day_display()
+        if self.is_closed:
+            return f"{self.business.name_en} - {day_name}: Closed"
+        return f"{self.business.name_en} - {day_name}: {self.opening_time} - {self.closing_time}"

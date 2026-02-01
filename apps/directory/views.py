@@ -17,9 +17,8 @@ from .models import (
     City,
     District,
     Category,
-    Business,
-    Favorite
-)
+    Business
+    )
 
 
 # ========================================
@@ -132,55 +131,6 @@ def district_detail(request, slug):
         'total_businesses': businesses.count()
     }
     return render(request, 'directory/district_detail.html', context)
-
-
-# ========================================
-# Category Views
-# ========================================
-def category_list(request):
-    """قائمة الفئات"""
-    categories = Category.objects.filter(
-        is_active=True,
-        parent__isnull=True
-    )
-    
-    context = {
-        'categories': categories,
-        'total_count': categories.count()
-    }
-    return render(request, 'directory/category_list.html', context)
-
-
-def category_detail(request, slug):
-    """تفاصيل فئة"""
-    category = get_object_or_404(Category, slug=slug, is_active=True)
-    
-    # Get all subcategories
-    subcategories = category.children.filter(is_active=True)
-    
-    # Get businesses in this category and subcategories
-    categories_ids = [category.id] + list(
-        subcategories.values_list('id', flat=True)
-    )
-    
-    businesses = Business.objects.filter(
-        category_id__in=categories_ids,
-        is_active=True,
-        is_verified=True
-    )
-    
-    # Pagination
-    paginator = Paginator(businesses, 20)
-    page = request.GET.get('page')
-    businesses_page = paginator.get_page(page)
-    
-    context = {
-        'category': category,
-        'subcategories': subcategories,
-        'businesses': businesses_page,
-        'total_businesses': businesses.count()
-    }
-    return render(request, 'directory/category_detail.html', context)
 
 
 # ========================================
@@ -402,3 +352,39 @@ def increment_click(request, slug):
         'success': True,
         'click_count': business.click_count
     })
+
+
+# ========================================
+# Search View
+# ========================================
+def business_search(request):
+    """البحث في المحلات"""
+    query = request.GET.get('q', '').strip()
+    businesses = Business.objects.filter(
+        is_active=True,
+        is_verified=True
+    ).select_related('category', 'district__city__governorate')
+    
+    if query:
+        businesses = businesses.filter(
+            Q(name_en__icontains=query) |
+            Q(name_ar__icontains=query) |
+            Q(description_en__icontains=query) |
+            Q(description_ar__icontains=query) |
+            Q(category__name_en__icontains=query) |
+            Q(category__name_ar__icontains=query)
+        ).distinct()
+    
+    # Pagination
+    paginator = Paginator(businesses, 12)
+    page = request.GET.get('page')
+    businesses_page = paginator.get_page(page)
+    
+    context = {
+        'businesses': businesses_page,
+        'query': query,
+        'total_results': businesses.count(),
+        'page_title': f'Search: {query}' if query else 'Search',
+    }
+    
+    return render(request, 'directory/business_search.html', context)

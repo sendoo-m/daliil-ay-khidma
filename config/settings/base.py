@@ -154,10 +154,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+
 # ========================================
 # INTERNATIONALIZATION
 # ========================================
-# LANGUAGE_CODE = 'ar'
+# LANGUAGE_CODE = 'en-us'  # ← غيّر من 'ar' لـ 'en-us'
 
 # LANGUAGES = [
 #     ('ar', _('Arabic')),
@@ -179,24 +180,23 @@ AUTH_PASSWORD_VALIDATORS = [
 # ========================================
 # INTERNATIONALIZATION
 # ========================================
-LANGUAGE_CODE = 'en-us'  # ← غيّر من 'ar' لـ 'en-us'
+LANGUAGE_CODE = 'ar'  # اللغة الافتراضية
 
 LANGUAGES = [
-    ('ar', _('Arabic')),
-    ('en', _('English')),
+    ('ar', 'العربية'),
+    ('en', 'English'),
 ]
 
-LOCALE_PATHS = [
-    BASE_DIR / 'locale',
-]
+# Language Cookie
+LANGUAGE_COOKIE_NAME = 'django_language'
+LANGUAGE_COOKIE_AGE = 365 * 24 * 60 * 60  # 1 year
 
 TIME_ZONE = 'Africa/Cairo'
 
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
+
 
 # ========================================
 # STATIC FILES (CSS, JavaScript, Images)
@@ -216,7 +216,6 @@ STATICFILES_FINDERS = [
 # ========================================
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
 
 # ========================================
 # DEFAULT PRIMARY KEY FIELD TYPE

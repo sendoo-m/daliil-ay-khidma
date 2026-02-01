@@ -9,6 +9,8 @@ from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.urls import reverse
+from django.conf import settings
+import re
 
 from apps.directory.models import Business
 
@@ -232,15 +234,41 @@ class Deal(models.Model):
             models.Index(fields=['is_featured', '-created_at']),
         ]
     
+    def _generate_unique_slug(self):
+        """Generate a unique, URL-safe slug"""
+        # Start with business name + title
+        base_text = f"{self.business.name_en} {self.title_en}"
+        
+        # Create base slug
+        base_slug = slugify(base_text)
+        
+        # Remove any remaining invalid characters (keep only a-z, 0-9, dash, underscore)
+        base_slug = re.sub(r'[^a-z0-9\-_]', '', base_slug.lower())
+        
+        # Remove multiple consecutive dashes
+        base_slug = re.sub(r'-+', '-', base_slug)
+        
+        # Remove leading/trailing dashes
+        base_slug = base_slug.strip('-')
+        
+        # Ensure slug is not empty
+        if not base_slug:
+            base_slug = f"deal-{timezone.now().strftime('%Y%m%d%H%M%S')}"
+        
+        # Ensure uniqueness
+        slug = base_slug[:240]  # Leave room for counter
+        counter = 1
+        
+        while Deal.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+            slug = f"{base_slug[:235]}-{counter}"
+            counter += 1
+        
+        return slug
+    
     def save(self, *args, **kwargs):
+        """Auto-generate slug on save"""
         if not self.slug:
-            base_slug = slugify(f"{self.business.name_en}-{self.title_en}")
-            slug = base_slug
-            counter = 1
-            while Deal.objects.filter(slug=slug).exclude(pk=self.pk).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            self.slug = slug
+            self.slug = self._generate_unique_slug()
         super().save(*args, **kwargs)
     
     def __str__(self):
@@ -335,8 +363,6 @@ class Deal(models.Model):
 class DealClaim(models.Model):
     """نموذج استخدام العروض"""
     
-    from django.conf import settings
-    
     deal = models.ForeignKey(
         Deal,
         on_delete=models.CASCADE,
@@ -379,7 +405,6 @@ class DealClaim(models.Model):
         verbose_name = 'Deal Claim'
         verbose_name_plural = 'Deal Claims'
         ordering = ['-claimed_at']
-        unique_together = [('deal', 'user', 'claimed_at')]
         indexes = [
             models.Index(fields=['deal', 'user']),
             models.Index(fields=['-claimed_at']),

@@ -1,20 +1,34 @@
 """
 Directory Models Package
 ========================
-تقسيم النماذج لسهولة الإدارة
 """
 
+# Location Models
 from .location import Governorate, City, District
-from .category import Category
-from .business import Business, BusinessImage
+
+# Business Models
+from .business import Business, BusinessImage, BusinessWorkingHours
+
+# Favorite Model
 from .favorites import Favorite
 
+# Import Category from categories app
+from apps.categories.models import Category
+
 __all__ = [
-    'Governorate',
-    'City',
-    'District',
+    # Categories (from apps.categories)
     'Category',
+    
+    # Locations
+    'Governorate',
+    'City', 
+    'District',
+    
+    # Businesses
     'Business',
     'BusinessImage',
+    'BusinessWorkingHours',
+    
+    # Favorites
     'Favorite',
 ]

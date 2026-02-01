@@ -1,10 +1,181 @@
-<!-- templates/includes/navbar.html -->
+{% load static %}
+{% load translation_tags %}
 
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'core:home' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" height="40" class="me-2" 
+                 onerror="this.src='https://via.placeholder.com/40'">
+            <span class="fw-bold text-primary">
+                {% if LANGUAGE_CODE == 'ar' %}
+                    دليل أي خدمة
+                {% else %}
+                    Daliil Ay Khidma
+                {% endif %}
+            </span>
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:home' %}">
+                        <i class="fas fa-home me-1"></i>
+                        {% t "Home" %}
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'directory:business_list' %}">
+                        <i class="fas fa-store me-1"></i>
+                        {% t "Businesses" %}
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'directory:category_list' %}">
+                        <i class="fas fa-th-large me-1"></i>
+                        {% t "Categories" %}
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'deals:deal_list' %}">
+                        <i class="fas fa-tag me-1"></i>
+                        {% t "Deals" %}
+                        <span class="badge bg-danger ms-1">{% t "Hot" %}</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#searchModal">
+                        <i class="fas fa-search"></i>
+                    </a>
+                </li>
+                
+                <!-- Language Switcher -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-globe me-1"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            <span>عربي</span>
+                        {% else %}
+                            <span>English</span>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item {% if LANGUAGE_CODE == 'ar' %}active{% endif %}" 
+                               href="{% url 'core:set_language' %}?language=ar&next={{ request.path }}">
+                                🇪🇬 العربية
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if LANGUAGE_CODE == 'en' %}active{% endif %}" 
+                               href="{% url 'core:set_language' %}?language=en&next={{ request.path }}">
+                                🇬🇧 English
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>
+                        {{ user.get_full_name|default:user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'dashboard:home' %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                {% t "Dashboard" %}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'directory:my_businesses' %}">
+                                <i class="fas fa-store me-2"></i>
+                                {% t "My Businesses" %}
+                            </a>
+                        </li>
+                        {% if user.is_staff %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'admin:index' %}">
+                                <i class="fas fa-cog me-2"></i>
+                                {% t "Admin Panel" %}
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                {% t "Logout" %}
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'accounts:login' %}">
+                        <i class="fas fa-sign-in-alt me-1"></i>
+                        {% t "Login" %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-primary btn-sm" href="{% url 'accounts:register' %}">
+                        <i class="fas fa-user-plus me-1"></i>
+                        {% t "Register" %}
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Search Modal -->
+<div class="modal fade" id="searchModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="fas fa-search me-2"></i>
+                    {% t "Search" %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="get" action="{% url 'directory:business_search' %}">
+                    <div class="input-group input-group-lg">
+                        <input type="text" 
+                               class="form-control" 
+                               name="q" 
+                               placeholder="{% t 'Search for businesses, services...' %}"
+                               autofocus>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %} <!-- templates/includes/navbar.html -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" href="{% url 'core:home' %}">
             <i class="bi bi-geo-alt-fill text-primary me-2"></i>
-            <span class="text-primary">{% trans "دليل" %}</span> {% trans "أي خدمة" %}
+            <span class="text-primary">{% if IS_ARABIC %}دليل{% else %}Daliil{% endif %}</span> 
+            {% if IS_ARABIC %}أي خدمة{% else %}Ay Khidma{% endif %}
         </a>
         
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -15,27 +186,32 @@
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
                     <a class="nav-link fw-semibold" href="{% url 'core:home' %}">
-                        <i class="bi bi-house-fill me-1"></i> {% trans "الرئيسية" %}
+                        <i class="bi bi-house-fill me-1"></i> 
+                        {% if IS_ARABIC %}الرئيسية{% else %}Home{% endif %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">
-                        <i class="bi bi-building me-1"></i> {% trans "المحلات" %}
+                        <i class="bi bi-building me-1"></i> 
+                        {% if IS_ARABIC %}المحلات{% else %}Businesses{% endif %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">
-                        <i class="bi bi-tag-fill me-1"></i> {% trans "العروض" %}
+                        <i class="bi bi-tag-fill me-1"></i> 
+                        {% if IS_ARABIC %}العروض{% else %}Deals{% endif %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'core:about' %}">
-                        <i class="bi bi-info-circle-fill me-1"></i> {% trans "من نحن" %}
+                        <i class="bi bi-info-circle-fill me-1"></i> 
+                        {% if IS_ARABIC %}من نحن{% else %}About{% endif %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'core:contact' %}">
-                        <i class="bi bi-envelope-fill me-1"></i> {% trans "تواصل معنا" %}
+                        <i class="bi bi-envelope-fill me-1"></i> 
+                        {% if IS_ARABIC %}تواصل معنا{% else %}Contact{% endif %}
                     </a>
                 </li>
             </ul>
@@ -43,24 +219,19 @@
             <ul class="navbar-nav">
                 <!-- Language Switcher -->
                 <li class="nav-item dropdown me-2">
-                    {% get_current_language as CURRENT_LANGUAGE %}
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="bi bi-translate me-1"></i> 
-                        {% if CURRENT_LANGUAGE == 'ar' %}
-                            العربية
-                        {% else %}
-                            English
-                        {% endif %}
+                        {% if IS_ARABIC %}العربية{% else %}English{% endif %}
                     </a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a class="dropdown-item {% if CURRENT_LANGUAGE == 'ar' %}active{% endif %}" 
+                            <a class="dropdown-item {% if IS_ARABIC %}active{% endif %}" 
                                href="{% url 'core:change_language' %}?lang=ar&next={{ request.path }}">
                                 <i class="bi bi-check-circle-fill text-success me-2"></i> العربية
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" 
+                            <a class="dropdown-item {% if IS_ENGLISH %}active{% endif %}" 
                                href="{% url 'core:change_language' %}?lang=en&next={{ request.path }}">
                                 <i class="bi bi-check-circle-fill text-success me-2"></i> English
                             </a>
@@ -76,13 +247,15 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <a class="dropdown-item" href="#">
-                                <i class="bi bi-speedometer2 me-2"></i> {% trans "لوحة التحكم" %}
+                                <i class="bi bi-speedometer2 me-2"></i> 
+                                {% if IS_ARABIC %}لوحة التحكم{% else %}Dashboard{% endif %}
                             </a>
                         </li>
                         {% if user.is_business_owner %}
                         <li>
                             <a class="dropdown-item" href="#">
-                                <i class="bi bi-shop me-2"></i> {% trans "محلاتي" %}
+                                <i class="bi bi-shop me-2"></i> 
+                                {% if IS_ARABIC %}محلاتي{% else %}My Businesses{% endif %}
                             </a>
                         </li>
                         {% endif %}
@@ -90,14 +263,16 @@
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item text-primary" href="{% url 'admin:index' %}">
-                                <i class="bi bi-gear-fill me-2"></i> {% trans "الإدارة" %}
+                                <i class="bi bi-gear-fill me-2"></i> 
+                                {% if IS_ARABIC %}الإدارة{% else %}Admin{% endif %}
                             </a>
                         </li>
                         {% endif %}
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item text-danger" href="#">
-                                <i class="bi bi-box-arrow-right me-2"></i> {% trans "تسجيل الخروج" %}
+                                <i class="bi bi-box-arrow-right me-2"></i> 
+                                {% if IS_ARABIC %}تسجيل الخروج{% else %}Logout{% endif %}
                             </a>
                         </li>
                     </ul>
@@ -105,86 +280,14 @@
                 {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="#">
-                        <i class="bi bi-box-arrow-in-right me-1"></i> {% trans "دخول" %}
+                        <i class="bi bi-box-arrow-in-right me-1"></i> 
+                        {% if IS_ARABIC %}دخول{% else %}Login{% endif %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="btn btn-primary btn-sm px-3" href="#">
-                        <i class="bi bi-person-plus-fill me-1"></i> {% trans "تسجيل جديد" %}
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
-</nav>
-
-{% comment %} <!-- templates/includes/navbar.html -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
-    <div class="container">
-        <a class="navbar-brand" href="{% url 'core:home' %}">
-            <i class="fas fa-map-marker-alt text-primary"></i>
-            Daliil Ay Khidma
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'core:home' %}">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-building"></i> Businesses
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-tags"></i> Deals
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'core:about' %}">
-                        <i class="fas fa-info-circle"></i> About
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'core:contact' %}">
-                        <i class="fas fa-envelope"></i> Contact
-                    </a>
-                </li>
-                {% if user.is_authenticated %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle"></i> {{ user.username }}
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a></li>
-                        {% if user.is_staff %}
-                        <li><a class="dropdown-item" href="{% url 'admin:index' %}">
-                            <i class="fas fa-cog"></i> Admin Panel
-                        </a></li>
-                        {% endif %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a></li>
-                    </ul>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-primary btn-sm ms-2" href="#">
-                        <i class="fas fa-user-plus"></i> Register
+                        <i class="bi bi-person-plus-fill me-1"></i> 
+                        {% if IS_ARABIC %}تسجيل جديد{% else %}Register{% endif %}
                     </a>
                 </li>
                 {% endif %}

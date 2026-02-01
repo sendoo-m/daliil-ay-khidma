@@ -1,5 +1,386 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Home" %} - دليل أي خدمة{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-white">
+                <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInLeft">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        دليلك الشامل للمحلات والخدمات
+                    {% else %}
+                        Your Complete Business Directory
+                    {% endif %}
+                </h1>
+                <p class="lead mb-4 animate__animated animate__fadeInLeft animate__delay-1s">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        اكتشف أفضل المحلات والخدمات في مصر بسهولة
+                    {% else %}
+                        Discover the best businesses and services in Egypt
+                    {% endif %}
+                </p>
+                
+                <!-- Search Form -->
+                <form method="get" action="{% url 'directory:business_search' %}" class="mb-4 animate__animated animate__fadeInUp animate__delay-2s">
+                    <div class="input-group input-group-lg shadow-lg">
+                        <input type="text" 
+                               class="form-control" 
+                               name="q" 
+                               placeholder="{% trans 'Search for businesses, services...' %}"
+                               style="border: none; padding: 20px;">
+                        <button class="btn btn-warning px-5" type="submit" style="border: none;">
+                            <i class="fas fa-search me-2"></i>
+                            {% trans "Search" %}
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Quick Links -->
+                <div class="d-flex gap-3 flex-wrap animate__animated animate__fadeInUp animate__delay-3s">
+                    <span class="text-white-50">{% trans "Popular" %}:</span>
+                    <a href="#" class="badge bg-white text-primary px-3 py-2 text-decoration-none">
+                        {% trans "Restaurants" %}
+                    </a>
+                    <a href="#" class="badge bg-white text-primary px-3 py-2 text-decoration-none">
+                        {% trans "Medical" %}
+                    </a>
+                    <a href="#" class="badge bg-white text-primary px-3 py-2 text-decoration-none">
+                        {% trans "Shopping" %}
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="{% static 'images/hero-illustration.svg' %}" 
+                     alt="Hero" 
+                     class="img-fluid animate__animated animate__fadeInRight"
+                     style="filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section py-5 bg-light">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3 col-6">
+                <div class="stat-card p-4 bg-white rounded shadow-sm h-100">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-store fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary mb-2">{{ stats.total_businesses|default:0 }}+</h3>
+                    <p class="text-muted mb-0">{% trans "Businesses" %}</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-6">
+                <div class="stat-card p-4 bg-white rounded shadow-sm h-100">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-check-circle fa-3x text-success"></i>
+                    </div>
+                    <h3 class="fw-bold text-success mb-2">{{ stats.verified_businesses|default:0 }}+</h3>
+                    <p class="text-muted mb-0">{% trans "Verified" %}</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-6">
+                <div class="stat-card p-4 bg-white rounded shadow-sm h-100">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-tag fa-3x text-warning"></i>
+                    </div>
+                    <h3 class="fw-bold text-warning mb-2">{{ stats.total_deals|default:0 }}+</h3>
+                    <p class="text-muted mb-0">{% trans "Active Deals" %}</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-6">
+                <div class="stat-card p-4 bg-white rounded shadow-sm h-100">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-th-large fa-3x text-info"></i>
+                    </div>
+                    <h3 class="fw-bold text-info mb-2">{{ stats.total_categories|default:0 }}+</h3>
+                    <p class="text-muted mb-0">{% trans "Categories" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Categories -->
+{% if featured_categories %}
+<section class="categories-section py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="fw-bold mb-3">
+                <i class="fas fa-th-large me-2 text-primary"></i>
+                {% trans "Browse by Category" %}
+            </h2>
+            <p class="text-muted">{% trans "Find businesses in different categories" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for category in featured_categories %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'directory:category_detail' category.slug %}" 
+                   class="category-card text-decoration-none">
+                    <div class="card h-100 border-0 shadow-sm hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="category-icon mb-3">
+                                <i class="{{ category.icon }} fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title mb-2">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                    {{ category.name_ar }}
+                                {% else %}
+                                    {{ category.name_en }}
+                                {% endif %}
+                            </h5>
+                            <p class="text-muted small mb-0">
+                                {{ category.get_business_count }} {% trans "businesses" %}
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'directory:category_list' %}" class="btn btn-outline-primary btn-lg">
+                {% trans "View All Categories" %}
+                <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Businesses -->
+{% if featured_businesses %}
+<section class="featured-section py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="fw-bold mb-3">
+                <i class="fas fa-star me-2 text-warning"></i>
+                {% trans "Featured Businesses" %}
+            </h2>
+            <p class="text-muted">{% trans "Top rated and verified businesses" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for business in featured_businesses %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow hover-lift">
+                    {% if business.logo %}
+                    <img src="{{ business.logo.url }}" 
+                         class="card-img-top" 
+                         alt="{{ business.name }}"
+                         style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center" 
+                         style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-store fa-3x text-white"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                    {{ business.name_ar }}
+                                {% else %}
+                                    {{ business.name_en }}
+                                {% endif %}
+                            </h5>
+                            {% if business.is_verified %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-th-large me-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ business.category.name_ar }}
+                            {% else %}
+                                {{ business.category.name_en }}
+                            {% endif %}
+                        </p>
+                        
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ business.district.name_ar }}، {{ business.district.city.name_ar }}
+                            {% else %}
+                                {{ business.district.name_en }}, {{ business.district.city.name_en }}
+                            {% endif %}
+                        </p>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'directory:business_detail' business.slug %}" 
+                               class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>
+                                {% trans "View Details" %}
+                            </a>
+                            <small class="text-muted">
+                                <i class="fas fa-eye me-1"></i>
+                                {{ business.view_count }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'directory:business_list' %}" class="btn btn-outline-primary btn-lg">
+                {% trans "View All Businesses" %}
+                <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Active Deals -->
+{% if active_deals %}
+<section class="deals-section py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="fw-bold mb-3">
+                <i class="fas fa-tag me-2 text-danger"></i>
+                {% trans "Hot Deals" %}
+            </h2>
+            <p class="text-muted">{% trans "Don't miss these amazing offers" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for deal in active_deals %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-danger border-2 shadow hover-lift">
+                    <div class="card-header bg-danger text-white">
+                        <i class="fas fa-fire me-2"></i>
+                        {% trans "Limited Time Offer" %}
+                    </div>
+                    
+                    {% if deal.image %}
+                    <img src="{{ deal.image.url }}" 
+                         class="card-img-top" 
+                         alt="{{ deal.title }}"
+                         style="height: 180px; object-fit: cover;">
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ deal.title_ar }}
+                            {% else %}
+                                {{ deal.title_en }}
+                            {% endif %}
+                        </h5>
+                        
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-store me-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ deal.business.name_ar }}
+                            {% else %}
+                                {{ deal.business.name_en }}
+                            {% endif %}
+                        </p>
+                        
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            {% if deal.discount_percentage %}
+                            <span class="badge bg-danger fs-5">
+                                -{{ deal.discount_percentage }}%
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <a href="{% url 'deals:deal_detail' deal.slug %}" 
+                           class="btn btn-danger w-100">
+                            <i class="fas fa-tag me-1"></i>
+                            {% trans "View Deal" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'deals:deal_list' %}" class="btn btn-outline-danger btn-lg">
+                {% trans "View All Deals" %}
+                <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="cta-section py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-center text-white">
+        <h2 class="fw-bold mb-4">{% trans "Do you own a business?" %}</h2>
+        <p class="lead mb-4">{% trans "Join thousands of businesses and reach more customers" %}</p>
+        <a href="{% url 'dashboard:business_create' %}" class="btn btn-warning btn-lg px-5">
+            <i class="fas fa-plus-circle me-2"></i>
+            {% trans "Add Your Business" %}
+        </a>
+    </div>
+</section>
+
+<style>
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2) !important;
+}
+
+.stat-card {
+    transition: all 0.3s ease;
+}
+.stat-card:hover {
+    transform: scale(1.05);
+}
+
+.category-card {
+    display: block;
+    transition: all 0.3s ease;
+}
+.category-card:hover {
+    transform: scale(1.05);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 1s;
+}
+</style>
+{% endblock %}
+
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}الرئيسية - دليل أي خدمة{% endblock %}
 
@@ -383,4 +764,4 @@
     }
 </style>
 
-{% endblock %}
+{% endblock %} {% endcomment %}

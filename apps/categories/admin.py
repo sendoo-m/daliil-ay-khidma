@@ -175,20 +175,20 @@ class CategoryAdmin(admin.ModelAdmin):
                 '<i class="{}" style="font-size: 24px; color: #1976d2;"></i>',
                 obj.icon
             )
-        return format_html(
-            '<span style="color: #ccc; font-size: 18px;">📁</span>'
-        )
+        return mark_safe('<span style="color: #ccc; font-size: 18px;">📁</span>')
     
     @admin.display(description='Name', ordering='name_en')
     def name_display(self, obj):
         """Display name in both languages"""
+        name_en = obj.name_en or obj.name_ar
+        name_ar = obj.name_ar if obj.name_en else ''
         return format_html(
             '<div style="line-height: 1.6;">'
             '<strong style="color: #1976d2; font-size: 14px;">{}</strong><br>'
             '<small style="color: #666;">{}</small>'
             '</div>',
-            obj.name_en or obj.name_ar,
-            obj.name_ar if obj.name_en else ''
+            name_en,
+            name_ar
         )
     
     @admin.display(description='Parent Category')
@@ -196,16 +196,16 @@ class CategoryAdmin(admin.ModelAdmin):
         """Link to parent category"""
         if obj.parent:
             url = reverse('admin:directory_category_change', args=[obj.parent.pk])
+            icon = obj.parent.icon or 'fa fa-folder'
+            name = obj.parent.name_en or obj.parent.name_ar
             return format_html(
                 '<a href="{}" style="color: #1976d2; text-decoration: none;">'
                 '<i class="{}"></i> {}</a>',
                 url,
-                obj.parent.icon or 'fa fa-folder',
-                obj.parent.name_en or obj.parent.name_ar
+                icon,
+                name
             )
-        return format_html(
-            '<span style="color: #4caf50; font-weight: bold;">● Main</span>'
-        )
+        return mark_safe('<span style="color: #4caf50; font-weight: bold;">● Main</span>')
     
     @admin.display(description='Business Count')
     def business_count(self, obj):
@@ -228,16 +228,16 @@ class CategoryAdmin(admin.ModelAdmin):
             direct
         )
     
-    @admin.display(description='Status', boolean=True)
+    @admin.display(description='Status')
     def status_badge(self, obj):
         """Active status with badge"""
         if obj.is_active:
-            return format_html(
+            return mark_safe(
                 '<span style="background: #c8e6c9; color: #2e7d32; '
                 'padding: 5px 12px; border-radius: 12px; font-size: 11px; '
                 'font-weight: bold; display: inline-block;">✓ Active</span>'
             )
-        return format_html(
+        return mark_safe(
             '<span style="background: #ffcdd2; color: #c62828; '
             'padding: 5px 12px; border-radius: 12px; font-size: 11px; '
             'font-weight: bold; display: inline-block;">✕ Inactive</span>'
@@ -250,6 +250,7 @@ class CategoryAdmin(admin.ModelAdmin):
             return '-'
         
         if obj.image:
+            filename = obj.image.name.split('/')[-1]
             return format_html(
                 '<div style="text-align: center;">'
                 '<img src="{}" style="max-height: 200px; max-width: 300px; '
@@ -258,9 +259,9 @@ class CategoryAdmin(admin.ModelAdmin):
                 '<br><small style="color: #666; margin-top: 5px; display: block;">{}</small>'
                 '</div>',
                 obj.image.url,
-                obj.image.name.split('/')[-1]
+                filename
             )
-        return format_html(
+        return mark_safe(
             '<div style="text-align: center; padding: 40px; background: #f5f5f5; '
             'border-radius: 8px; border: 2px dashed #ddd;">'
             '<span style="font-size: 48px; color: #ccc;">📷</span><br>'

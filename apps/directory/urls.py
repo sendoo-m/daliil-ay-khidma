@@ -13,15 +13,14 @@ urlpatterns = [
     # Home
     path('', views.home, name='home'),
     
+    # Search (أضف هذا السطر)
+    path('search/', views.business_search, name='business_search'),
+     
     # Browse by Location
     path('governorates/', views.governorate_list, name='governorate_list'),
     path('governorate/<slug:slug>/', views.governorate_detail, name='governorate_detail'),
     path('city/<slug:slug>/', views.city_detail, name='city_detail'),
     path('district/<slug:slug>/', views.district_detail, name='district_detail'),
-    
-    # Browse by Category
-    path('categories/', views.category_list, name='category_list'),
-    path('category/<slug:slug>/', views.category_detail, name='category_detail'),
     
     # Business
     path('businesses/', views.business_list, name='business_list'),

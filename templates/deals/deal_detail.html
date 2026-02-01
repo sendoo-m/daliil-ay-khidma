@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ deal.title }} - {% trans "Deals" %}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'deals:deal_list' %}">{% trans "Deals" %}</a></li>
+            <li class="breadcrumb-item active">{{ deal.title }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <!-- Deal Details -->
+        <div class="col-lg-8">
+            <div class="card border-danger border-2 shadow-lg">
+                <!-- Deal Image -->
+                {% if deal.image %}
+                <img src="{{ deal.image.url }}" 
+                     class="card-img-top" 
+                     alt="{{ deal.title }}"
+                     style="max-height: 400px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-header bg-danger text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-fire me-2"></i>
+                            {% trans "Hot Deal" %}
+                        </h4>
+                        {% if deal.discount_percentage %}
+                        <span class="badge bg-warning fs-4">
+                            -{{ deal.discount_percentage }}%
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <h2 class="card-title text-danger mb-3">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            {{ deal.title_ar }}
+                        {% else %}
+                            {{ deal.title_en }}
+                        {% endif %}
+                    </h2>
+                    
+                    <!-- Business Info -->
+                    <div class="alert alert-info">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-store fa-2x me-3"></i>
+                            <div>
+                                <h5 class="mb-1">
+                                    <a href="{% url 'directory:business_detail' deal.business.slug %}">
+                                        {% if LANGUAGE_CODE == 'ar' %}
+                                            {{ deal.business.name_ar }}
+                                        {% else %}
+                                            {{ deal.business.name_en }}
+                                        {% endif %}
+                                    </a>
+                                </h5>
+                                <p class="text-muted small mb-0">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                        {{ deal.business.district.name_ar }}، {{ deal.business.district.city.name_ar }}
+                                    {% else %}
+                                        {{ deal.business.district.name_en }}, {{ deal.business.district.city.name_en }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">{% trans "Deal Description" %}</h5>
+                        <p class="lead">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ deal.description_ar|linebreaks }}
+                            {% else %}
+                                {{ deal.description_en|linebreaks }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <!-- Terms -->
+                    {% if deal.terms_ar or deal.terms_en %}
+                    <div class="mb-4">
+                        <h5 class="text-warning mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            {% trans "Terms & Conditions" %}
+                        </h5>
+                        <p class="small">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ deal.terms_ar|linebreaks }}
+                            {% else %}
+                                {{ deal.terms_en|linebreaks }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Deal Stats -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3 col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-calendar-alt fa-2x text-primary mb-2"></i>
+                                <p class="small mb-1">{% trans "Valid Until" %}</p>
+                                <strong>{{ deal.end_date|date:"M d" }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-eye fa-2x text-info mb-2"></i>
+                                <p class="small mb-1">{% trans "Views" %}</p>
+                                <strong>{{ deal.view_count }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-users fa-2x text-success mb-2"></i>
+                                <p class="small mb-1">{% trans "Claims" %}</p>
+                                <strong>{{ deal.current_uses }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-redo fa-2x text-warning mb-2"></i>
+                                <p class="small mb-1">{% trans "Per User" %}</p>
+                                <strong>{{ deal.max_uses_per_user }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Claim Button -->
+                    {% if user.is_authenticated %}
+                        {% if can_claim %}
+                        <form method="post" action="{% url 'deals:claim_deal' deal.slug %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-lg w-100">
+                                <i class="fas fa-gift me-2"></i>
+                                {% trans "Claim This Deal" %}
+                            </button>
+                        </form>
+                        {% else %}
+                        <button class="btn btn-secondary btn-lg w-100" disabled>
+                            <i class="fas fa-check me-2"></i>
+                            {% trans "Already Claimed" %}
+                        </button>
+                        {% endif %}
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}?next={{ request.path }}" 
+                       class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        {% trans "Login to Claim" %}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Related Deals -->
+            {% if related_deals %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-fire me-2"></i>
+                        {% trans "More from this business" %}
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for related in related_deals %}
+                    <a href="{% url 'deals:deal_detail' related.slug %}" 
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                        {{ related.title_ar|truncatewords:8 }}
+                                    {% else %}
+                                        {{ related.title_en|truncatewords:8 }}
+                                    {% endif %}
+                                </h6>
+                                <small class="text-muted">
+                                    {% trans "Ends" %} {{ related.end_date|date:"M d" }}
+                                </small>
+                            </div>
+                            {% if related.discount_percentage %}
+                            <span class="badge bg-danger">
+                                -{{ related.discount_percentage }}%
+                            </span>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Business Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-store me-2"></i>
+                        {% trans "About Business" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if deal.business.logo %}
+                    <img src="{{ deal.business.logo.url }}" 
+                         class="img-fluid rounded mb-3" 
+                         alt="{{ deal.business.name }}">
+                    {% endif %}
+                    
+                    <h5 class="card-title">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            {{ deal.business.name_ar }}
+                        {% else %}
+                            {{ deal.business.name_en }}
+                        {% endif %}
+                    </h5>
+                    
+                    {% if deal.business.phone %}
+                    <p class="mb-2">
+                        <i class="fas fa-phone me-2 text-primary"></i>
+                        <a href="tel:{{ deal.business.phone }}">{{ deal.business.phone }}</a>
+                    </p>
+                    {% endif %}
+                    
+                    {% if deal.business.address_en or deal.business.address_ar %}
+                    <p class="mb-2">
+                        <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            {{ deal.business.address_ar }}
+                        {% else %}
+                            {{ deal.business.address_en }}
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                    
+                    <a href="{% url 'directory:business_detail' deal.business.slug %}" 
+                       class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-arrow-right me-2"></i>
+                        {% trans "View Business" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

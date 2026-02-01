@@ -9,5 +9,6 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
     path('test-icons/', views.test_icons, name='test_icons'),
-    path('change-language/', views.change_language, name='change_language'),  # ← جديد
+    path('set-language/', views.set_language, name='set_language'),
+    # path('change-language/', views.change_language, name='change_language'),  # ← جديد
 ]

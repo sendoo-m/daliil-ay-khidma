@@ -1,4 +1,160 @@
-<!-- templates/includes/footer.html -->
+{% load static %}
+{% load i18n %}
+
+<footer class="bg-dark text-white pt-5 pb-3 mt-5">
+    <div class="container">
+        <div class="row">
+            <!-- About Section -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <h5 class="text-uppercase mb-3">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        عن دليل أي خدمة
+                    {% else %}
+                        About Daliil Ay Khidma
+                    {% endif %}
+                </h5>
+                <p class="text-white-50">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        دليل شامل للمحلات والخدمات في مصر. نساعدك في إيجاد أفضل الخدمات بسهولة وسرعة.
+                    {% else %}
+                        A comprehensive directory for businesses and services in Egypt. 
+                        We help you find the best services easily and quickly.
+                    {% endif %}
+                </p>
+                <div class="social-links mt-3">
+                    <a href="#" class="text-white me-3" title="Facebook">
+                        <i class="fab fa-facebook fa-lg"></i>
+                    </a>
+                    <a href="#" class="text-white me-3" title="Instagram">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                    <a href="#" class="text-white me-3" title="Twitter">
+                        <i class="fab fa-twitter fa-lg"></i>
+                    </a>
+                    <a href="#" class="text-white" title="LinkedIn">
+                        <i class="fab fa-linkedin fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="col-lg-2 col-md-6 mb-4">
+                <h5 class="text-uppercase mb-3">{% trans "Quick Links" %}</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a href="{% url 'core:home' %}" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-chevron-right fa-xs me-2"></i>
+                            {% trans "Home" %}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'directory:business_list' %}" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-chevron-right fa-xs me-2"></i>
+                            {% trans "Businesses" %}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'directory:category_list' %}" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-chevron-right fa-xs me-2"></i>
+                            {% trans "Categories" %}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'deals:deal_list' %}" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-chevron-right fa-xs me-2"></i>
+                            {% trans "Deals" %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Support -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5 class="text-uppercase mb-3">{% trans "Support" %}</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-chevron-right fa-xs me-2"></i>
+                            {% trans "About Us" %}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-chevron-right fa-xs me-2"></i>
+                            {% trans "Contact Us" %}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-chevron-right fa-xs me-2"></i>
+                            {% trans "Privacy Policy" %}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-chevron-right fa-xs me-2"></i>
+                            {% trans "Terms of Service" %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Contact Info -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5 class="text-uppercase mb-3">{% trans "Contact" %}</h5>
+                <ul class="list-unstyled text-white-50">
+                    <li class="mb-2">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            القاهرة، مصر
+                        {% else %}
+                            Cairo, Egypt
+                        {% endif %}
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-phone me-2"></i>
+                        <a href="tel:+201234567890" class="text-white-50 text-decoration-none">
+                            +20 123 456 7890
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-envelope me-2"></i>
+                        <a href="mailto:info@daliil.com" class="text-white-50 text-decoration-none">
+                            info@daliil.com
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <hr class="bg-white-50 my-4">
+        
+        <!-- Copyright -->
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0 text-white-50">
+                    &copy; 2026
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        دليل أي خدمة. جميع الحقوق محفوظة.
+                    {% else %}
+                        Daliil Ay Khidma. All Rights Reserved.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p class="mb-0 text-white-50">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        صُنع بـ <i class="fas fa-heart text-danger"></i> في مصر
+                    {% else %}
+                        Made with <i class="fas fa-heart text-danger"></i> in Egypt
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+{% comment %} <!-- templates/includes/footer.html -->
 <footer class="bg-dark text-white py-5 mt-5">
     <div class="container">
         <div class="row g-4">
@@ -174,4 +330,4 @@
         border-color: #0d6efd;
         transform: translateY(-3px);
     }
-</style>
+</style> {% endcomment %}
