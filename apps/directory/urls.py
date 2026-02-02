@@ -37,4 +37,12 @@ urlpatterns = [
     # AJAX/API Endpoints
     path('api/business/<slug:slug>/increment-view/', views.increment_view, name='increment_view'),
     path('api/business/<slug:slug>/increment-click/', views.increment_click, name='increment_click'),
+
+    # Map View (أضف هذا السطر)
+    path('map/', views.map_view, name='map'),
+    
+    # Search
+    path('search/', views.business_search, name='business_search'),
+ 
+
 ]

@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load translation_tags %}
+
+{% block title %}{% t "Map View" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+      crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+<style>
+    #map {
+        height: calc(100vh - 200px);
+        min-height: 500px;
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 1;
+    }
+    
+    .map-controls {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .business-popup {
+        max-width: 300px;
+    }
+    
+    .business-popup img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    
+    .business-popup h6 {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+    
+    .business-popup .badge {
+        font-size: 11px;
+        margin-bottom: 8px;
+    }
+    
+    .leaflet-popup-content {
+        margin: 15px;
+    }
+    
+    /* Custom marker icons */
+    .marker-icon {
+        background: #fff;
+        border: 3px solid #007bff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    
+    .marker-icon.featured {
+        border-color: #ffc107;
+        background: #fff9e6;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .stats-card h3 {
+        font-size: 32px;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .stats-card p {
+        margin: 0;
+        opacity: 0.9;
+    }
+    
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255,255,255,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-map-marked-alt text-primary me-2"></i>
+                {% t "Business Map" %}
+            </h1>
+            <p class="text-muted mb-0">{% t "Explore businesses near you" %}</p>
+        </div>
+    </div>
+
+    <!-- Map Controls -->
+    <div class="map-controls">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 id="displayCount">{{ total_businesses }}</h3>
+                    <p><i class="fas fa-store me-1"></i> {% t "Businesses" %}</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">{% t "Category" %}</label>
+                <select id="categoryFilter" class="form-select">
+                    <option value="">{% t "All Categories" %}</option>
+                    {% for category in categories %}
+                    <option value="{{ category.name_en }}">
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">{% t "Governorate" %}</label>
+                <select id="governorateFilter" class="form-select">
+                    <option value="">{% t "All Governorates" %}</option>
+                    {% for gov in governorates %}
+                    <option value="{{ gov.name_en }}">{{ gov.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">{% t "Search" %}</label>
+                <input type="text" id="searchInput" class="form-control" 
+                       placeholder="{% t 'Search businesses...' %}">
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <button id="resetFilters" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-redo me-1"></i> {% t "Reset Filters" %}
+                </button>
+                <button id="myLocation" class="btn btn-primary btn-sm">
+                    <i class="fas fa-location-arrow me-1"></i> {% t "My Location" %}
+                </button>
+                <button id="toggleClustering" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-layer-group me-1"></i> {% t "Toggle Clustering" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div style="position: relative;">
+        <div id="map"></div>
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">{% t "Loading map..." %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<script>
+console.log('Map script starting...');
+
+// Business data from Django
+const businessesData = {{ businesses_json|safe }};
+console.log('Total businesses:', businessesData.length);
+console.log('Sample business:', businessesData[0]);
+
+// Show loading
+document.getElementById('loadingOverlay').style.display = 'flex';
+
+// Initialize map (centered on Egypt)
+let map;
+try {
+    map = L.map('map').setView([26.8206, 30.8025], 6);
+    console.log('Map initialized');
+} catch (error) {
+    console.error('Error initializing map:', error);
+    alert('خطأ في تحميل الخريطة. يرجى إعادة تحميل الصفحة.');
+}
+
+// Add tile layer (OpenStreetMap)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+}).addTo(map);
+
+// Hide loading after tiles load
+map.whenReady(function() {
+    console.log('Map ready');
+    document.getElementById('loadingOverlay').style.display = 'none';
+});
+
+// Marker cluster group
+let markers = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 50,
+    spiderfyOnMaxZoom: true,
+    disableClusteringAtZoom: 15
+});
+
+let allMarkers = [];
+let clusteringEnabled = true;
+
+// Business type icons
+const businessIcons = {
+    'shop': '🏪',
+    'craft': '🔧',
+    'public': '🏛️'
+};
+
+// Create markers
+function createMarkers(businesses) {
+    console.log('Creating markers for', businesses.length, 'businesses');
+    
+    // Clear existing markers
+    markers.clearLayers();
+    allMarkers.forEach(marker => {
+        if (map.hasLayer(marker)) {
+            map.removeLayer(marker);
+        }
+    });
+    allMarkers = [];
+    
+    if (businesses.length === 0) {
+        console.log('No businesses to display');
+        return;
+    }
+    
+    businesses.forEach((business, index) => {
+        try {
+            // Validate coordinates
+            const lat = parseFloat(business.latitude);
+            const lng = parseFloat(business.longitude);
+            
+            if (isNaN(lat) || isNaN(lng)) {
+                console.warn('Invalid coordinates for', business.name_en);
+                return;
+            }
+            
+            console.log(`Creating marker ${index + 1}:`, business.name_en, lat, lng);
+            
+            // Create custom icon
+            const icon = businessIcons[business.business_type] || '📍';
+            const iconClass = business.is_featured ? 'marker-icon featured' : 'marker-icon';
+            
+            const customIcon = L.divIcon({
+                className: 'custom-marker',
+                html: `<div class="${iconClass}">${icon}</div>`,
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],
+                popupAnchor: [0, -40]
+            });
+            
+            // Create marker
+            const marker = L.marker([lat, lng], { icon: customIcon });
+            
+            // Create popup content
+            const popupContent = `
+                <div class="business-popup">
+                    ${business.logo ? `<img src="${business.logo}" alt="${business.name_en}">` : ''}
+                    <h6>${business.name_en}</h6>
+                    <p class="text-muted small mb-2">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        ${business.district_name_en}, ${business.city_name_en}
+                    </p>
+                    ${business.is_featured ? '<span class="badge bg-warning text-dark mb-2"><i class="fas fa-star me-1"></i>Featured</span>' : ''}
+                    <p class="mb-2">
+                        <i class="fas fa-phone me-1"></i>
+                        <a href="tel:${business.phone}">${business.phone}</a>
+                    </p>
+                    <a href="/directory/business/${business.slug}/" class="btn btn-primary btn-sm w-100" target="_blank">
+                        <i class="fas fa-eye me-1"></i> {% t "View Details" %}
+                    </a>
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+            
+            // Store business data with marker
+            marker.businessData = business;
+            allMarkers.push(marker);
+            
+            if (clusteringEnabled) {
+                markers.addLayer(marker);
+            } else {
+                marker.addTo(map);
+            }
+        } catch (error) {
+            console.error('Error creating marker for', business.name_en, error);
+        }
+    });
+    
+    if (clusteringEnabled) {
+        map.addLayer(markers);
+    }
+    
+    // Fit bounds if results exist
+    if (allMarkers.length > 0) {
+        const group = new L.featureGroup(allMarkers);
+        map.fitBounds(group.getBounds().pad(0.1));
+    }
+    
+    // Update count
+    document.getElementById('displayCount').textContent = businesses.length;
+    
+    console.log('Finished creating', allMarkers.length, 'markers');
+}
+
+// Initial markers
+createMarkers(businessesData);
+
+// Filter functions
+function filterBusinesses() {
+    const category = document.getElementById('categoryFilter').value;
+    const governorate = document.getElementById('governorateFilter').value;
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    
+    const filtered = businessesData.filter(business => {
+        const matchCategory = !category || business.category_name_en === category;
+        const matchGovernorate = !governorate || business.governorate_name_en === governorate;
+        const matchSearch = !search || 
+            business.name_en.toLowerCase().includes(search) ||
+            business.name_ar.toLowerCase().includes(search);
+        
+        return matchCategory && matchGovernorate && matchSearch;
+    });
+    
+    console.log('Filtered results:', filtered.length);
+    createMarkers(filtered);
+}
+
+// Event listeners
+document.getElementById('categoryFilter').addEventListener('change', filterBusinesses);
+document.getElementById('governorateFilter').addEventListener('change', filterBusinesses);
+document.getElementById('searchInput').addEventListener('input', filterBusinesses);
+
+// Reset filters
+document.getElementById('resetFilters').addEventListener('click', () => {
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('governorateFilter').value = '';
+    document.getElementById('searchInput').value = '';
+    createMarkers(businessesData);
+    map.setView([26.8206, 30.8025], 6);
+});
+
+// My location
+document.getElementById('myLocation').addEventListener('click', () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                map.setView([lat, lng], 13);
+                
+                // Add temporary marker
+                L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'custom-marker',
+                        html: '<div class="marker-icon" style="border-color: #dc3545; background: #ffe6e6;">📍</div>',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 40]
+                    })
+                }).addTo(map).bindPopup('{% t "You are here" %}').openPopup();
+            },
+            error => {
+                alert('{% t "Unable to get your location" %}');
+            }
+        );
+    } else {
+        alert('{% t "Geolocation is not supported by your browser" %}');
+    }
+});
+
+// Toggle clustering
+document.getElementById('toggleClustering').addEventListener('click', () => {
+    clusteringEnabled = !clusteringEnabled;
+    
+    // Clear all markers
+    markers.clearLayers();
+    allMarkers.forEach(marker => {
+        if (map.hasLayer(marker)) {
+            map.removeLayer(marker);
+        }
+    });
+    
+    // Re-add markers
+    if (clusteringEnabled) {
+        allMarkers.forEach(marker => markers.addLayer(marker));
+        map.addLayer(markers);
+    } else {
+        map.removeLayer(markers);
+        allMarkers.forEach(marker => marker.addTo(map));
+    }
+});
+
+console.log('Map script loaded successfully');
+</script>
+{% endblock %}

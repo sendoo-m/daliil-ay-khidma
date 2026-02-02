@@ -127,7 +127,7 @@
         <div class="row g-4">
             {% for category in featured_categories %}
             <div class="col-lg-3 col-md-4 col-sm-6">
-                <a href="{% url 'directory:category_detail' category.slug %}" 
+                <a href="{% url 'categories:category_detail' category.slug %}" 
                    class="category-card text-decoration-none">
                     <div class="card h-100 border-0 shadow-sm hover-lift">
                         <div class="card-body text-center p-4">
@@ -152,7 +152,7 @@
         </div>
         
         <div class="text-center mt-4">
-            <a href="{% url 'directory:category_list' %}" class="btn btn-outline-primary btn-lg">
+            <a href="{% url 'categories:category_list' %}" class="btn btn-outline-primary btn-lg">
                 {% trans "View All Categories" %}
                 <i class="fas fa-arrow-right ms-2"></i>
             </a>

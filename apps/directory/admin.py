@@ -4,12 +4,16 @@ Directory Admin Configuration
 إعدادات Django Admin لجميع نماذج Directory
 """
 
+
 from django.contrib import admin
+from django.contrib.admin import widgets
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Count, Q
 from django.urls import reverse
+from django import forms
+
 
 from .models import (
     Governorate,
@@ -23,6 +27,144 @@ from .models import (
 
 
 # ========================================
+# Location Widget - خريطة تفاعلية
+# ========================================
+class LocationWidget(widgets.AdminTextInputWidget):
+    """Widget with interactive map for selecting location"""
+    
+    class Media:
+        css = {
+            'all': ('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',)
+        }
+        js = ('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',)
+    
+    def __init__(self, attrs=None):
+        super().__init__(attrs)
+        self.attrs.update({'style': 'width: 200px;'})
+    
+    def render(self, name, value, attrs=None, renderer=None):
+        output = super().render(name, value, attrs, renderer)
+        
+        # Get lat/lng from value
+        lat = float(value) if value else 30.0444
+        lng = 31.2357  # Default longitude
+        
+        # Create unique ID for this field
+        field_id = attrs.get('id', f'id_{name}') if attrs else f'id_{name}'
+        map_id = f'map_{name}'
+        
+        map_html = f'''
+        <div id="{map_id}" style="height: 400px; width: 100%; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
+        <p style="color: #666; font-size: 12px; margin-top: 5px;">
+            <i class="fas fa-info-circle"></i> اسحب الـ Marker لتحديد الموقع بدقة
+        </p>
+        <script>
+        (function() {{
+            setTimeout(function() {{
+                if (typeof L === 'undefined') {{
+                    console.error('Leaflet not loaded');
+                    return;
+                }}
+                
+                // Get current values
+                var latInput = document.getElementById('id_latitude');
+                var lngInput = document.getElementById('id_longitude');
+                
+                var lat = parseFloat(latInput.value) || 30.0444;
+                var lng = parseFloat(lngInput.value) || 31.2357;
+                
+                // Initialize map
+                var map = L.map('{map_id}').setView([lat, lng], 13);
+                
+                // Add tile layer
+                L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19
+                }}).addTo(map);
+                
+                // Add draggable marker
+                var marker = L.marker([lat, lng], {{
+                    draggable: true,
+                    title: 'اسحبني لتحديد الموقع'
+                }}).addTo(map);
+                
+                // Add popup
+                marker.bindPopup('<b>موقع المحل</b><br>اسحب الـ Marker لتحديد الموقع').openPopup();
+                
+                // Update inputs on drag
+                marker.on('dragend', function(e) {{
+                    var pos = marker.getLatLng();
+                    latInput.value = pos.lat.toFixed(6);
+                    lngInput.value = pos.lng.toFixed(6);
+                    marker.bindPopup('<b>الموقع الجديد</b><br>Lat: ' + pos.lat.toFixed(6) + '<br>Lng: ' + pos.lng.toFixed(6)).openPopup();
+                }});
+                
+                // Update marker when inputs change
+                function updateMarker() {{
+                    var newLat = parseFloat(latInput.value);
+                    var newLng = parseFloat(lngInput.value);
+                    if (!isNaN(newLat) && !isNaN(newLng)) {{
+                        marker.setLatLng([newLat, newLng]);
+                        map.setView([newLat, newLng], 13);
+                    }}
+                }}
+                
+                latInput.addEventListener('change', updateMarker);
+                lngInput.addEventListener('change', updateMarker);
+                
+                // Add search control (optional)
+                var searchBtn = L.control({{position: 'topright'}});
+                searchBtn.onAdd = function(map) {{
+                    var div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                    div.innerHTML = '<a href="#" style="background: white; padding: 5px 10px; display: block; text-decoration: none; color: #333;" title="حدد موقعي">📍</a>';
+                    div.onclick = function() {{
+                        if (navigator.geolocation) {{
+                            navigator.geolocation.getCurrentPosition(function(position) {{
+                                var pos = {{
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude
+                                }};
+                                map.setView([pos.lat, pos.lng], 15);
+                                marker.setLatLng([pos.lat, pos.lng]);
+                                latInput.value = pos.lat.toFixed(6);
+                                lngInput.value = pos.lng.toFixed(6);
+                            }});
+                        }}
+                        return false;
+                    }};
+                    return div;
+                }};
+                searchBtn.addTo(map);
+                
+            }}, 500);
+        }})();
+        </script>
+        '''
+        
+        return mark_safe(output + map_html)
+
+
+# ========================================
+# Business Form with Location Widget
+# ========================================
+class BusinessAdminForm(forms.ModelForm):
+    """Form with location widget"""
+    
+    class Meta:
+        model = Business
+        fields = '__all__'
+        widgets = {
+            'latitude': LocationWidget(),
+        }
+    
+    class Media:
+        css = {
+            'all': ('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',)
+        }
+        js = ('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',)
+
+
+# ========================================
 # Governorate Admin
 # ========================================
 @admin.register(Governorate)
@@ -31,7 +173,7 @@ class GovernorateAdmin(admin.ModelAdmin):
         'icon_display',
         'name_display',
         'order',
-        'is_active',  # ← مهم: أضفناه هنا
+        'is_active',
         'cities_count',
         'businesses_count',
         'created_at'
@@ -39,7 +181,7 @@ class GovernorateAdmin(admin.ModelAdmin):
     list_filter = ['is_active', 'created_at']
     search_fields = ['name_en', 'name_ar']
     prepopulated_fields = {'slug': ('name_en',)}
-    list_editable = ['order', 'is_active']  # ✅ الآن is_active موجود في list_display
+    list_editable = ['order', 'is_active']
     ordering = ['order', 'name_en']
     list_per_page = 30
     
@@ -100,14 +242,14 @@ class CityAdmin(admin.ModelAdmin):
         'name_display',
         'governorate_link',
         'order',
-        'is_active',  # ← مهم: أضفناه هنا
+        'is_active',
         'districts_count',
         'businesses_count'
     ]
     list_filter = ['governorate', 'is_active', 'created_at']
     search_fields = ['name_en', 'name_ar', 'governorate__name_en', 'governorate__name_ar']
     prepopulated_fields = {'slug': ('name_en',)}
-    list_editable = ['order', 'is_active']  # ✅ الآن is_active موجود في list_display
+    list_editable = ['order', 'is_active']
     list_per_page = 50
     autocomplete_fields = ['governorate']
     
@@ -168,13 +310,13 @@ class DistrictAdmin(admin.ModelAdmin):
         'city_link',
         'governorate_name',
         'order',
-        'is_active',  # ← مهم: أضفناه هنا
+        'is_active',
         'businesses_count'
     ]
     list_filter = ['city__governorate', 'city', 'is_active', 'created_at']
     search_fields = ['name_en', 'name_ar', 'city__name_en', 'city__name_ar']
     prepopulated_fields = {'slug': ('name_en',)}
-    list_editable = ['order', 'is_active']  # ✅ الآن is_active موجود في list_display
+    list_editable = ['order', 'is_active']
     list_per_page = 50
     autocomplete_fields = ['city']
     
@@ -242,10 +384,12 @@ class BusinessWorkingHoursInline(admin.TabularInline):
 
 
 # ========================================
-# Business Admin
+# Business Admin - مع خريطة تفاعلية
 # ========================================
 @admin.register(Business)
 class BusinessAdmin(admin.ModelAdmin):
+    form = BusinessAdminForm  # ← استخدام Form مع Widget الخريطة
+    
     list_display = [
         'name_display',
         'business_type_badge',
@@ -274,7 +418,7 @@ class BusinessAdmin(admin.ModelAdmin):
         'email'
     ]
     prepopulated_fields = {'slug': ('name_en',)}
-    autocomplete_fields = ['owner', 'district']
+    autocomplete_fields = ['owner', 'district', 'category']
     inlines = [BusinessImageInline, BusinessWorkingHoursInline]
     list_per_page = 25
     date_hierarchy = 'created_at'
@@ -286,7 +430,8 @@ class BusinessAdmin(admin.ModelAdmin):
         'updated_at',
         'verified_at',
         'logo_preview',
-        'cover_preview'
+        'cover_preview',
+        'map_preview'
     ]
     
     fieldsets = (
@@ -296,7 +441,7 @@ class BusinessAdmin(admin.ModelAdmin):
                 'business_type',
                 ('name_en', 'name_ar'),
                 'slug',
-                'district'
+                ('category', 'district')
             )
         }),
         (_('Images'), {
@@ -318,13 +463,15 @@ class BusinessAdmin(admin.ModelAdmin):
             ),
             'classes': ('collapse',)
         }),
-        (_('Location'), {
+        (_('Location - حدد الموقع من الخريطة'), {
             'fields': (
                 'address_en',
                 'address_ar',
                 'location_url',
-                ('latitude', 'longitude')
-            )
+                ('latitude', 'longitude'),
+                'map_preview'
+            ),
+            'description': '⬇️ اسحب الـ Marker على الخريطة لتحديد الموقع بدقة'
         }),
         (_('Description & Working Hours'), {
             'fields': (
@@ -393,8 +540,10 @@ class BusinessAdmin(admin.ModelAdmin):
     @admin.display(description='Location')
     def location_display(self, obj):
         """Display location"""
+        has_coords = '📍' if obj.latitude and obj.longitude else '❌'
         return format_html(
-            '<small>{}<br>{}</small>',
+            '<small>{} {}<br>{}</small>',
+            has_coords,
             obj.district.name_en,
             obj.district.city.governorate.name_en
         )
@@ -446,6 +595,24 @@ class BusinessAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" style="max-height: 100px; border-radius: 8px;">', obj.cover_image.url)
         return '-'
     
+    @admin.display(description='Map Preview')
+    def map_preview(self, obj):
+        """Display current location on map"""
+        if obj.latitude and obj.longitude:
+            return format_html(
+                '<div style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-top: 10px;">'
+                '<strong>📍 الموقع الحالي:</strong><br>'
+                'Latitude: {}<br>'
+                'Longitude: {}<br>'
+                '<a href="https://www.google.com/maps?q={},{}" target="_blank" style="color: #1976d2; text-decoration: underline;">عرض على Google Maps</a>'
+                '</div>',
+                obj.latitude,
+                obj.longitude,
+                obj.latitude,
+                obj.longitude
+            )
+        return format_html('<p style="color: #f44336;">❌ لم يتم تحديد الموقع بعد</p>')
+    
     actions = [
         'verify_businesses',
         'unverify_businesses',
@@ -494,7 +661,7 @@ class BusinessImageAdmin(admin.ModelAdmin):
     list_display = ['image_preview', 'business_link', 'caption_display', 'order', 'is_active', 'uploaded_at']
     list_filter = ['is_active', 'uploaded_at']
     search_fields = ['business__name_en', 'caption_en', 'caption_ar']
-    list_editable = ['order', 'is_active']  # ✅ الآن is_active موجود في list_display
+    list_editable = ['order', 'is_active']
     autocomplete_fields = ['business']
     list_per_page = 30
     

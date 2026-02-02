@@ -4,8 +4,553 @@
 
 {% block title %}{{ business.name }} - {% t "Business Details" %}{% endblock %}
 
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+      crossorigin=""/>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    --dark-color: #1f2937;
+    --light-color: #f9fafb;
+    --border-radius: 16px;
+    --box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    background: #f3f4f6;
+}
+
+/* Business Header with Cover Image */
+.business-hero {
+    position: relative;
+    min-height: 350px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+/* Cover Image Background */
+.business-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.business-cover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+}
+
+/* If no cover image, use gradient with pattern */
+.business-cover.no-cover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.business-cover.no-cover::before {
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+}
+
+.business-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 60px 0 40px;
+    color: white;
+}
+
+.business-logo-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.business-logo {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 6px solid white;
+    object-fit: cover;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    transition: var(--transition);
+    background: white;
+}
+
+.business-logo:hover {
+    transform: scale(1.05) rotate(3deg);
+}
+
+.business-logo-placeholder {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 6px solid white;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.business-hero h1 {
+    font-weight: 900;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+}
+
+.business-hero .business-meta {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.2);
+}
+
+.business-hero .business-meta i {
+    margin-right: 8px;
+}
+
+/* Badges */
+.badge {
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Stats Cards */
+.stat-card {
+    background: white;
+    padding: 30px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    border-color: var(--primary-color);
+}
+
+.stat-card i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-card h3 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    margin: 10px 0;
+    color: var(--dark-color);
+}
+
+.stat-card small {
+    font-size: 0.9rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Content Cards */
+.content-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 30px;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.content-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.content-card .card-header {
+    padding: 20px 25px;
+    border: none;
+    position: relative;
+}
+
+.content-card .card-header h5 {
+    margin: 0;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.content-card .card-header i {
+    margin-right: 12px;
+    font-size: 1.3rem;
+}
+
+.content-card .card-body {
+    padding: 25px;
+}
+
+/* Product Cards */
+.product-card {
+    background: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: var(--transition);
+    border: 2px solid #f3f4f6;
+    height: 100%;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    border-color: var(--primary-color);
+}
+
+.product-image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-image {
+    height: 240px;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.1);
+}
+
+.discount-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 6px 15px rgba(245, 87, 108, 0.4);
+    z-index: 10;
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.product-price {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--success-color);
+}
+
+.old-price {
+    text-decoration: line-through;
+    color: #9ca3af;
+    font-size: 1rem;
+    margin-left: 10px;
+}
+
+/* Review Cards */
+.review-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 25px;
+    margin-bottom: 20px;
+    border-left: 5px solid var(--primary-color);
+    transition: var(--transition);
+}
+
+.review-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transform: translateX(5px);
+}
+
+.rating-stars {
+    color: #fbbf24;
+    font-size: 1.2rem;
+}
+
+/* Sidebar Cards */
+.sidebar-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+/* Action Buttons */
+.action-btn {
+    padding: 16px 30px;
+    font-size: 1.05rem;
+    border-radius: 50px;
+    font-weight: 700;
+    transition: var(--transition);
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.action-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.action-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Map Styling */
+#businessMap {
+    height: 380px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.leaflet-container {
+    font-family: 'Cairo', sans-serif !important;
+}
+
+/* RTL support for map */
+{% if LANGUAGE_CODE == 'ar' %}
+.leaflet-control-zoom {
+    left: auto !important;
+    right: 10px !important;
+}
+
+.leaflet-control-attribution {
+    text-align: right !important;
+    direction: rtl !important;
+}
+
+.leaflet-popup-content-wrapper {
+    direction: rtl !important;
+    text-align: right !important;
+}
+{% endif %}
+
+/* Gallery Images */
+.gallery-image {
+    height: 220px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 3px solid transparent;
+}
+
+.gallery-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-color: var(--primary-color);
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background: white;
+    padding: 15px 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+/* Rating Input */
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 10px;
+}
+
+.rating-input input {
+    display: none;
+}
+
+.rating-input label {
+    cursor: pointer;
+    font-size: 3rem;
+    color: #e5e7eb;
+    transition: var(--transition);
+}
+
+.rating-input label:hover {
+    transform: scale(1.3);
+}
+
+.rating-input input:checked ~ label,
+.rating-input label:hover,
+.rating-input label:hover ~ label {
+    color: #fbbf24;
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+}
+
+/* Contact Info */
+.contact-info-item {
+    padding: 15px;
+    border-radius: 12px;
+    background: #f9fafb;
+    margin-bottom: 15px;
+    transition: var(--transition);
+}
+
+.contact-info-item:hover {
+    background: #f3f4f6;
+    transform: translateX(-5px);
+}
+
+.contact-info-item h6 {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+/* Related Business */
+.related-business-item {
+    padding: 15px;
+    border-radius: 12px;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.related-business-item:hover {
+    background: #f9fafb;
+    border-color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.related-business-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.sticky-sidebar {
+    position: sticky;
+    top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .business-hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .business-logo,
+    .business-logo-placeholder {
+        width: 120px;
+        height: 120px;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container my-5">
+<!-- Business Hero with Cover -->
+<div class="business-hero">
+    <!-- Cover Image -->
+    <div class="business-cover {% if not business.cover_image %}no-cover{% endif %}" 
+         {% if business.cover_image %}style="background-image: url('{{ business.cover_image.url }}');"{% endif %}>
+    </div>
+    
+    <!-- Content -->
+    <div class="business-hero-content">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center mb-3 mb-md-0">
+                    {% if business.logo %}
+                    <img src="{{ business.logo.url }}" class="business-logo" alt="{{ business.name }}">
+                    {% else %}
+                    <div class="business-logo-placeholder">
+                        <i class="fas fa-store fa-4x text-primary"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-7">
+                    <h1>{{ business.name }}</h1>
+                    <p class="business-meta mb-2">
+                        <i class="fas fa-th-large"></i>
+                        {{ business.category.name }}
+                    </p>
+                    <p class="business-meta mb-0">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ business.district.name }}, {{ business.district.city.name }}
+                    </p>
+                </div>
+                <div class="col-md-3 text-center">
+                    {% if business.is_verified %}
+                    <span class="badge bg-success mb-2">
+                        <i class="fas fa-check-circle me-1"></i>
+                        {% t "Verified" %}
+                    </span>
+                    <br>
+                    {% endif %}
+                    {% if business.is_featured %}
+                    <span class="badge bg-warning text-dark">
+                        <i class="fas fa-star me-1"></i>
+                        {% t "Featured" %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
@@ -18,149 +563,177 @@
     <div class="row">
         <!-- Main Content -->
         <div class="col-lg-8">
-            <!-- Business Header -->
-            <div class="card shadow-lg mb-4">
-                {% if business.logo %}
-                <img src="{{ business.logo.url }}" 
-                     class="card-img-top" 
-                     alt="{{ business.name }}"
-                     style="height: 400px; object-fit: cover;">
-                {% else %}
-                <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center" 
-                     style="height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <i class="fas fa-store fa-5x text-white"></i>
+            <!-- Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <i class="fas fa-eye"></i>
+                        <h3>{{ business.view_count }}</h3>
+                        <small>{% t "Views" %}</small>
+                    </div>
                 </div>
-                {% endif %}
-                
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <h2 class="card-title mb-2">
-                                {% if LANGUAGE_CODE == 'ar' %}
-                                    {{ business.name_ar }}
-                                {% else %}
-                                    {{ business.name_en }}
-                                {% endif %}
-                            </h2>
-                            <p class="text-muted mb-0">
-                                <i class="fas fa-th-large me-2"></i>
-                                {% if LANGUAGE_CODE == 'ar' %}
-                                    {{ business.category.name_ar }}
-                                {% else %}
-                                    {{ business.category.name_en }}
-                                {% endif %}
-                            </p>
-                        </div>
-                        
-                        <div class="text-end">
-                            {% if business.is_verified %}
-                            <span class="badge bg-success mb-2">
-                                <i class="fas fa-check-circle me-1"></i>
-                                {% t "Verified" %}
-                            </span>
-                            <br>
-                            {% endif %}
-                            {% if business.is_featured %}
-                            <span class="badge bg-warning">
-                                <i class="fas fa-star me-1"></i>
-                                {% t "Featured" %}
-                            </span>
-                            {% endif %}
-                        </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <h3>{{ average_rating|floatformat:1 }}</h3>
+                        <small>{% t "Rating" %}</small>
                     </div>
-                    
-                    <!-- Quick Stats -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-4 col-6">
-                            <div class="text-center p-3 bg-light rounded">
-                                <i class="fas fa-eye fa-2x text-primary mb-2"></i>
-                                <h5 class="mb-0">{{ business.view_count }}</h5>
-                                <small class="text-muted">{% t "Views" %}</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4 col-6">
-                            <div class="text-center p-3 bg-light rounded">
-                                <i class="fas fa-mouse-pointer fa-2x text-info mb-2"></i>
-                                <h5 class="mb-0">{{ business.click_count }}</h5>
-                                <small class="text-muted">{% t "Claims" %}</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <div class="text-center p-3 bg-light rounded">
-                                <i class="fas fa-calendar fa-2x text-success mb-2"></i>
-                                <h5 class="mb-0">{{ business.created_at|date:"M Y" }}</h5>
-                                <small class="text-muted">Joined</small>
-                            </div>
-                        </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <i class="fas fa-box"></i>
+                        <h3>{{ products.count }}</h3>
+                        <small>{% t "Products" %}</small>
                     </div>
-                    
-                    <!-- Description -->
-                    {% if business.description_en or business.description_ar %}
-                    <div class="mb-4">
-                        <h5 class="text-primary mb-3">
-                            <i class="fas fa-info-circle me-2"></i>
-                            {% t "About" %}
-                        </h5>
-                        <p class="lead">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                {{ business.description_ar|linebreaks }}
-                            {% else %}
-                                {{ business.description_en|linebreaks }}
-                            {% endif %}
-                        </p>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Action Buttons -->
-                    <div class="d-grid gap-2 d-md-flex">
-                        {% if business.phone %}
-                        <a href="tel:{{ business.phone }}" class="btn btn-success flex-fill">
-                            <i class="fas fa-phone me-2"></i>
-                            {% t "Call Now" %}
-                        </a>
-                        {% endif %}
-                        
-                        {% if business.website %}
-                        <a href="{{ business.website }}" target="_blank" class="btn btn-primary flex-fill">
-                            <i class="fas fa-globe me-2"></i>
-                            {% t "Visit Website" %}
-                        </a>
-                        {% endif %}
-                        
-                        {% if user.is_authenticated %}
-                        <form method="post" action="{% url 'directory:favorite_toggle' business.slug %}" class="flex-fill">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger w-100">
-                                <i class="fas fa-heart me-2"></i>
-                                {% if is_favorited %}
-                                    {% t "Remove from Favorites" %}
-                                {% else %}
-                                    {% t "Add to Favorites" %}
-                                {% endif %}
-                            </button>
-                        </form>
-                        {% endif %}
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar"></i>
+                        <h3>{{ business.created_at|date:"Y" }}</h3>
+                        <small>{% t "Since" %}</small>
                     </div>
                 </div>
             </div>
             
-            <!-- Business Images -->
-            {% if images %}
-            <div class="card shadow-sm mb-4">
+            <!-- About -->
+            {% if business.description %}
+            <div class="content-card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-images me-2"></i>
-                        Gallery
-                    </h5>
+                    <h5><i class="fas fa-info-circle"></i>{% t "About" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-0">{{ business.description|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Products -->
+            {% if products %}
+            <div class="content-card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-box"></i>{% t "Products & Services" %} ({{ products.count }})</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        {% for product in products|slice:":6" %}
+                        <div class="col-md-6">
+                            <div class="product-card">
+                                <div class="product-image-wrapper">
+                                    {% if product.images.exists %}
+                                    <img src="{{ product.images.first.image.url }}" class="card-img-top product-image" alt="{{ product.name }}">
+                                    {% else %}
+                                    <div class="card-img-top product-image bg-light d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-{% if product.product_type == 'service' %}concierge-bell{% else %}box{% endif %} fa-4x text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if product.has_discount %}
+                                    <span class="discount-badge">-{{ product.discount_percentage }}%</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="card-body">
+                                    <span class="badge bg-primary mb-2">
+                                        <i class="fas fa-{% if product.product_type == 'service' %}concierge-bell{% else %}box{% endif %} me-1"></i>
+                                        {% if product.product_type == 'service' %}{% t "Service" %}{% else %}{% t "Product" %}{% endif %}
+                                    </span>
+                                    
+                                    <h6 class="card-title">{{ product.name }}</h6>
+                                    {% if product.description %}
+                                    <p class="text-muted small mb-3">{{ product.description|truncatewords:12 }}</p>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <span class="product-price">{{ product.price }}</span>
+                                            <small class="text-muted">{% t "EGP" %}</small>
+                                            {% if product.old_price %}
+                                            <span class="old-price">{{ product.old_price }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <a href="{% url 'products:product_detail' product.slug %}" class="btn btn-outline-primary btn-sm w-100">
+                                        <i class="fas fa-eye me-1"></i>{% t "View Details" %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if products.count > 6 %}
+                    <div class="text-center mt-4">
+                        <a href="{% url 'products:products_by_business' business.slug %}" class="btn btn-success btn-lg">
+                            {% t "View All Products" %} ({{ products.count }})
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Reviews -->
+            <div class="content-card">
+                <div class="card-header bg-warning">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-star"></i>{% t "Reviews" %} ({{ total_reviews }})</h5>
+                        {% if user.is_authenticated and not user_has_reviewed %}
+                        <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#addReviewModal">
+                            <i class="fas fa-plus me-1"></i>{% t "Add Review" %}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if total_reviews > 0 %}
+                    <div class="text-center mb-4 p-4" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px;">
+                        <h2 class="display-3 mb-2 text-warning">{{ average_rating|floatformat:1 }}</h2>
+                        <div class="rating-stars mb-2">
+                            {% for i in "12345" %}
+                            <i class="fas fa-star{% if forloop.counter > average_rating %}-o{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="text-muted mb-0">{{ total_reviews }} {% t "reviews" %}</p>
+                    </div>
+                    
+                    {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <h6 class="mb-0"><i class="fas fa-user-circle text-primary me-2"></i>{{ review.user.get_full_name|default:review.user.username }}</h6>
+                                <small class="text-muted">{{ review.created_at|date:"d M Y" }}</small>
+                            </div>
+                            <div class="rating-stars">
+                                {% for i in "12345" %}
+                                <i class="fas fa-star{% if forloop.counter > review.rating %}-o{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="mb-0">{{ review.comment }}</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                        <h5>{% t "No reviews yet" %}</h5>
+                        <p class="text-muted">{% t "Be the first to review!" %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Gallery -->
+            {% if images %}
+            <div class="content-card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-images"></i>{% t "Gallery" %} ({{ images.count }})</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         {% for image in images %}
                         <div class="col-md-4 col-6">
-                            <img src="{{ image.image.url }}" 
-                                 class="img-fluid rounded" 
-                                 alt="{{ business.name }}"
-                                 style="height: 200px; width: 100%; object-fit: cover;">
+                            <img src="{{ image.image.url }}" class="img-fluid gallery-image" alt="{{ business.name }}">
                         </div>
                         {% endfor %}
                     </div>
@@ -171,140 +744,281 @@
         
         <!-- Sidebar -->
         <div class="col-lg-4">
-            <!-- Contact Info -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-address-card me-2"></i>
-                        {% t "Contact Information" %}
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <!-- Location -->
-                    <div class="mb-3">
-                        <h6 class="text-primary">
-                            <i class="fas fa-map-marker-alt me-2"></i>
-                            {% t "Location" %}
-                        </h6>
-                        <p class="mb-1">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                {{ business.district.name_ar }}، {{ business.district.city.name_ar }}
-                            {% else %}
-                                {{ business.district.name_en }}, {{ business.district.city.name_en }}
-                            {% endif %}
-                        </p>
-                        <p class="text-muted small">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                {{ business.district.city.governorate.name_ar }}
-                            {% else %}
-                                {{ business.district.city.governorate.name_en }}
-                            {% endif %}
-                        </p>
+            <div class="sticky-sidebar">
+                <!-- Action Buttons -->
+                <div class="sidebar-card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <h5 class="mb-0"><i class="fas fa-bolt"></i>{% t "Quick Actions" %}</h5>
                     </div>
-                    
-                    {% if business.address_en or business.address_ar %}
-                    <div class="mb-3">
-                        <h6 class="text-primary">
-                            <i class="fas fa-location-arrow me-2"></i>
-                            {% t "Address" %}
-                        </h6>
-                        <p class="text-muted">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                {{ business.address_ar }}
-                            {% else %}
-                                {{ business.address_en }}
-                            {% endif %}
-                        </p>
-                    </div>
-                    {% endif %}
-                    
-                    {% if business.phone %}
-                    <div class="mb-3">
-                        <h6 class="text-primary">
-                            <i class="fas fa-phone me-2"></i>
-                            {% t "Phone" %}
-                        </h6>
-                        <p class="mb-0">
-                            <a href="tel:{{ business.phone }}">{{ business.phone }}</a>
-                        </p>
-                    </div>
-                    {% endif %}
-                    
-                    {% if business.email %}
-                    <div class="mb-3">
-                        <h6 class="text-primary">
-                            <i class="fas fa-envelope me-2"></i>
-                            {% t "Email" %}
-                        </h6>
-                        <p class="mb-0">
-                            <a href="mailto:{{ business.email }}">{{ business.email }}</a>
-                        </p>
-                    </div>
-                    {% endif %}
-                    
-                    {% if business.website %}
-                    <div class="mb-3">
-                        <h6 class="text-primary">
-                            <i class="fas fa-globe me-2"></i>
-                            {% t "Website" %}
-                        </h6>
-                        <p class="mb-0">
-                            <a href="{{ business.website }}" target="_blank">
-                                {{ business.website|truncatechars:30 }}
+                    <div class="card-body">
+                        <div class="d-grid gap-3">
+                            {% if business.phone %}
+                            <a href="tel:{{ business.phone }}" class="btn btn-success action-btn">
+                                <i class="fas fa-phone me-2"></i>{% t "Call Now" %}
                             </a>
-                        </p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Related Businesses -->
-            {% if related_businesses %}
-            <div class="card shadow-sm">
-                <div class="card-header bg-warning">
-                    <h5 class="mb-0">
-                        <i class="fas fa-store me-2"></i>
-                        {% t "Related Businesses" %}
-                    </h5>
-                </div>
-                <div class="list-group list-group-flush">
-                    {% for related in related_businesses %}
-                    <a href="{% url 'directory:business_detail' related.slug %}" 
-                       class="list-group-item list-group-item-action">
-                        <div class="d-flex align-items-center">
-                            {% if related.logo %}
-                            <img src="{{ related.logo.url }}" 
-                                 alt="{{ related.name }}"
-                                 class="rounded me-3"
-                                 width="50" height="50"
-                                 style="object-fit: cover;">
-                            {% else %}
-                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center"
-                                 style="width: 50px; height: 50px;">
-                                <i class="fas fa-store text-muted"></i>
-                            </div>
                             {% endif %}
                             
-                            <div class="flex-grow-1">
-                                <h6 class="mb-0">
-                                    {% if LANGUAGE_CODE == 'ar' %}
-                                        {{ related.name_ar|truncatewords:5 }}
-                                    {% else %}
-                                        {{ related.name_en|truncatewords:5 }}
-                                    {% endif %}
-                                </h6>
-                                <small class="text-muted">
-                                    <i class="fas fa-eye me-1"></i>
-                                    {{ related.view_count }}
-                                </small>
-                            </div>
+                            {% if business.whatsapp %}
+                            <a href="https://wa.me/2{{ business.whatsapp }}" target="_blank" class="btn action-btn" style="background: #25d366; color: white;">
+                                <i class="fab fa-whatsapp me-2"></i>{% t "WhatsApp" %}
+                            </a>
+                            {% endif %}
+                            
+                            {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'directory:favorite_toggle' business.slug %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger action-btn w-100">
+                                    <i class="fas fa-heart me-2"></i>
+                                    {% if is_favorited %}{% t "Favorited" %}{% else %}{% t "Add to Favorites" %}{% endif %}
+                                </button>
+                            </form>
+                            {% endif %}
                         </div>
-                    </a>
-                    {% endfor %}
+                    </div>
                 </div>
+                
+                <!-- Map -->
+                {% if business.latitude and business.longitude %}
+                <div class="sidebar-card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-map-marked-alt"></i>{% t "Location" %}</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="businessMap"></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Contact Info -->
+                <div class="sidebar-card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-address-card"></i>{% t "Contact" %}</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if business.address %}
+                        <div class="contact-info-item">
+                            <h6><i class="fas fa-map-marker-alt me-2"></i>{% t "Address" %}</h6>
+                            <p class="mb-0 small">{{ business.address }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if business.phone %}
+                        <div class="contact-info-item">
+                            <h6><i class="fas fa-phone me-2"></i>{% t "Phone" %}</h6>
+                            <p class="mb-0"><a href="tel:{{ business.phone }}">{{ business.phone }}</a></p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if business.email %}
+                        <div class="contact-info-item">
+                            <h6><i class="fas fa-envelope me-2"></i>{% t "Email" %}</h6>
+                            <p class="mb-0"><a href="mailto:{{ business.email }}">{{ business.email }}</a></p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if business.working_hours %}
+                        <div class="contact-info-item">
+                            <h6><i class="fas fa-clock me-2"></i>{% t "Hours" %}</h6>
+                            <p class="mb-0 small">{{ business.working_hours|linebreaks }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Related Businesses -->
+                {% if related_businesses %}
+                <div class="sidebar-card">
+                    <div class="card-header" style="background: #f59e0b; color: white;">
+                        <h5 class="mb-0"><i class="fas fa-store"></i>{% t "Related" %}</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for related in related_businesses %}
+                        <a href="{% url 'directory:business_detail' related.slug %}" class="list-group-item list-group-item-action related-business-item">
+                            <div class="d-flex align-items-center">
+                                {% if related.logo %}
+                                <img src="{{ related.logo.url }}" alt="{{ related.name }}" class="related-business-img me-3">
+                                {% else %}
+                                <div class="related-business-img bg-light d-flex align-items-center justify-content-center me-3">
+                                    <i class="fas fa-store text-muted"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">{{ related.name|truncatewords:4 }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-eye me-1"></i>{{ related.view_count }}
+                                    </small>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Add Review Modal -->
+{% if user.is_authenticated and not user_has_reviewed %}
+<div class="modal fade" id="addReviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                <h5 class="modal-title"><i class="fas fa-star me-2"></i>{% t "Add Your Review" %}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'reviews:add_review' business.slug %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">{% t "Rating" %} <span class="text-danger">*</span></label>
+                        <div class="rating-input">
+                            {% for i in "54321" %}
+                            <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" required>
+                            <label for="star{{ i }}"><i class="fas fa-star"></i></label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{% t "Your Review" %}</label>
+                        <textarea name="comment" class="form-control" rows="5" placeholder="{% t 'Share your experience...' %}"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% t "Cancel" %}</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-paper-plane me-1"></i>{% t "Submit" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if business.latitude and business.longitude %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+        crossorigin=""></script>
+<script>
+// Current language
+const isArabic = '{{ LANGUAGE_CODE }}' === 'ar';
+
+// Initialize map
+const map = L.map('businessMap', {
+    zoomControl: true,
+    scrollWheelZoom: false
+}).setView([{{ business.latitude }}, {{ business.longitude }}], 15);
+
+// Add tile layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: isArabic ? '© أوبن ستريت ماب' : '© OpenStreetMap',
+    maxZoom: 19
+}).addTo(map);
+
+// Adjust controls for RTL
+if (isArabic) {
+    map.zoomControl.setPosition('topright');
+}
+
+// Custom marker
+const markerHtml = `
+    <div style="
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border: 4px solid white;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    ">
+        <i class="fas fa-store" style="
+            color: white;
+            font-size: 20px;
+            transform: rotate(45deg);
+        "></i>
+    </div>
+`;
+
+const marker = L.marker([{{ business.latitude }}, {{ business.longitude }}], {
+    icon: L.divIcon({
+        className: 'custom-marker',
+        html: markerHtml,
+        iconSize: [50, 50],
+        iconAnchor: [25, 50],
+        popupAnchor: [0, -50]
+    })
+}).addTo(map);
+
+// Popup content with Arabic support
+const popupContent = `
+    <div style="
+        min-width: 200px; 
+        text-align: ${isArabic ? 'right' : 'center'}; 
+        font-family: Cairo, sans-serif;
+        direction: ${isArabic ? 'rtl' : 'ltr'};
+    ">
+        <h6 style="color: #667eea; margin-bottom: 10px; font-weight: 700;">
+            {{ business.name }}
+        </h6>
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px; line-height: 1.5;">
+            <i class="fas fa-map-marker-alt" style="color: #ef4444;"></i>
+            {{ business.address|truncatewords:8|default:"موقع المحل" }}
+        </p>
+        <a href="https://www.google.com/maps/dir/?api=1&destination={{ business.latitude }},{{ business.longitude }}" 
+           target="_blank" 
+           class="btn btn-sm btn-primary" 
+           style="
+               text-decoration: none;
+               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+               border: none;
+               padding: 8px 16px;
+               border-radius: 20px;
+               color: white;
+               font-weight: 600;
+               display: inline-block;
+               margin-top: 5px;
+           ">
+            <i class="fas fa-directions"></i>
+            ${isArabic ? 'احصل على الاتجاهات' : 'Get Directions'}
+        </a>
+    </div>
+`;
+
+marker.bindPopup(popupContent, {
+    maxWidth: 300,
+    className: 'custom-popup'
+}).openPopup();
+
+// Fix map size after load
+setTimeout(() => {
+    map.invalidateSize();
+}, 100);
+
+console.log('Map loaded - Language:', isArabic ? 'Arabic' : 'English');
+</script>
+
+<style>
+/* Custom popup styles */
+.leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.leaflet-popup-content {
+    margin: 15px;
+}
+
+.leaflet-popup-tip {
+    background: white;
+}
+</style>
+{% endif %}
 {% endblock %}

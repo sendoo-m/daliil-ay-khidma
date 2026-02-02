@@ -13,8 +13,8 @@ from django.core.validators import (
     MinValueValidator,
     MaxValueValidator
 )
-from django.db.models import Avg
 from django.utils import timezone
+from django.db.models import Avg, Count
 
 # Import Category from categories app
 from apps.categories.models import Category
@@ -243,13 +243,32 @@ class Business(models.Model):
     working_hours_en = models.TextField(
         blank=True,
         verbose_name='Working Hours (English)',
-        help_text='Example: Sat-Thu: 9 AM - 10 PM | Fri: 2 PM - 10 PM | For public services: 24/7 or specific hours'
+        help_text='Example: Sat-Thu: 9 AM - 10 PM | Fri: 2 PM - 10 PM'
     )
     
     working_hours_ar = models.TextField(
         blank=True,
         verbose_name='ساعات العمل',
-        help_text='مثال: السبت-الخميس: 9 ص-10 م | الجمعة: 2 م-10 م | للخدمات العامة: 24 ساعة أو ساعات محددة'
+        help_text='مثال: السبت-الخميس: 9 ص-10 م | الجمعة: 2 م-10 م'
+    )
+    
+    # ========================================
+    # Reviews & Rating - التقييمات
+    # ========================================
+    average_rating = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        default=0,
+        verbose_name='Average Rating',
+        editable=False,
+        help_text='Auto-calculated from reviews'
+    )
+    
+    total_reviews = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Total Reviews',
+        editable=False,
+        help_text='Auto-calculated count of approved reviews'
     )
     
     # ========================================
@@ -323,7 +342,7 @@ class Business(models.Model):
     class Meta:
         verbose_name = 'Business'
         verbose_name_plural = 'Businesses'
-        ordering = ['-created_at']
+        ordering = ['-is_featured', '-is_promoted', '-created_at']
         indexes = [
             models.Index(fields=['slug']),
             models.Index(fields=['business_type']),
@@ -332,6 +351,7 @@ class Business(models.Model):
             models.Index(fields=['category', 'is_active']),
             models.Index(fields=['district', 'is_active']),
             models.Index(fields=['-view_count']),
+            models.Index(fields=['-average_rating']),
             models.Index(fields=['is_featured', '-created_at']),
             models.Index(fields=['is_promoted', '-created_at']),
             models.Index(fields=['owner', 'is_active']),
@@ -358,11 +378,10 @@ class Business(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        type_display = self.get_business_type_display()
-        return f"{self.name_en} / {self.name_ar} - {type_display}"
+        return f"{self.name_en} ({self.get_business_type_display()})"
     
     # ========================================
-    # Properties
+    # Translation Properties
     # ========================================
     @property
     def name(self):
@@ -392,6 +411,9 @@ class Business(models.Model):
         lang = get_language()
         return self.working_hours_ar if lang == 'ar' else self.working_hours_en
     
+    # ========================================
+    # Business Type Properties
+    # ========================================
     @property
     def business_type_display(self):
         """Get business type display name"""
@@ -422,14 +444,17 @@ class Business(models.Model):
         }
         return icons.get(self.business_type, '📍')
     
+    # ========================================
+    # Location Properties
+    # ========================================
     @property
     def city(self):
-        """الحصول على المدينة"""
+        """Get city from district"""
         return self.district.city if self.district else None
     
     @property
     def governorate(self):
-        """الحصول على المحافظة"""
+        """Get governorate from district"""
         if self.district and self.district.city:
             return self.district.city.governorate
         return None
@@ -440,40 +465,81 @@ class Business(models.Model):
         return self.latitude is not None and self.longitude is not None
     
     @property
+    def full_location(self):
+        """Get full location string"""
+        parts = []
+        if self.district:
+            parts.append(self.district.name)
+        if self.city:
+            parts.append(self.city.name)
+        if self.governorate:
+            parts.append(self.governorate.name)
+        return ', '.join(parts)
+    
+    # ========================================
+    # Social Media Properties
+    # ========================================
+    @property
     def has_social_media(self):
         """Check if business has any social media links"""
         return any([self.facebook, self.instagram, self.twitter, self.tiktok])
     
+    @property
+    def social_media_count(self):
+        """Count active social media links"""
+        return sum([
+            bool(self.facebook),
+            bool(self.instagram),
+            bool(self.twitter),
+            bool(self.tiktok)
+        ])
+    
     # ========================================
-    # Review Related Properties
+    # Rating Properties
     # ========================================
     @property
-    def average_rating(self):
-        """حساب متوسط التقييمات"""
-        try:
-            from apps.reviews.models import Review
-            reviews = Review.objects.filter(
-                business=self,
-                is_approved=True
-            )
-            if reviews.exists():
-                avg = reviews.aggregate(Avg('rating'))['rating__avg']
-                return round(avg, 1) if avg else 0
-        except (ImportError, Exception):
-            pass
-        return 0
+    def rating_percentage(self):
+        """Get rating as percentage (0-100)"""
+        return (self.average_rating / 5) * 100 if self.average_rating > 0 else 0
     
     @property
-    def total_reviews(self):
-        """عدد التقييمات المُعتمدة"""
-        try:
-            from apps.reviews.models import Review
-            return Review.objects.filter(
-                business=self,
-                is_approved=True
-            ).count()
-        except (ImportError, Exception):
-            return 0
+    def rating_stars_full(self):
+        """Number of full stars"""
+        return int(self.average_rating)
+    
+    @property
+    def rating_stars_half(self):
+        """Has half star?"""
+        return (self.average_rating - int(self.average_rating)) >= 0.5
+    
+    @property
+    def rating_stars_empty(self):
+        """Number of empty stars"""
+        full = self.rating_stars_full
+        half = 1 if self.rating_stars_half else 0
+        return 5 - full - half
+    
+    # ========================================
+    # Status Properties
+    # ========================================
+    @property
+    def is_published(self):
+        """Check if business is published (active and verified)"""
+        return self.is_active and self.is_verified
+    
+    @property
+    def status_display(self):
+        """Get human-readable status"""
+        if not self.is_active:
+            return "Inactive"
+        elif not self.is_verified:
+            return "Pending Verification"
+        elif self.is_promoted:
+            return "Promoted"
+        elif self.is_featured:
+            return "Featured"
+        else:
+            return "Active"
     
     # ========================================
     # URLs
@@ -482,22 +548,102 @@ class Business(models.Model):
         """Get business detail page URL"""
         return reverse('directory:business_detail', kwargs={'slug': self.slug})
     
+    def get_edit_url(self):
+        """Get business edit URL"""
+        return reverse('directory:business_edit', kwargs={'slug': self.slug})
+    
+    def get_map_url(self):
+        """Get Google Maps URL"""
+        if self.has_location:
+            return f"https://www.google.com/maps?q={self.latitude},{self.longitude}"
+        return self.location_url if self.location_url else "#"
+    
     # ========================================
     # Counter Methods
     # ========================================
     def increment_view_count(self):
-        """زيادة عداد المشاهدات"""
+        """Increment view counter"""
         Business.objects.filter(pk=self.pk).update(
             view_count=models.F('view_count') + 1
         )
         self.refresh_from_db(fields=['view_count'])
     
     def increment_click_count(self):
-        """زيادة عداد النقرات"""
+        """Increment click counter"""
         Business.objects.filter(pk=self.pk).update(
             click_count=models.F('click_count') + 1
         )
         self.refresh_from_db(fields=['click_count'])
+    
+    # ========================================
+    # Review Methods
+    # ========================================
+    def update_rating(self):
+        """Update average rating and total reviews from Review model"""
+        try:
+            from apps.reviews.models import Review
+            
+            stats = Review.objects.filter(
+                business=self,
+                is_approved=True
+            ).aggregate(
+                avg_rating=Avg('rating'),
+                total=Count('id')
+            )
+            
+            self.average_rating = round(stats['avg_rating'], 2) if stats['avg_rating'] else 0
+            self.total_reviews = stats['total'] or 0
+            self.save(update_fields=['average_rating', 'total_reviews'])
+            
+        except (ImportError, Exception) as e:
+            # Reviews app not installed or error occurred
+            pass
+    
+    def get_reviews(self, limit=None):
+        """Get approved reviews for this business"""
+        try:
+            from apps.reviews.models import Review
+            
+            reviews = Review.objects.filter(
+                business=self,
+                is_approved=True
+            ).select_related('user').prefetch_related('reply').order_by('-created_at')
+            
+            if limit:
+                reviews = reviews[:limit]
+            
+            return reviews
+        except ImportError:
+            return []
+    
+    # ========================================
+    # Product Methods
+    # ========================================
+    def get_products(self, limit=None):
+        """Get available products for this business"""
+        try:
+            from apps.products.models import Product
+            
+            products = Product.objects.filter(
+                business=self,
+                is_available=True
+            ).prefetch_related('images').order_by('-is_featured', 'order', '-created_at')
+            
+            if limit:
+                products = products[:limit]
+            
+            return products
+        except ImportError:
+            return []
+    
+    @property
+    def products_count(self):
+        """Count available products"""
+        try:
+            from apps.products.models import Product
+            return Product.objects.filter(business=self, is_available=True).count()
+        except ImportError:
+            return 0
 
 
 # ========================================
@@ -573,13 +719,13 @@ class BusinessWorkingHours(models.Model):
     """نموذج ساعات العمل المفصلة"""
     
     DAYS_OF_WEEK = [
-        (0, 'Sunday'),
-        (1, 'Monday'),
-        (2, 'Tuesday'),
-        (3, 'Wednesday'),
-        (4, 'Thursday'),
-        (5, 'Friday'),
-        (6, 'Saturday'),
+        (0, 'الأحد / Sunday'),
+        (1, 'الإثنين / Monday'),
+        (2, 'الثلاثاء / Tuesday'),
+        (3, 'الأربعاء / Wednesday'),
+        (4, 'الخميس / Thursday'),
+        (5, 'الجمعة / Friday'),
+        (6, 'السبت / Saturday'),
     ]
     
     business = models.ForeignKey(
@@ -596,10 +742,14 @@ class BusinessWorkingHours(models.Model):
     )
     
     opening_time = models.TimeField(
+        null=True,
+        blank=True,
         verbose_name='Opening Time'
     )
     
     closing_time = models.TimeField(
+        null=True,
+        blank=True,
         verbose_name='Closing Time'
     )
     
@@ -608,14 +758,36 @@ class BusinessWorkingHours(models.Model):
         verbose_name='Closed on this day'
     )
     
+    is_24_hours = models.BooleanField(
+        default=False,
+        verbose_name='Open 24 Hours'
+    )
+    
     class Meta:
         verbose_name = 'Working Hours'
         verbose_name_plural = 'Working Hours'
         ordering = ['day']
         unique_together = [['business', 'day']]
+        indexes = [
+            models.Index(fields=['business', 'day']),
+        ]
     
     def __str__(self):
         day_name = self.get_day_display()
         if self.is_closed:
             return f"{self.business.name_en} - {day_name}: Closed"
+        elif self.is_24_hours:
+            return f"{self.business.name_en} - {day_name}: 24 Hours"
         return f"{self.business.name_en} - {day_name}: {self.opening_time} - {self.closing_time}"
+    
+    def clean(self):
+        """Validation"""
+        from django.core.exceptions import ValidationError
+        
+        if not self.is_closed and not self.is_24_hours:
+            if not self.opening_time or not self.closing_time:
+                raise ValidationError('Opening and closing times are required unless closed or 24 hours')
+        
+        if self.opening_time and self.closing_time:
+            if self.opening_time >= self.closing_time:
+                raise ValidationError('Closing time must be after opening time')

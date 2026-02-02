@@ -12,6 +12,8 @@ from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 
+from apps.directory.models.favorites import Favorite
+
 from .models import (
     Governorate,
     City,
@@ -192,18 +194,90 @@ def business_list(request):
     return render(request, 'directory/business_list.html', context)
 
 
+# def business_detail(request, slug):
+#     """تفاصيل محل تجاري"""
+#     business = get_object_or_404(
+#         Business,
+#         slug=slug,
+#         is_active=True
+#     )
+    
+#     # Increment view count
+#     business.increment_view_count()
+    
+#     # Check if user has favorited this business
+#     is_favorited = False
+#     if request.user.is_authenticated:
+#         is_favorited = Favorite.objects.filter(
+#             user=request.user,
+#             business=business
+#         ).exists()
+    
+#     # Get related businesses
+#     related_businesses = Business.objects.filter(
+#         category=business.category,
+#         is_active=True,
+#         is_verified=True
+#     ).exclude(id=business.id)[:4]
+    
+#     context = {
+#         'business': business,
+#         'is_favorited': is_favorited,
+#         'related_businesses': related_businesses,
+#         'images': business.images.filter(is_active=True)
+#     }
+#     return render(request, 'directory/business_detail.html', context)
 def business_detail(request, slug):
-    """تفاصيل محل تجاري"""
+    """تفاصيل محل معين"""
     business = get_object_or_404(
-        Business,
-        slug=slug,
-        is_active=True
+        Business.objects.select_related(
+            'category',
+            'district__city__governorate',
+            'owner'
+        ),
+        slug=slug
     )
     
     # Increment view count
     business.increment_view_count()
     
-    # Check if user has favorited this business
+    # Get business images
+    images = business.images.filter(is_active=True)
+    
+    # Get products من تطبيق products
+    from apps.products.models import Product
+    products = Product.objects.filter(
+        business=business,
+        is_available=True
+    ).prefetch_related('images').order_by('-is_featured', 'order', '-created_at')
+    
+    # Get reviews (if reviews app exists)
+    reviews = None
+    average_rating = 0
+    total_reviews = 0
+    try:
+        from apps.reviews.models import Review
+        from django.db.models import Avg
+        
+        reviews = Review.objects.filter(
+            business=business,
+            is_approved=True
+        ).select_related('user').order_by('-created_at')[:5]
+        
+        if reviews.exists():
+            avg = Review.objects.filter(
+                business=business,
+                is_approved=True
+            ).aggregate(Avg('rating'))['rating__avg']
+            average_rating = round(avg, 1) if avg else 0
+            total_reviews = Review.objects.filter(
+                business=business,
+                is_approved=True
+            ).count()
+    except ImportError:
+        pass
+    
+    # Check if user favorited
     is_favorited = False
     if request.user.is_authenticated:
         is_favorited = Favorite.objects.filter(
@@ -211,20 +285,26 @@ def business_detail(request, slug):
             business=business
         ).exists()
     
-    # Get related businesses
+    # Related businesses (same category)
     related_businesses = Business.objects.filter(
         category=business.category,
         is_active=True,
         is_verified=True
-    ).exclude(id=business.id)[:4]
+    ).exclude(id=business.id).order_by('-is_featured', '-view_count')[:5]
     
     context = {
         'business': business,
+        'images': images,
+        'products': products,
+        'reviews': reviews,
+        'average_rating': average_rating,
+        'total_reviews': total_reviews,
         'is_favorited': is_favorited,
         'related_businesses': related_businesses,
-        'images': business.images.filter(is_active=True)
     }
+    
     return render(request, 'directory/business_detail.html', context)
+
 
 
 # ========================================
@@ -388,3 +468,66 @@ def business_search(request):
     }
     
     return render(request, 'directory/business_search.html', context)
+
+
+from django.shortcuts import render
+from django.db.models import Q
+from apps.directory.models import Business, Governorate
+from apps.categories.models import Category
+import json
+
+
+def map_view(request):
+    """خريطة المحلات التفاعلية"""
+    
+    # Get all active businesses with coordinates
+    businesses = Business.objects.filter(
+        is_active=True,
+        is_verified=True,
+        latitude__isnull=False,
+        longitude__isnull=False
+    ).select_related(
+        'category',
+        'district__city__governorate'
+    )
+    
+    # Convert to list of dicts for JSON
+    businesses_data = []
+    for business in businesses:
+        businesses_data.append({
+            'id': business.id,
+            'name_en': business.name_en,
+            'name_ar': business.name_ar,
+            'slug': business.slug,
+            'latitude': float(business.latitude),
+            'longitude': float(business.longitude),
+            'logo': business.logo.url if business.logo else '',
+            'business_type': business.business_type,
+            'category_name_en': business.category.name_en,
+            'category_name_ar': business.category.name_ar,
+            'category_icon': business.category.icon,
+            'district_name_en': business.district.name_en,
+            'city_name_en': business.district.city.name_en,
+            'governorate_name_en': business.district.city.governorate.name_en,
+            'phone': business.phone,
+            'is_featured': business.is_featured,
+        })
+    
+    # Get filters
+    categories = Category.objects.filter(
+        is_active=True,
+        parent__isnull=True
+    ).order_by('order')
+    
+    governorates = Governorate.objects.filter(
+        is_active=True
+    ).order_by('order')
+    
+    context = {
+        'businesses_json': json.dumps(businesses_data),
+        'categories': categories,
+        'governorates': governorates,
+        'total_businesses': len(businesses_data),
+    }
+    
+    return render(request, 'directory/map.html', context)
