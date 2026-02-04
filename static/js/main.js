@@ -3,105 +3,86 @@
  */
 
 $(document).ready(function() {
-    
+
     // ==========================================
     // Back to Top Button
     // ==========================================
-    $(window).scroll(function() {
-        if ($(this).scrollTop() > 100) {
+    $(window).on('scroll', function() {
+        if ($(this).scrollTop() > 120) {
             $('#backToTop').fadeIn();
         } else {
             $('#backToTop').fadeOut();
         }
     });
-    
-    $('#backToTop').click(function() {
-        $('html, body').animate({ scrollTop: 0 }, 800);
+
+    $('#backToTop').on('click', function() {
+        $('html, body').animate({ scrollTop: 0 }, 650);
         return false;
     });
-    
-    
+
     // ==========================================
     // Auto-hide Alerts
     // ==========================================
     setTimeout(function() {
         $('.alert').fadeOut('slow');
-    }, 5000);
-    
-    
+    }, 4500);
+
     // ==========================================
     // Navbar Scroll Effect
     // ==========================================
-    $(window).scroll(function() {
-        if ($(this).scrollTop() > 50) {
-            $('.navbar').addClass('shadow-sm');
+    $(window).on('scroll', function() {
+        if ($(this).scrollTop() > 30) {
+            $('.navbar').addClass('navbar-scrolled shadow-sm');
         } else {
-            $('.navbar').removeClass('shadow-sm');
+            $('.navbar').removeClass('navbar-scrolled shadow-sm');
         }
     });
-    
-    
+
     // ==========================================
     // Smooth Scroll for Anchor Links
     // ==========================================
     $('a[href^="#"]').on('click', function(e) {
-        e.preventDefault();
-        
-        var target = $(this.hash);
+        const target = $(this.hash);
         if (target.length) {
+            e.preventDefault();
             $('html, body').animate({
-                scrollTop: target.offset().top - 70
-            }, 800);
+                scrollTop: target.offset().top - 80
+            }, 650);
         }
     });
-    
-    
+
     // ==========================================
-    // Form Validation Feedback
+    // Form Validation Feedback (FIXED)
     // ==========================================
-    $('form').on('submit', function() {
-        var form = $(this);
+    $('form').on('submit', function(event) {
+        const form = $(this);
         if (form[0].checkValidity() === false) {
             event.preventDefault();
             event.stopPropagation();
         }
         form.addClass('was-validated');
     });
-    
-    
-    // ==========================================
-    // Image Lazy Loading
-    // ==========================================
-    if ('loading' in HTMLImageElement.prototype) {
-        const images = document.querySelectorAll('img[loading="lazy"]');
-        images.forEach(img => {
-            img.src = img.dataset.src;
-        });
-    }
-    
-    
+
     // ==========================================
     // Tooltips Initialization
     // ==========================================
-    var tooltipTriggerList = [].slice.call(
+    const tooltipTriggerList = [].slice.call(
         document.querySelectorAll('[data-bs-toggle="tooltip"]')
     );
-    tooltipTriggerList.map(function(tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    tooltipTriggerList.map(function(el) {
+        return new bootstrap.Tooltip(el);
     });
-    
-    
+
     // ==========================================
     // Popovers Initialization
     // ==========================================
-    var popoverTriggerList = [].slice.call(
+    const popoverTriggerList = [].slice.call(
         document.querySelectorAll('[data-bs-toggle="popover"]')
     );
-    popoverTriggerList.map(function(popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl);
+    popoverTriggerList.map(function(el) {
+        return new bootstrap.Popover(el);
     });
-    
-    
+
     // ==========================================
     // AJAX CSRF Token Setup
     // ==========================================
@@ -112,18 +93,15 @@ $(document).ready(function() {
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(
-                        cookie.substring(name.length + 1)
-                    );
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
                 }
             }
         }
         return cookieValue;
     }
-    
+
     const csrftoken = getCookie('csrftoken');
-    
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!(/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) && !this.crossDomain) {
@@ -131,52 +109,57 @@ $(document).ready(function() {
             }
         }
     });
-    
-    
+
     // ==========================================
     // Search Modal Auto-focus
     // ==========================================
     $('#searchModal').on('shown.bs.modal', function() {
-        $('#searchModal input[name="q"]').focus();
+        $('#searchModal input[name="q"]').trigger('focus');
     });
-    
-    
+
     // ==========================================
-    // Print Friendly Console
+    // Leaflet Map: RTL Visibility Fix (GLOBAL HELPER)
+    // - Call window.fixLeafletMap(mapInstance) after you create a Leaflet map.
+    // - Also works when map is inside tabs/collapses.
     // ==========================================
-    console.log('%c Daliil Ay Khidma ', 
-        'background: #0d6efd; color: white; font-size: 20px; padding: 10px;'
+    window.fixLeafletMap = function(map) {
+        if (!map) return;
+
+        // Invalidate size twice to be safe (tabs/layout shift)
+        setTimeout(() => map.invalidateSize(), 50);
+        setTimeout(() => map.invalidateSize(), 250);
+
+        // Keep after resize too
+        window.addEventListener('resize', () => map.invalidateSize());
+    };
+
+    // If you use Bootstrap tabs and map inside a tab
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach((tabEl) => {
+        tabEl.addEventListener('shown.bs.tab', () => {
+            // If you store your map on window.businessMap, it will be refreshed automatically
+            if (window.businessMap) window.fixLeafletMap(window.businessMap);
+        });
+    });
+
+    // ==========================================
+    // Console Branding
+    // ==========================================
+    console.log('%c Daliil Ay Khidma ',
+        'background: #4f46e5; color: white; font-size: 18px; padding: 8px 12px; border-radius: 10px;'
     );
-    console.log('%c Made with ❤️ in Egypt ', 
-        'background: #198754; color: white; font-size: 14px; padding: 5px;'
+    console.log('%c Made with ❤️ in Egypt ',
+        'background: #2563eb; color: white; font-size: 13px; padding: 6px 10px; border-radius: 10px;'
     );
-    
 });
 
-// // دليل أي خدمة - Main JavaScript
 
-// $(document).ready(function() {
-//     // Auto-hide alerts after 5 seconds
-//     setTimeout(function() {
-//         $('.alert').fadeOut('slow');
-//     }, 5000);
-    
-//     // Confirm delete actions
-//     $('.btn-delete').on('click', function(e) {
-//         if (!confirm('هل أنت متأكد من الحذف؟')) {
-//             e.preventDefault();
-//         }
-//     });
-    
-//     // Smooth scroll to top
-//     $('.scroll-to-top').on('click', function() {
-//         $('html, body').animate({scrollTop: 0}, 'slow');
-//         return false;
-//     });
-    
-//     // Bootstrap tooltips initialization
-//     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-//     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-//         return new bootstrap.Tooltip(tooltipTriggerEl);
-//     });
-// });
+// Leaflet maps inside tabs fix (global)
+document.addEventListener('shown.bs.tab', function () {
+  if (window.L && typeof window.L === 'object') {
+    setTimeout(() => {
+      document.querySelectorAll('.leaflet-container').forEach(el => {
+        // find map instance is not straightforward; we already handle invalidateSize in page script
+      });
+    }, 120);
+  }
+});

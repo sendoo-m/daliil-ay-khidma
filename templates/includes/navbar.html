@@ -1,4 +1,160 @@
 {% load static %}
+{% load i18n %}
+{% load translation_tags %}
+
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'core:home' %}">
+            <i class="fas fa-store-alt"></i>
+            {% if LANGUAGE_CODE == 'ar' %}
+                دليل أي خدمة
+            {% else %}
+                Daliil Ay Khidma
+            {% endif %}
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                style="background: rgba(255,255,255,0.2); border: none;">
+            <i class="fas fa-bars text-white"></i>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" 
+                       href="{% url 'core:home' %}">
+                        <i class="fas fa-home me-1"></i>
+                        {% t "Home" %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'business' in request.path %}active{% endif %}" 
+                       href="{% url 'directory:business_list' %}">
+                        <i class="fas fa-building me-1"></i>
+                        {% t "Businesses" %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'category' in request.path %}active{% endif %}" 
+                       href="{% url 'categories:category_list' %}">
+                        <i class="fas fa-th-large me-1"></i>
+                        {% t "Categories" %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'map' in request.path %}active{% endif %}" 
+                       href="{% url 'directory:map' %}">
+                        <i class="fas fa-map-marked-alt me-1"></i>
+                        {% t "Map" %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'deal' in request.path %}active{% endif %}" 
+                       href="{% url 'deals:deal_list' %}">
+                        <i class="fas fa-tag me-1"></i>
+                        {% t "Deals" %}
+                        <span class="badge bg-danger ms-1">{% t "Hot" %}</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <ul class="navbar-nav">
+                <!-- Language Switcher -->
+                <li class="nav-item dropdown me-2">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-globe me-1"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            عربي
+                        {% else %}
+                            English
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item {% if LANGUAGE_CODE == 'ar' %}active{% endif %}" 
+                               href="{% url 'core:set_language' %}?language=ar&next={{ request.path }}">
+                                🇸🇦 العربية
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if LANGUAGE_CODE == 'en' %}active{% endif %}" 
+                               href="{% url 'core:set_language' %}?language=en&next={{ request.path }}">
+                                🇬🇧 English
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                            {{ user.get_full_name|default:user.username|truncatewords:2 }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'dashboard:home' %}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>
+                                    {% t "Dashboard" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'directory:my_businesses' %}">
+                                    <i class="fas fa-store me-2"></i>
+                                    {% t "My Businesses" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'directory:my_favorites' %}">
+                                    <i class="fas fa-heart me-2"></i>
+                                    {% t "My Favorites" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'deals:my_deals' %}">
+                                    <i class="fas fa-ticket-alt me-2"></i>
+                                    {% t "My Deals" %}
+                                </a>
+                            </li>
+                            {% if user.is_staff %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'admin:index' %}">
+                                    <i class="fas fa-cog me-2"></i>
+                                    {% t "Admin Panel" %}
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>
+                                    {% t "Logout" %}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item me-2">
+                        <a class="nav-link" href="{% url 'accounts:login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            {% t "Login" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-nav" href="{% url 'accounts:register' %}">
+                            <i class="fas fa-user-plus me-1"></i>
+                            {% t "Register" %}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+{% comment %} {% load static %}
 {% load translation_tags %}
 
 
@@ -153,7 +309,7 @@
             </ul>
         </div>
     </div>
-</nav>
+</nav> {% endcomment %}
 
 {% comment %} <!-- templates/includes/navbar.html -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">

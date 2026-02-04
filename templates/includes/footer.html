@@ -1,154 +1,144 @@
 {% load static %}
 {% load i18n %}
+{% load translation_tags %}
 
-<footer class="bg-dark text-white pt-5 pb-3 mt-5">
+<footer class="footer">
     <div class="container">
         <div class="row">
-            <!-- About Section -->
             <div class="col-lg-4 col-md-6 mb-4">
-                <h5 class="text-uppercase mb-3">
+                <h5>
+                    <i class="fas fa-store-alt me-2"></i>
                     {% if LANGUAGE_CODE == 'ar' %}
-                        عن دليل أي خدمة
+                        دليل أي خدمة
                     {% else %}
-                        About Daliil Ay Khidma
+                        Daliil Ay Khidma
                     {% endif %}
                 </h5>
                 <p class="text-white-50">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                        دليل شامل للمحلات والخدمات في مصر. نساعدك في إيجاد أفضل الخدمات بسهولة وسرعة.
-                    {% else %}
-                        A comprehensive directory for businesses and services in Egypt. 
-                        We help you find the best services easily and quickly.
-                    {% endif %}
+                    {% t "Your comprehensive guide to finding the best businesses and services in your area." %}
                 </p>
                 <div class="social-links mt-3">
-                    <a href="#" class="text-white me-3" title="Facebook">
-                        <i class="fab fa-facebook fa-lg"></i>
-                    </a>
-                    <a href="#" class="text-white me-3" title="Instagram">
-                        <i class="fab fa-instagram fa-lg"></i>
-                    </a>
-                    <a href="#" class="text-white me-3" title="Twitter">
-                        <i class="fab fa-twitter fa-lg"></i>
-                    </a>
-                    <a href="#" class="text-white" title="LinkedIn">
-                        <i class="fab fa-linkedin fa-lg"></i>
-                    </a>
+                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
             
-            <!-- Quick Links -->
             <div class="col-lg-2 col-md-6 mb-4">
-                <h5 class="text-uppercase mb-3">{% trans "Quick Links" %}</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <a href="{% url 'core:home' %}" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-chevron-right fa-xs me-2"></i>
-                            {% trans "Home" %}
+                <h5>{% t "Quick Links" %}</h5>
+                <ul>
+                    <li>
+                        <a href="{% url 'core:home' %}">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "Home" %}
                         </a>
                     </li>
-                    <li class="mb-2">
-                        <a href="{% url 'directory:business_list' %}" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-chevron-right fa-xs me-2"></i>
-                            {% trans "Businesses" %}
+                    <li>
+                        <a href="{% url 'directory:business_list' %}">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "Businesses" %}
                         </a>
                     </li>
-                    <li class="mb-2">
-                        <a href="{% url 'categories:category_list' %}" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-chevron-right fa-xs me-2"></i>
-                            {% trans "Categories" %}
+                    <li>
+                        <a href="{% url 'categories:category_list' %}">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "Categories" %}
                         </a>
                     </li>
-                    <li class="mb-2">
-                        <a href="{% url 'deals:deal_list' %}" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-chevron-right fa-xs me-2"></i>
-                            {% trans "Deals" %}
+                    <li>
+                        <a href="{% url 'core:about' %}">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "About Us" %}
                         </a>
                     </li>
-                </ul>
-            </div>
-            
-            <!-- Support -->
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h5 class="text-uppercase mb-3">{% trans "Support" %}</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <a href="#" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-chevron-right fa-xs me-2"></i>
-                            {% trans "About Us" %}
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-chevron-right fa-xs me-2"></i>
-                            {% trans "Contact Us" %}
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-chevron-right fa-xs me-2"></i>
-                            {% trans "Privacy Policy" %}
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-chevron-right fa-xs me-2"></i>
-                            {% trans "Terms of Service" %}
+                    <li>
+                        <a href="{% url 'core:contact' %}">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "Contact Us" %}
                         </a>
                     </li>
                 </ul>
             </div>
             
-            <!-- Contact Info -->
             <div class="col-lg-3 col-md-6 mb-4">
-                <h5 class="text-uppercase mb-3">{% trans "Contact" %}</h5>
-                <ul class="list-unstyled text-white-50">
-                    <li class="mb-2">
-                        <i class="fas fa-map-marker-alt me-2"></i>
-                        {% if LANGUAGE_CODE == 'ar' %}
-                            القاهرة، مصر
-                        {% else %}
-                            Cairo, Egypt
-                        {% endif %}
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-phone me-2"></i>
-                        <a href="tel:+201234567890" class="text-white-50 text-decoration-none">
-                            +20 123 456 7890
+                <h5>{% t "Popular Categories" %}</h5>
+                <ul>
+                    <li>
+                        <a href="{% url 'directory:business_list' %}?category=restaurants">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "Restaurants" %}
                         </a>
                     </li>
-                    <li class="mb-2">
-                        <i class="fas fa-envelope me-2"></i>
-                        <a href="mailto:info@daliil.com" class="text-white-50 text-decoration-none">
-                            info@daliil.com
+                    <li>
+                        <a href="{% url 'directory:business_list' %}?category=hotels">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "Hotels" %}
                         </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'directory:business_list' %}?category=shopping">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "Shopping" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'directory:business_list' %}?category=services">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "Services" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'categories:category_list' %}">
+                            <i class="fas fa-angle-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} me-2"></i>
+                            {% t "View All" %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5>{% t "Contact Us" %}</h5>
+                <ul style="list-style: none; padding: 0;">
+                    <li class="mb-2">
+                        <i class="fas fa-map-marker-alt me-2" style="color: #667eea;"></i>
+                        <span class="text-white-50">{% t "Riyadh, Saudi Arabia" %}</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-phone me-2" style="color: #667eea;"></i>
+                        <a href="tel:+966123456789" class="text-white-50">+966 12 345 6789</a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-envelope me-2" style="color: #667eea;"></i>
+                        <a href="mailto:info@daliil.sa" class="text-white-50">info@daliil.sa</a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-clock me-2" style="color: #667eea;"></i>
+                        <span class="text-white-50">{% t "24/7 Available" %}</span>
                     </li>
                 </ul>
             </div>
         </div>
         
-        <hr class="bg-white-50 my-4">
-        
-        <!-- Copyright -->
-        <div class="row">
-            <div class="col-md-6 text-center text-md-start">
-                <p class="mb-0 text-white-50">
-                    &copy; 2026
-                    {% if LANGUAGE_CODE == 'ar' %}
-                        دليل أي خدمة. جميع الحقوق محفوظة.
-                    {% else %}
-                        Daliil Ay Khidma. All Rights Reserved.
-                    {% endif %}
-                </p>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <p class="mb-0 text-white-50">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                        صُنع بـ <i class="fas fa-heart text-danger"></i> في مصر
-                    {% else %}
-                        Made with <i class="fas fa-heart text-danger"></i> in Egypt
-                    {% endif %}
-                </p>
+        <div class="footer-bottom">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-{% if LANGUAGE_CODE == 'ar' %}end{% else %}start{% endif %} mb-2 mb-md-0">
+                    <p class="mb-0">
+                        &copy; 2026 
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            دليل أي خدمة
+                        {% else %}
+                            Daliil Ay Khidma
+                        {% endif %}
+                        . {% t "All rights reserved." %}
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-{% if LANGUAGE_CODE == 'ar' %}start{% else %}end{% endif %}">
+                    <a href="#" class="text-white-50 me-3">{% t "Privacy Policy" %}</a>
+                    <a href="#" class="text-white-50 me-3">{% t "Terms of Service" %}</a>
+                    <a href="{% url 'core:contact' %}" class="text-white-50">{% t "Support" %}</a>
+                </div>
             </div>
         </div>
     </div>
