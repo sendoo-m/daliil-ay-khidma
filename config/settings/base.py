@@ -106,8 +106,7 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.template.context_processors.static',
                 'django.template.context_processors.i18n',
-                'apps.core.context_processors.language_context',  # ← أضف هذا
-
+                'apps.core.context_processors.language_context',
             ],
         },
     },
@@ -153,29 +152,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-
-# ========================================
-# INTERNATIONALIZATION
-# ========================================
-# LANGUAGE_CODE = 'en-us'  # ← غيّر من 'ar' لـ 'en-us'
-
-# LANGUAGES = [
-#     ('ar', _('Arabic')),
-#     ('en', _('English')),
-# ]
-
-# LOCALE_PATHS = [
-#     BASE_DIR / 'locale',
-# ]
-
-# TIME_ZONE = 'Africa/Cairo'
-
-# USE_I18N = True
-
-# USE_L10N = True
-
-# USE_TZ = True
 
 # ========================================
 # INTERNATIONALIZATION
@@ -232,9 +208,13 @@ AUTH_USER_MODEL = 'accounts.User'
 # ========================================
 # AUTHENTICATION
 # ========================================
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'dashboard:dashboard'
-LOGOUT_REDIRECT_URL = 'core:home'
+LOGIN_REDIRECT_URL = 'dashboard:home'  # ← Fixed from 'dashboard:dashboard'
+LOGOUT_REDIRECT_URL = 'accounts:login'  # ← Fixed from 'core:home'
 
 
 # ========================================
@@ -293,16 +273,6 @@ REST_FRAMEWORK = {
     
     # Error handling
     'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
-    
-    # Throttling (uncomment to enable)
-    # 'DEFAULT_THROTTLE_CLASSES': [
-    #     'rest_framework.throttling.AnonRateThrottle',
-    #     'rest_framework.throttling.UserRateThrottle',
-    # ],
-    # 'DEFAULT_THROTTLE_RATES': {
-    #     'anon': '100/day',
-    #     'user': '1000/day',
-    # },
 }
 
 
@@ -318,7 +288,7 @@ SPECTACULAR_SETTINGS = {
     # API info
     'CONTACT': {
         'name': 'API Support',
-        'email': 'support@daliilay khidma.com',
+        'email': 'support@daliilaaykhidma.com',
     },
     'LICENSE': {
         'name': 'Proprietary',
