@@ -8,25 +8,16 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 
-try:
-    from apps.reviews.models import Review
-    REVIEWS_AVAILABLE = True
-except ImportError:
-    REVIEWS_AVAILABLE = False
-
-from apps.dashboard.forms import ReviewReplyForm
+from apps.reviews.models import Review, ReviewReply
+from apps.directory.models import Business
 
 
 @login_required
 def review_list(request):
     """قائمة تقييمات محلات المستخدم"""
-    if not REVIEWS_AVAILABLE:
-        messages.warning(request, 'نظام التقييمات غير متوفر حالياً')
-        return redirect('dashboard:home')
-    
     reviews = Review.objects.filter(
         business__owner=request.user
-    ).select_related('business', 'user').order_by('-created_at')
+    ).select_related('business', 'user', 'reply').order_by('-created_at')
     
     # Filter by business
     business_id = request.GET.get('business')
@@ -45,25 +36,26 @@ def review_list(request):
     elif status == 'pending':
         reviews = reviews.filter(is_approved=False)
     elif status == 'replied':
-        reviews = reviews.filter(reply__isnull=False).exclude(reply='')
+        reviews = reviews.exclude(reply__isnull=True)
     elif status == 'unreplied':
-        reviews = reviews.filter(Q(reply__isnull=True) | Q(reply=''))
+        reviews = reviews.filter(reply__isnull=True)
     
     # Search
     search = request.GET.get('search')
     if search:
         reviews = reviews.filter(
             Q(comment__icontains=search) |
-            Q(user__email__icontains=search)
+            Q(user__username__icontains=search) |
+            Q(user__first_name__icontains=search) |
+            Q(user__last_name__icontains=search)
         )
     
     # Pagination
-    paginator = Paginator(reviews, 15)
+    paginator = Paginator(reviews, 10)
     page = request.GET.get('page')
     reviews = paginator.get_page(page)
     
     # Get user businesses for filter
-    from apps.directory.models import Business
     businesses = Business.objects.filter(owner=request.user)
     
     context = {
@@ -76,7 +68,7 @@ def review_list(request):
         ).count(),
         'unreplied_count': Review.objects.filter(
             business__owner=request.user
-        ).filter(Q(reply__isnull=True) | Q(reply='')).count(),
+        ).filter(reply__isnull=True).count(),
     }
     
     return render(request, 'dashboard/review/list.html', context)
@@ -85,24 +77,61 @@ def review_list(request):
 @login_required
 def review_reply(request, pk):
     """الرد على تقييم"""
-    if not REVIEWS_AVAILABLE:
-        messages.warning(request, 'نظام التقييمات غير متوفر حالياً')
-        return redirect('dashboard:home')
-    
     review = get_object_or_404(Review, pk=pk, business__owner=request.user)
     
     if request.method == 'POST':
-        form = ReviewReplyForm(request.POST, instance=review)
-        if form.is_valid():
-            form.save()
+        comment = request.POST.get('comment', '').strip()
+        
+        if not comment:
+            messages.error(request, 'يجب إدخال نص الرد!')
+            return redirect('dashboard:review_reply', pk=pk)
+        
+        # Create or update reply
+        reply, created = ReviewReply.objects.update_or_create(
+            review=review,
+            defaults={
+                'user': request.user,
+                'comment': comment,
+            }
+        )
+        
+        if created:
             messages.success(request, 'تم إضافة الرد بنجاح!')
-            return redirect('dashboard:review_list')
-    else:
-        form = ReviewReplyForm(instance=review)
+        else:
+            messages.success(request, 'تم تحديث الرد بنجاح!')
+        
+        return redirect('dashboard:review_list')
     
     context = {
-        'form': form,
         'review': review,
     }
     
     return render(request, 'dashboard/review/reply.html', context)
+
+
+@login_required
+def review_approve(request, pk):
+    """اعتماد تقييم"""
+    review = get_object_or_404(Review, pk=pk, business__owner=request.user)
+    
+    if request.method == 'POST':
+        review.is_approved = True
+        review.save()
+        messages.success(request, 'تم اعتماد التقييم بنجاح!')
+        return redirect('dashboard:review_list')
+    
+    return redirect('dashboard:review_list')
+
+
+@login_required
+def review_reject(request, pk):
+    """رفض تقييم"""
+    review = get_object_or_404(Review, pk=pk, business__owner=request.user)
+    
+    if request.method == 'POST':
+        review.is_approved = False
+        review.save()
+        messages.success(request, 'تم رفض التقييم بنجاح!')
+        return redirect('dashboard:review_list')
+    
+    return redirect('dashboard:review_list')
