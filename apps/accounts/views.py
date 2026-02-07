@@ -9,10 +9,10 @@ from django.contrib.auth import login, logout, authenticate, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView
+from django.views import View
 from django.contrib.auth.views import (
     LoginView as BaseLoginView,
-    LogoutView as BaseLogoutView,
     PasswordResetView as BasePasswordResetView,
     PasswordResetDoneView as BasePasswordResetDoneView,
     PasswordResetConfirmView as BasePasswordResetConfirmView,
@@ -67,20 +67,30 @@ class LoginView(BaseLoginView):
         return reverse_lazy('dashboard:home')
     
     def form_valid(self, form):
-        messages.success(self.request, f'مرحباً {form.get_user().username}!')
+        username = form.cleaned_data.get('username')
+        messages.success(self.request, f'مرحباً {username}!')
         return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'اسم المستخدم أو كلمة المرور غير صحيحة!')
+        return super().form_invalid(form)
 
 
 # ========================================
 # Logout View
 # ========================================
-class LogoutView(BaseLogoutView):
+class LogoutView(View):
     """عرض تسجيل الخروج"""
-    next_page = reverse_lazy('accounts:login')
     
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request):
+        logout(request)
         messages.success(request, 'تم تسجيل الخروج بنجاح')
-        return super().dispatch(request, *args, **kwargs)
+        return redirect('accounts:login')
+    
+    def post(self, request):
+        logout(request)
+        messages.success(request, 'تم تسجيل الخروج بنجاح')
+        return redirect('accounts:login')
 
 
 # ========================================
