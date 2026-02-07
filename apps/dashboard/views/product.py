@@ -30,11 +30,11 @@ def product_list(request):
     if product_type:
         products = products.filter(product_type=product_type)
     
-    # Filter by availability
-    availability = request.GET.get('availability')
-    if availability == 'available':
+    # Filter by status (availability)
+    status = request.GET.get('status')
+    if status == 'available':
         products = products.filter(is_available=True)
-    elif availability == 'unavailable':
+    elif status == 'unavailable':
         products = products.filter(is_available=False)
     
     # Search
@@ -53,14 +53,16 @@ def product_list(request):
     # Get user businesses for filter
     businesses = Business.objects.filter(owner=request.user)
     
+    # Calculate statistics
+    all_products = Product.objects.filter(business__owner=request.user)
+    
     context = {
         'products': products,
         'businesses': businesses,
-        'total_count': Product.objects.filter(business__owner=request.user).count(),
-        'available_count': Product.objects.filter(
-            business__owner=request.user, 
-            is_available=True
-        ).count(),
+        'total_count': all_products.count(),
+        'available_count': all_products.filter(is_available=True).count(),
+        'products_count': all_products.filter(product_type='product').count(),
+        'services_count': all_products.filter(product_type='service').count(),
     }
     
     return render(request, 'dashboard/product/list.html', context)
