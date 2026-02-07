@@ -87,9 +87,9 @@ def dashboard_home(request):
             'clicks': month_businesses.aggregate(Sum('click_count'))['click_count__sum'] or 0,
         })
     
-    # Recent businesses
+    # Recent businesses - FIXED: Use 'district' instead of 'governorate', 'city'
     recent_businesses = businesses.select_related(
-        'category', 'governorate', 'city'
+        'category', 'district'
     ).order_by('-created_at')[:5]
     
     # Recent products

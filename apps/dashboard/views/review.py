@@ -45,9 +45,9 @@ def review_list(request):
     elif status == 'pending':
         reviews = reviews.filter(is_approved=False)
     elif status == 'replied':
-        reviews = reviews.exclude(reply='')
+        reviews = reviews.filter(reply__isnull=False).exclude(reply='')
     elif status == 'unreplied':
-        reviews = reviews.filter(reply='')
+        reviews = reviews.filter(Q(reply__isnull=True) | Q(reply=''))
     
     # Search
     search = request.GET.get('search')
@@ -75,9 +75,8 @@ def review_list(request):
             is_approved=False
         ).count(),
         'unreplied_count': Review.objects.filter(
-            business__owner=request.user,
-            reply=''
-        ).count(),
+            business__owner=request.user
+        ).filter(Q(reply__isnull=True) | Q(reply='')).count(),
     }
     
     return render(request, 'dashboard/review/list.html', context)
