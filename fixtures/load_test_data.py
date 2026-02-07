@@ -23,7 +23,7 @@ from apps.categories.models import Category
 from apps.products.models import Product
 from apps.deals.models import Deal
 from apps.reviews.models import Review, ReviewReply
-from apps.subscriptions.models import SubscriptionPlan, BusinessSubscription
+from apps.subscriptions.models import SubscriptionPlan, Subscription
 
 User = get_user_model()
 
