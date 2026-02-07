@@ -1,0 +1,97 @@
+{% extends 'dashboard/admin/base.html' %}
+
+{% block title %}إعدادات النظام{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold"><i class="fas fa-cog me-2" style="color: #95a5a6;"></i> إعدادات النظام</h2>
+</div>
+
+<div class="row g-3">
+    <!-- System Information -->
+    <div class="col-lg-6">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                معلومات النظام
+            </h5>
+            <table class="table table-sm">
+                <tr>
+                    <td><strong>اسم الموقع:</strong></td>
+                    <td>دليل أي خدمة</td>
+                </tr>
+                <tr>
+                    <td><strong>إصدار Django:</strong></td>
+                    <td>5.0+</td>
+                </tr>
+                <tr>
+                    <td><strong>إصدار Python:</strong></td>
+                    <td>3.12+</td>
+                </tr>
+                <tr>
+                    <td><strong>قاعدة البيانات:</strong></td>
+                    <td>SQLite / PostgreSQL</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <!-- System Actions -->
+    <div class="col-lg-6">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-tools text-warning me-2"></i>
+                إجراءات النظام
+            </h5>
+            <div class="d-grid gap-2">
+                <a href="{% url 'admin_dashboard:clear_cache' %}" class="btn btn-outline-warning">
+                    <i class="fas fa-trash-alt me-2"></i>
+                    مسح الذاكرة المؤقتة
+                </a>
+                <button class="btn btn-outline-info" onclick="alert('قريبًا...')">
+                    <i class="fas fa-download me-2"></i>
+                    تصدير البيانات
+                </button>
+                <button class="btn btn-outline-success" onclick="alert('قريبًا...')">
+                    <i class="fas fa-file-export me-2"></i>
+                    تصدير تقرير
+                </button>
+                <button class="btn btn-outline-danger" onclick="alert('قريبًا...')">
+                    <i class="fas fa-database me-2"></i>
+                    نسخ احتياطي لقاعدة البيانات
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Site Settings Form -->
+<div class="table-card mt-4">
+    <h5 class="fw-bold mb-3">
+        <i class="fas fa-sliders-h text-success me-2"></i>
+        إعدادات الموقع
+    </h5>
+    <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">عنوان الموقع</label>
+                <input type="text" class="form-control" value="دليل أي خدمة">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">البريد الإلكتروني</label>
+                <input type="email" class="form-control" value="info@daliilaaykhidma.com">
+            </div>
+            <div class="col-md-12">
+                <label class="form-label">وصف الموقع</label>
+                <textarea class="form-control" rows="3">الدليل الشامل للمحلات والخدمات</textarea>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-admin">
+                    <i class="fas fa-save me-1"></i> حفظ التغييرات
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

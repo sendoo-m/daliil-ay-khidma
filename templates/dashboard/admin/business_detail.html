@@ -1,0 +1,60 @@
+{% extends 'dashboard/admin/base.html' %}
+
+{% block title %}تفاصيل المحل{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-right me-1"></i> عودة
+    </a>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="table-card">
+            <h3>{{ business.name_ar }}</h3>
+            <p class="text-muted">{{ business.category.name_ar }}</p>
+            <hr>
+            <p>{{ business.description_ar }}</p>
+            
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <strong>المالك:</strong> {{ business.owner.username }}
+                </div>
+                <div class="col-md-6">
+                    <strong>المشاهدات:</strong> {{ business.view_count }}
+                </div>
+                <div class="col-md-6">
+                    <strong>النقرات:</strong> {{ business.click_count }}
+                </div>
+                <div class="col-md-6">
+                    <strong>الحالة:</strong>
+                    {% if business.is_verified %}
+                        <span class="badge bg-success">موثّق</span>
+                    {% endif %}
+                    {% if business.is_active %}
+                        <span class="badge bg-primary">فعّال</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">إجراءات</h5>
+            <div class="d-grid gap-2">
+                <a href="{% url 'admin_dashboard:business_verify' business.id %}" class="btn btn-success">
+                    <i class="fas fa-check me-1"></i> {% if business.is_verified %}إلغاء التوثيق{% else %}توثيق{% endif %}
+                </a>
+                <a href="{% url 'admin_dashboard:business_feature' business.id %}" class="btn btn-warning">
+                    <i class="fas fa-star me-1"></i> {% if business.is_featured %}إلغاء الإبراز{% else %}إبراز{% endif %}
+                </a>
+                <a href="{% url 'admin_dashboard:business_toggle_status' business.id %}" class="btn btn-secondary">
+                    <i class="fas fa-power-off me-1"></i> {% if business.is_active %}تعطيل{% else %}تفعيل{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

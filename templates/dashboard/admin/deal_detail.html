@@ -1,0 +1,16 @@
+{% extends 'dashboard/admin/base.html' %}
+
+{% block title %}تفاصيل العرض{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'admin_dashboard:deals_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-right me-1"></i> عودة
+    </a>
+</div>
+
+<div class="table-card">
+    <h3>{{ deal.title_ar }}</h3>
+    <p>{{ deal.description_ar }}</p>
+</div>
+{% endblock %}

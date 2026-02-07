@@ -1,0 +1,59 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load humanize %}
+
+{% block title %}إدارة التصنيفات{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fas fa-list me-2" style="color: #1abc9c;"></i> إدارة التصنيفات</h2>
+    <a href="{% url 'admin_dashboard:category_create' %}" class="btn btn-admin">
+        <i class="fas fa-plus me-1"></i> إضافة تصنيف
+    </a>
+</div>
+
+<!-- Categories Table -->
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>الأيقونة</th>
+                    <th>الاسم بالعربي</th>
+                    <th>الاسم بالإنجليزي</th>
+                    <th>عدد المحلات</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td>{{ category.id }}</td>
+                    <td><i class="{{ category.icon }} fa-lg" style="color: #1abc9c;"></i></td>
+                    <td><strong>{{ category.name_ar }}</strong></td>
+                    <td>{{ category.name_en }}</td>
+                    <td>
+                        <span class="badge bg-primary">{{ category.business_count|intcomma }}</span>
+                    </td>
+                    <td>
+                        <a href="{% url 'admin_dashboard:category_edit' category.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form method="post" action="{% url 'admin_dashboard:category_delete' category.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('هل أنت متأكد؟')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">لا توجد تصنيفات</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
