@@ -34,11 +34,11 @@ def create_users():
     
     # Business owners
     owners = [
-        {'username': 'ahmed_owner', 'email': 'ahmed@test.com', 'first_name': 'أحمد', 'last_name': 'محمد', 'password': 'test123'},
-        {'username': 'fatima_owner', 'email': 'fatima@test.com', 'first_name': 'فاطمة', 'last_name': 'علي', 'password': 'test123'},
-        {'username': 'khaled_owner', 'email': 'khaled@test.com', 'first_name': 'خالد', 'last_name': 'حسن', 'password': 'test123'},
-        {'username': 'maha_owner', 'email': 'maha@test.com', 'first_name': 'مها', 'last_name': 'عبدالله', 'password': 'test123'},
-        {'username': 'omar_owner', 'email': 'omar@test.com', 'first_name': 'عمر', 'last_name': 'سعيد', 'password': 'test123'},
+        {'username': 'ahmed_owner', 'email': 'ahmed@test.com', 'phone': '+966501234567', 'first_name': 'أحمد', 'last_name': 'محمد', 'password': 'test123'},
+        {'username': 'fatima_owner', 'email': 'fatima@test.com', 'phone': '+966501234568', 'first_name': 'فاطمة', 'last_name': 'علي', 'password': 'test123'},
+        {'username': 'khaled_owner', 'email': 'khaled@test.com', 'phone': '+966501234569', 'first_name': 'خالد', 'last_name': 'حسن', 'password': 'test123'},
+        {'username': 'maha_owner', 'email': 'maha@test.com', 'phone': '+966501234570', 'first_name': 'مها', 'last_name': 'عبدالله', 'password': 'test123'},
+        {'username': 'omar_owner', 'email': 'omar@test.com', 'phone': '+966501234571', 'first_name': 'عمر', 'last_name': 'سعيد', 'password': 'test123'},
     ]
     
     created_owners = []
@@ -47,6 +47,7 @@ def create_users():
             username=owner_data['username'],
             defaults={
                 'email': owner_data['email'],
+                'phone': owner_data['phone'],
                 'first_name': owner_data['first_name'],
                 'last_name': owner_data['last_name'],
             }
@@ -58,25 +59,26 @@ def create_users():
         created_owners.append(user)
     
     # Customers
-    customers = [
-        {'username': 'customer1', 'first_name': 'محمد', 'last_name': 'أحمد'},
-        {'username': 'customer2', 'first_name': 'سارة', 'last_name': 'خالد'},
-        {'username': 'customer3', 'first_name': 'يوسف', 'last_name': 'محمود'},
-        {'username': 'customer4', 'first_name': 'نور', 'last_name': 'عبدالرحمن'},
-        {'username': 'customer5', 'first_name': 'ليلى', 'last_name': 'حسين'},
-        {'username': 'customer6', 'first_name': 'عبدالله', 'last_name': 'عمر'},
-        {'username': 'customer7', 'first_name': 'مريم', 'last_name': 'فاروق'},
-        {'username': 'customer8', 'first_name': 'طارق', 'last_name': 'رشيد'},
-        {'username': 'customer9', 'first_name': 'هدى', 'last_name': 'عبدالعزيز'},
-        {'username': 'customer10', 'first_name': 'كريم', 'last_name': 'السيد'},
+    customers_data = [
+        {'username': 'customer1', 'phone': '+966502234567', 'first_name': 'محمد', 'last_name': 'أحمد'},
+        {'username': 'customer2', 'phone': '+966502234568', 'first_name': 'سارة', 'last_name': 'خالد'},
+        {'username': 'customer3', 'phone': '+966502234569', 'first_name': 'يوسف', 'last_name': 'محمود'},
+        {'username': 'customer4', 'phone': '+966502234570', 'first_name': 'نور', 'last_name': 'عبدالرحمن'},
+        {'username': 'customer5', 'phone': '+966502234571', 'first_name': 'ليلى', 'last_name': 'حسين'},
+        {'username': 'customer6', 'phone': '+966502234572', 'first_name': 'عبدالله', 'last_name': 'عمر'},
+        {'username': 'customer7', 'phone': '+966502234573', 'first_name': 'مريم', 'last_name': 'فاروق'},
+        {'username': 'customer8', 'phone': '+966502234574', 'first_name': 'طارق', 'last_name': 'رشيد'},
+        {'username': 'customer9', 'phone': '+966502234575', 'first_name': 'هدى', 'last_name': 'عبدالعزيز'},
+        {'username': 'customer10', 'phone': '+966502234576', 'first_name': 'كريم', 'last_name': 'السيد'},
     ]
     
     created_customers = []
-    for customer_data in customers:
+    for customer_data in customers_data:
         user, created = User.objects.get_or_create(
             username=customer_data['username'],
             defaults={
                 'email': f"{customer_data['username']}@test.com",
+                'phone': customer_data['phone'],
                 'first_name': customer_data['first_name'],
                 'last_name': customer_data['last_name'],
             }
