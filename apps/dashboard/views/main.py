@@ -1,12 +1,13 @@
 """
-Main Dashboard Views
+Main Dashboard Views - Enhanced Version
 """
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Sum, Avg, Q
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
+from calendar import monthrange
 
 from apps.directory.models import Business
 from apps.products.models import Product
@@ -16,18 +17,13 @@ from apps.reviews.models import Review
 
 @login_required
 def dashboard_home(request):
-    """الصفحة الرئيسية المحسّنة للداش بورد"""
+    """الصفحة الرئيسية للداش بورد - محسّنة"""
     user = request.user
     
-    # Get user's businesses with related data
-    businesses = Business.objects.filter(owner=user).select_related('category')
+    # Get user's businesses
+    businesses = Business.objects.filter(owner=user)
     
-    # Today and date calculations
-    today = timezone.now()
-    last_30_days = today - timedelta(days=30)
-    last_7_days = today - timedelta(days=7)
-    
-    # Core Statistics
+    # Basic Statistics
     stats = {
         'total_businesses': businesses.count(),
         'active_businesses': businesses.filter(is_active=True).count(),
@@ -39,255 +35,257 @@ def dashboard_home(request):
             business__owner=user, 
             is_available=True
         ).count(),
+        'products_count': Product.objects.filter(
+            business__owner=user,
+            product_type='product'
+        ).count(),
+        'services_count': Product.objects.filter(
+            business__owner=user,
+            product_type='service'
+        ).count(),
         
         'total_deals': Deal.objects.filter(business__owner=user).count(),
         'active_deals': Deal.objects.filter(
             business__owner=user,
-            start_date__lte=today,
-            end_date__gte=today
+            start_date__lte=timezone.now(),
+            end_date__gte=timezone.now()
         ).count(),
         
         'total_views': businesses.aggregate(Sum('view_count'))['view_count__sum'] or 0,
         'total_clicks': businesses.aggregate(Sum('click_count'))['click_count__sum'] or 0,
-    }
-    
-    # Business Type Breakdown
-    business_types = businesses.values('business_type').annotate(
-        count=Count('id')
-    ).order_by('-count')
-    
-    # Reviews Statistics
-    total_reviews = Review.objects.filter(business__owner=user).count()
-    approved_reviews = Review.objects.filter(
-        business__owner=user,
-        is_approved=True
-    ).count()
-    
-    avg_rating = Review.objects.filter(
-        business__owner=user,
-        is_approved=True
-    ).aggregate(Avg('rating'))['rating__avg'] or 0
-    
-    stats['total_reviews'] = total_reviews
-    stats['approved_reviews'] = approved_reviews
-    stats['avg_rating'] = round(avg_rating, 1)
-    
-    # Recent Activities
-    recent_businesses = businesses.select_related('category').order_by('-created_at')[:5]
-    
-    recent_products = Product.objects.filter(
-        business__owner=user
-    ).select_related('business').order_by('-created_at')[:5]
-    
-    active_deals = Deal.objects.filter(
-        business__owner=user,
-        start_date__lte=today,
-        end_date__gte=today
-    ).select_related('business').order_by('-created_at')[:5]
-    
-    recent_reviews = Review.objects.filter(
-        business__owner=user
-    ).select_related('business', 'user').order_by('-created_at')[:5]
-    
-    # Monthly Performance (last 6 months)
-    monthly_data = []
-    for i in range(5, -1, -1):
-        month_start = today - timedelta(days=30*i)
-        month_end = today - timedelta(days=30*(i-1)) if i > 0 else today
         
-        month_views = businesses.filter(
-            created_at__lte=month_end
-        ).aggregate(Sum('view_count'))['view_count__sum'] or 0
-        
-        monthly_data.append({
-            'month': month_start.strftime('%B'),
-            'views': month_views,
-        })
-    
-    # Growth Indicators
-    last_week_businesses = businesses.filter(created_at__gte=last_7_days).count()
-    last_week_products = Product.objects.filter(
-        business__owner=user,
-        created_at__gte=last_7_days
-    ).count()
-    
-    stats['new_businesses_week'] = last_week_businesses
-    stats['new_products_week'] = last_week_products
-    
-    context = {
-        'stats': stats,
-        'business_types': business_types,
-        'recent_businesses': recent_businesses,
-        'recent_products': recent_products,
-        'active_deals': active_deals,
-        'recent_reviews': recent_reviews,
-        'monthly_data': monthly_data,
-    }
-    
-    return render(request, 'dashboard/home.html', context)
-
-
-@login_required
-def dashboard_stats(request):
-    """إحصائيات تفصيلية متقدمة"""
-    user = request.user
-    
-    # Get date range (last 30 days)
-    today = timezone.now()
-    last_30_days = today - timedelta(days=30)
-    last_7_days = today - timedelta(days=7)
-    
-    businesses = Business.objects.filter(owner=user)
-    
-    # Detailed Business Statistics
-    business_stats = {
-        'total': businesses.count(),
-        'active': businesses.filter(is_active=True).count(),
-        'verified': businesses.filter(is_verified=True).count(),
-        'featured': businesses.filter(is_featured=True).count(),
-        'pending': businesses.filter(is_verified=False).count(),
-        'by_type': businesses.values('business_type').annotate(
-            count=Count('id')
-        ),
-        'new_this_week': businesses.filter(created_at__gte=last_7_days).count(),
-        'new_this_month': businesses.filter(created_at__gte=last_30_days).count(),
-    }
-    
-    # Detailed Product Statistics
-    product_stats = {
-        'total': Product.objects.filter(business__owner=user).count(),
-        'available': Product.objects.filter(
-            business__owner=user, 
-            is_available=True
-        ).count(),
-        'unavailable': Product.objects.filter(
-            business__owner=user, 
-            is_available=False
-        ).count(),
-        'products': Product.objects.filter(
-            business__owner=user,
-            product_type='product'
-        ).count(),
-        'services': Product.objects.filter(
-            business__owner=user,
-            product_type='service'
-        ).count(),
-        'featured': Product.objects.filter(
-            business__owner=user,
-            is_featured=True
-        ).count(),
-        'new_this_week': Product.objects.filter(
-            business__owner=user,
-            created_at__gte=last_7_days
-        ).count(),
-    }
-    
-    # Detailed Deal Statistics
-    deal_stats = {
-        'total': Deal.objects.filter(business__owner=user).count(),
-        'active': Deal.objects.filter(
-            business__owner=user,
-            start_date__lte=today,
-            end_date__gte=today
-        ).count(),
-        'upcoming': Deal.objects.filter(
-            business__owner=user,
-            start_date__gt=today
-        ).count(),
-        'expired': Deal.objects.filter(
-            business__owner=user,
-            end_date__lt=today
-        ).count(),
-        'by_type': Deal.objects.filter(
-            business__owner=user
-        ).values('deal_type').annotate(count=Count('id')),
-        'featured': Deal.objects.filter(
-            business__owner=user,
-            is_featured=True
-        ).count(),
-    }
-    
-    # Engagement & Performance
-    engagement_stats = {
-        'total_views': businesses.aggregate(Sum('view_count'))['view_count__sum'] or 0,
-        'total_clicks': businesses.aggregate(Sum('click_count'))['click_count__sum'] or 0,
-        'views_last_30': businesses.filter(
-            updated_at__gte=last_30_days
-        ).aggregate(Sum('view_count'))['view_count__sum'] or 0,
-        'clicks_last_30': businesses.filter(
-            updated_at__gte=last_30_days
-        ).aggregate(Sum('click_count'))['click_count__sum'] or 0,
-    }
-    
-    # Calculate Click-Through Rate (CTR)
-    if engagement_stats['total_views'] > 0:
-        engagement_stats['ctr'] = round(
-            (engagement_stats['total_clicks'] / engagement_stats['total_views']) * 100, 
-            2
-        )
-    else:
-        engagement_stats['ctr'] = 0
-    
-    # Review Statistics
-    review_stats = {
-        'total': Review.objects.filter(business__owner=user).count(),
-        'approved': Review.objects.filter(
-            business__owner=user,
-            is_approved=True
-        ).count(),
-        'pending': Review.objects.filter(
-            business__owner=user,
-            is_approved=False
-        ).count(),
-        'with_reply': Review.objects.filter(
-            business__owner=user,
-            reply__isnull=False
-        ).count(),
-        'avg_rating': Review.objects.filter(
+        'total_reviews': Review.objects.filter(business__owner=user).count(),
+        'average_rating': Review.objects.filter(
             business__owner=user,
             is_approved=True
         ).aggregate(Avg('rating'))['rating__avg'] or 0,
     }
     
-    review_stats['avg_rating'] = round(review_stats['avg_rating'], 1)
+    # Business Type Distribution
+    business_types = businesses.values('business_type').annotate(
+        count=Count('id')
+    ).order_by('-count')
     
-    # Top Performing Businesses
-    top_businesses = businesses.order_by('-view_count')[:5]
+    # Monthly Trends (last 6 months)
+    monthly_data = []
+    today = timezone.now()
     
-    # Recent Activity
-    recent_activity = []
+    for i in range(5, -1, -1):
+        month_date = today - timedelta(days=30*i)
+        month_start = month_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        _, last_day = monthrange(month_start.year, month_start.month)
+        month_end = month_start.replace(day=last_day, hour=23, minute=59, second=59)
+        
+        month_businesses = businesses.filter(
+            created_at__range=[month_start, month_end]
+        )
+        
+        monthly_data.append({
+            'month': month_start.strftime('%B'),
+            'month_ar': get_arabic_month(month_start.month),
+            'views': month_businesses.aggregate(Sum('view_count'))['view_count__sum'] or 0,
+            'clicks': month_businesses.aggregate(Sum('click_count'))['click_count__sum'] or 0,
+        })
     
     # Recent businesses
-    for business in businesses.order_by('-created_at')[:3]:
-        recent_activity.append({
-            'type': 'business',
-            'title': business.name_ar,
-            'date': business.created_at,
-            'icon': 'fa-store',
-            'color': 'primary'
-        })
+    recent_businesses = businesses.select_related(
+        'category', 'governorate', 'city'
+    ).order_by('-created_at')[:5]
     
     # Recent products
-    for product in Product.objects.filter(business__owner=user).order_by('-created_at')[:3]:
-        recent_activity.append({
-            'type': 'product',
-            'title': product.name_ar,
-            'date': product.created_at,
-            'icon': 'fa-box',
-            'color': 'success'
-        })
+    recent_products = Product.objects.filter(
+        business__owner=user
+    ).select_related('business').order_by('-created_at')[:5]
     
-    # Sort by date
-    recent_activity = sorted(recent_activity, key=lambda x: x['date'], reverse=True)[:10]
+    # Active deals
+    active_deals = Deal.objects.filter(
+        business__owner=user,
+        start_date__lte=timezone.now(),
+        end_date__gte=timezone.now()
+    ).select_related('business').order_by('-created_at')[:6]
+    
+    # Recent reviews
+    recent_reviews = Review.objects.filter(
+        business__owner=user
+    ).select_related('business', 'user').order_by('-created_at')[:5]
     
     context = {
-        'business_stats': business_stats,
-        'product_stats': product_stats,
-        'deal_stats': deal_stats,
-        'engagement_stats': engagement_stats,
-        'review_stats': review_stats,
+        'stats': stats,
+        'business_types': business_types,
+        'monthly_data': monthly_data,
+        'recent_businesses': recent_businesses,
+        'recent_products': recent_products,
+        'active_deals': active_deals,
+        'recent_reviews': recent_reviews,
+    }
+    
+    return render(request, 'dashboard/home.html', context)
+
+
+def get_arabic_month(month_number):
+    """تحويل رقم الشهر إلى اسم عربي"""
+    arabic_months = {
+        1: 'يناير',
+        2: 'فبراير',
+        3: 'مارس',
+        4: 'أبريل',
+        5: 'مايو',
+        6: 'يونيو',
+        7: 'يوليو',
+        8: 'أغسطس',
+        9: 'سبتمبر',
+        10: 'أكتوبر',
+        11: 'نوفمبر',
+        12: 'ديسمبر',
+    }
+    return arabic_months.get(month_number, '')
+
+
+@login_required
+def dashboard_stats(request):
+    """إحصائيات تفصيلية محسّنة"""
+    user = request.user
+    
+    # Get date range
+    today = timezone.now()
+    last_7_days = today - timedelta(days=7)
+    last_30_days = today - timedelta(days=30)
+    last_90_days = today - timedelta(days=90)
+    
+    businesses = Business.objects.filter(owner=user)
+    
+    # Comprehensive Statistics
+    stats = {
+        'overview': {
+            'total_businesses': businesses.count(),
+            'active_businesses': businesses.filter(is_active=True).count(),
+            'verified_businesses': businesses.filter(is_verified=True).count(),
+            'featured_businesses': businesses.filter(is_featured=True).count(),
+            'pending_verification': businesses.filter(
+                is_verified=False,
+                is_active=True
+            ).count(),
+        },
+        
+        'businesses': {
+            'total': businesses.count(),
+            'active': businesses.filter(is_active=True).count(),
+            'verified': businesses.filter(is_verified=True).count(),
+            'featured': businesses.filter(is_featured=True).count(),
+            'by_type': list(businesses.values('business_type').annotate(
+                count=Count('id')
+            )),
+            'new_last_30_days': businesses.filter(
+                created_at__gte=last_30_days
+            ).count(),
+        },
+        
+        'products': {
+            'total': Product.objects.filter(business__owner=user).count(),
+            'available': Product.objects.filter(
+                business__owner=user, 
+                is_available=True
+            ).count(),
+            'products': Product.objects.filter(
+                business__owner=user,
+                product_type='product'
+            ).count(),
+            'services': Product.objects.filter(
+                business__owner=user,
+                product_type='service'
+            ).count(),
+            'featured': Product.objects.filter(
+                business__owner=user,
+                is_featured=True
+            ).count(),
+            'new_last_30_days': Product.objects.filter(
+                business__owner=user,
+                created_at__gte=last_30_days
+            ).count(),
+        },
+        
+        'deals': {
+            'total': Deal.objects.filter(business__owner=user).count(),
+            'active': Deal.objects.filter(
+                business__owner=user,
+                start_date__lte=today,
+                end_date__gte=today
+            ).count(),
+            'upcoming': Deal.objects.filter(
+                business__owner=user,
+                start_date__gt=today
+            ).count(),
+            'expired': Deal.objects.filter(
+                business__owner=user,
+                end_date__lt=today
+            ).count(),
+            'by_type': list(Deal.objects.filter(
+                business__owner=user
+            ).values('deal_type').annotate(count=Count('id'))),
+            'featured': Deal.objects.filter(
+                business__owner=user,
+                is_featured=True
+            ).count(),
+        },
+        
+        'engagement': {
+            'total_views': businesses.aggregate(Sum('view_count'))['view_count__sum'] or 0,
+            'total_clicks': businesses.aggregate(Sum('click_count'))['click_count__sum'] or 0,
+            'views_last_7': calculate_period_views(businesses, last_7_days, today),
+            'views_last_30': calculate_period_views(businesses, last_30_days, today),
+            'clicks_last_7': calculate_period_clicks(businesses, last_7_days, today),
+            'clicks_last_30': calculate_period_clicks(businesses, last_30_days, today),
+        },
+        
+        'reviews': {
+            'total': Review.objects.filter(business__owner=user).count(),
+            'approved': Review.objects.filter(
+                business__owner=user,
+                is_approved=True
+            ).count(),
+            'pending': Review.objects.filter(
+                business__owner=user,
+                is_approved=False
+            ).count(),
+            'average_rating': Review.objects.filter(
+                business__owner=user,
+                is_approved=True
+            ).aggregate(Avg('rating'))['rating__avg'] or 0,
+            'last_30_days': Review.objects.filter(
+                business__owner=user,
+                created_at__gte=last_30_days
+            ).count(),
+        },
+    }
+    
+    # Top performing businesses
+    top_businesses = businesses.order_by('-view_count')[:10]
+    
+    # Recent activity
+    recent_reviews = Review.objects.filter(
+        business__owner=user
+    ).select_related('business', 'user').order_by('-created_at')[:10]
+    
+    context = {
+        'stats': stats,
         'top_businesses': top_businesses,
-        'recent_activity': recent_activity,
+        'recent_reviews': recent_reviews,
     }
     
     return render(request, 'dashboard/stats.html', context)
+
+
+def calculate_period_views(businesses, start_date, end_date):
+    """حساب المشاهدات في فترة محددة"""
+    # This is a simplified version - you might want to track views with timestamps
+    return businesses.filter(
+        created_at__range=[start_date, end_date]
+    ).aggregate(Sum('view_count'))['view_count__sum'] or 0
+
+
+def calculate_period_clicks(businesses, start_date, end_date):
+    """حساب النقرات في فترة محددة"""
+    # This is a simplified version - you might want to track clicks with timestamps
+    return businesses.filter(
+        created_at__range=[start_date, end_date]
+    ).aggregate(Sum('click_count'))['click_count__sum'] or 0
