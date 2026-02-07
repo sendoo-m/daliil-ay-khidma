@@ -1,0 +1,99 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load humanize %}
+
+{% block title %}إدارة المنتجات{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fas fa-box me-2" style="color: #2ecc71;"></i> إدارة المنتجات</h2>
+</div>
+
+<!-- Search -->
+<div class="table-card mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-10">
+            <input type="text" name="search" class="form-control" placeholder="بحث باسم المنتج..." value="{{ search }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-admin w-100"><i class="fas fa-search me-1"></i> بحث</button>
+        </div>
+    </form>
+</div>
+
+<!-- Products Table -->
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>اسم المنتج</th>
+                    <th>المحل</th>
+                    <th>السعر</th>
+                    <th>النوع</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>
+                        <strong>{{ product.name_ar }}</strong>
+                        {% if product.is_featured %}
+                            <i class="fas fa-star text-warning" title="مُبرز"></i>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.business.name_ar }}</td>
+                    <td>{{ product.price|floatformat:0|intcomma }} جنيه</td>
+                    <td>
+                        {% if product.product_type == 'product' %}
+                            <span class="badge bg-info">منتج</span>
+                        {% else %}
+                            <span class="badge bg-primary">خدمة</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.is_available %}
+                            <span class="badge bg-success">متاح</span>
+                        {% else %}
+                            <span class="badge bg-danger">غير متاح</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'admin_dashboard:product_detail' product.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'admin_dashboard:product_toggle_status' product.id %}" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-power-off"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">لا توجد بيانات</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if products.has_other_pages %}
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            {% if products.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}&search={{ search }}">السابق</a></li>
+            {% endif %}
+            
+            <li class="page-item active"><span class="page-link">{{ products.number }} / {{ products.paginator.num_pages }}</span></li>
+            
+            {% if products.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}&search={{ search }}">التالي</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

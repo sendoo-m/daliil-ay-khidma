@@ -1,0 +1,107 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load humanize %}
+
+{% block title %}إدارة المحلات{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fas fa-store me-2" style="color: #3498db;"></i> إدارة المحلات</h2>
+</div>
+
+<!-- Search & Filters -->
+<div class="table-card mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" placeholder="بحث باسم المحل..." value="{{ search }}">
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                <option value="">كل الحالات</option>
+                <option value="verified" {% if status == 'verified' %}selected{% endif %}>موثّق</option>
+                <option value="pending" {% if status == 'pending' %}selected{% endif %}>بانتظار التوثيق</option>
+                <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>معطّل</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-admin w-100"><i class="fas fa-search me-1"></i> بحث</button>
+        </div>
+    </form>
+</div>
+
+<!-- Businesses Table -->
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>اسم المحل</th>
+                    <th>المالك</th>
+                    <th>التصنيف</th>
+                    <th>المشاهدات</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for business in businesses %}
+                <tr>
+                    <td>{{ business.id }}</td>
+                    <td>
+                        <strong>{{ business.name_ar }}</strong>
+                        {% if business.is_featured %}
+                            <i class="fas fa-star text-warning" title="مُبرز"></i>
+                        {% endif %}
+                    </td>
+                    <td>{{ business.owner.username }}</td>
+                    <td>{{ business.category.name_ar }}</td>
+                    <td>{{ business.view_count|intcomma }}</td>
+                    <td>
+                        {% if business.is_verified %}
+                            <span class="badge bg-success">موثّق</span>
+                        {% else %}
+                            <span class="badge bg-warning">معلّق</span>
+                        {% endif %}
+                        {% if not business.is_active %}
+                            <span class="badge bg-secondary">معطّل</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'admin_dashboard:business_detail' business.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'admin_dashboard:business_verify' business.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-check"></i>
+                        </a>
+                        <a href="{% url 'admin_dashboard:business_toggle_status' business.id %}" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-power-off"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">لا توجد بيانات</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if businesses.has_other_pages %}
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            {% if businesses.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ businesses.previous_page_number }}&search={{ search }}&status={{ status }}">السابق</a></li>
+            {% endif %}
+            
+            <li class="page-item active"><span class="page-link">{{ businesses.number }} / {{ businesses.paginator.num_pages }}</span></li>
+            
+            {% if businesses.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ businesses.next_page_number }}&search={{ search }}&status={{ status }}">التالي</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
