@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Sum, Avg, Q
 from django.utils import timezone
+from django.contrib import messages
 from datetime import timedelta, datetime
 from calendar import monthrange
 
@@ -22,6 +23,16 @@ def dashboard_home(request):
     
     # Get user's businesses
     businesses = Business.objects.filter(owner=user)
+    
+    # Check if user has no data and show helpful message
+    if businesses.count() == 0:
+        messages.info(
+            request,
+            'لا توجد بيانات لهذا المستخدم. '
+            'للاختبار ببيانات تجريبية، '
+            'سجّل خروج ودخول بـ: ahmed_owner '
+            '(كلمة المرور: test123)'
+        )
     
     # Basic Statistics
     stats = {
@@ -109,6 +120,15 @@ def dashboard_home(request):
         business__owner=user
     ).select_related('business', 'user').order_by('-created_at')[:5]
     
+    # Demo accounts info
+    demo_accounts = [
+        {'username': 'ahmed_owner', 'name': 'أحمد محمد', 'businesses': 2},
+        {'username': 'fatima_owner', 'name': 'فاطمة علي', 'businesses': 2},
+        {'username': 'khaled_owner', 'name': 'خالد حسن', 'businesses': 2},
+        {'username': 'maha_owner', 'name': 'مها عبدالله', 'businesses': 2},
+        {'username': 'omar_owner', 'name': 'عمر سعيد', 'businesses': 2},
+    ]
+    
     context = {
         'stats': stats,
         'business_types': business_types,
@@ -117,6 +137,8 @@ def dashboard_home(request):
         'recent_products': recent_products,
         'active_deals': active_deals,
         'recent_reviews': recent_reviews,
+        'has_data': businesses.count() > 0,
+        'demo_accounts': demo_accounts,
     }
     
     return render(request, 'dashboard/home.html', context)
@@ -153,6 +175,16 @@ def dashboard_stats(request):
     last_90_days = today - timedelta(days=90)
     
     businesses = Business.objects.filter(owner=user)
+    
+    # Check if user has no data
+    if businesses.count() == 0:
+        messages.info(
+            request,
+            'لا توجد بيانات لهذا المستخدم. '
+            'للاختبار ببيانات تجريبية، '
+            'سجّل خروج ودخول بـ: ahmed_owner '
+            '(كلمة المرور: test123)'
+        )
     
     # Comprehensive Statistics
     stats = {
@@ -270,6 +302,7 @@ def dashboard_stats(request):
         'stats': stats,
         'top_businesses': top_businesses,
         'recent_reviews': recent_reviews,
+        'has_data': businesses.count() > 0,
     }
     
     return render(request, 'dashboard/stats.html', context)
