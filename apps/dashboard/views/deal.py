@@ -57,15 +57,20 @@ def deal_list(request):
     # Get user businesses for filter
     businesses = Business.objects.filter(owner=request.user)
     
+    # Calculate statistics
+    all_deals = Deal.objects.filter(business__owner=request.user)
+    
     context = {
         'deals': deals,
         'businesses': businesses,
-        'total_count': Deal.objects.filter(business__owner=request.user).count(),
-        'active_count': Deal.objects.filter(
-            business__owner=request.user,
+        'today': now,
+        'total_count': all_deals.count(),
+        'active_count': all_deals.filter(
             start_date__lte=now,
             end_date__gte=now
         ).count(),
+        'upcoming_count': all_deals.filter(start_date__gt=now).count(),
+        'expired_count': all_deals.filter(end_date__lt=now).count(),
     }
     
     return render(request, 'dashboard/deal/list.html', context)
