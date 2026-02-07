@@ -1,0 +1,263 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}لوحة التحكم الإدارية{% endblock %} - دليل أي خدمة</title>
+    
+    <!-- Bootstrap 5 RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --admin-primary: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            --admin-sidebar: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Cairo', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ecf0f1;
+            overflow-x: hidden;
+        }
+        
+        /* Admin Sidebar */
+        .admin-sidebar {
+            min-height: 100vh;
+            background: var(--admin-sidebar);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+        }
+        
+        .admin-header {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .admin-logo {
+            width: 60px;
+            height: 60px;
+            background: var(--admin-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .admin-sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 0.85rem 1.5rem;
+            margin: 0.25rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(-3px);
+        }
+        
+        .admin-sidebar .nav-link.active {
+            background: var(--admin-primary);
+            color: white;
+        }
+        
+        .admin-sidebar .nav-link i {
+            margin-left: 12px;
+            width: 24px;
+        }
+        
+        .admin-topbar {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        
+        .main-content {
+            padding: 2rem;
+        }
+        
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card-red { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; }
+        .stat-card-blue { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; }
+        .stat-card-green { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; }
+        .stat-card-orange { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; }
+        .stat-card-purple { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; }
+        .stat-card-teal { background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); color: white; }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.9;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .table-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .btn-admin {
+            background: var(--admin-primary);
+            border: none;
+            color: white;
+            padding: 0.65rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+            color: white;
+        }
+        
+        .badge-pending { background: #f39c12; }
+        .badge-approved { background: #27ae60; }
+        .badge-rejected { background: #e74c3c; }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light admin-topbar">
+        <div class="container-fluid">
+            <button class="btn btn-link d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar">
+                <i class="fas fa-bars fa-lg"></i>
+            </button>
+            
+            <span class="navbar-brand fw-bold" style="color: #e74c3c;">
+                <i class="fas fa-shield-alt"></i> لوحة التحكم الإدارية
+            </span>
+            
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a href="/" class="btn btn-outline-danger btn-sm" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> الموقع
+                </a>
+                <a href="/admin/" class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="fas fa-cog"></i> Django Admin
+                </a>
+                <div class="dropdown">
+                    <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle fa-lg"></i> {{ user.username }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i> تسجيل الخروج</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 p-0 d-none d-lg-block">
+                <div class="admin-sidebar">
+                    <div class="admin-header">
+                        <div class="admin-logo">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h6 class="text-white">الإدارة</h6>
+                        <small class="text-white-50">{{ user.username }}</small>
+                    </div>
+                    
+                    <nav class="nav flex-column mt-3">
+                        <a class="nav-link" href="{% url 'admin_dashboard:home' %}">
+                            <i class="fas fa-tachometer-alt"></i> الرئيسية
+                        </a>
+                        <a class="nav-link" href="{% url 'admin_dashboard:users_list' %}">
+                            <i class="fas fa-users"></i> المستخدمين
+                        </a>
+                        <a class="nav-link" href="{% url 'admin_dashboard:businesses_list' %}">
+                            <i class="fas fa-store"></i> المحلات
+                        </a>
+                        <a class="nav-link" href="{% url 'admin_dashboard:products_list' %}">
+                            <i class="fas fa-box"></i> المنتجات
+                        </a>
+                        <a class="nav-link" href="{% url 'admin_dashboard:deals_list' %}">
+                            <i class="fas fa-tags"></i> العروض
+                        </a>
+                        <a class="nav-link" href="{% url 'admin_dashboard:reviews_list' %}">
+                            <i class="fas fa-star"></i> التقييمات
+                        </a>
+                        <a class="nav-link" href="{% url 'admin_dashboard:categories_list' %}">
+                            <i class="fas fa-list"></i> التصنيفات
+                        </a>
+                        <hr class="text-white-50 mx-3">
+                        <a class="nav-link" href="{% url 'admin_dashboard:analytics' %}">
+                            <i class="fas fa-chart-line"></i> التحليلات
+                        </a>
+                        <a class="nav-link" href="{% url 'admin_dashboard:settings' %}">
+                            <i class="fas fa-cog"></i> الإعدادات
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-10 main-content">
+                {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-dismiss alerts
+        setTimeout(function() {
+            let alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                let bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

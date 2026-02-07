@@ -1,0 +1,258 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load humanize %}
+
+{% block title %}الرئيسية{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold"><i class="fas fa-tachometer-alt me-2" style="color: #e74c3c;"></i> لوحة التحكم الإدارية</h2>
+    <p class="text-muted">مرحباً بك يا {{ user.get_full_name|default:user.username }}! إليك نظرة شاملة على النظام</p>
+</div>
+
+<!-- Main Statistics -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card stat-card-red text-center">
+            <i class="fas fa-users stat-icon"></i>
+            <div class="stat-number">{{ stats.total_users|intcomma }}</div>
+            <div>إجمالي المستخدمين</div>
+            <small class="d-block mt-2"><i class="fas fa-user-plus me-1"></i> {{ stats.new_users_week }} جديد هذا الأسبوع</small>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card stat-card-blue text-center">
+            <i class="fas fa-store stat-icon"></i>
+            <div class="stat-number">{{ stats.total_businesses|intcomma }}</div>
+            <div>إجمالي المحلات</div>
+            <small class="d-block mt-2"><i class="fas fa-check-circle me-1"></i> {{ stats.verified_businesses }} موثّق</small>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card stat-card-green text-center">
+            <i class="fas fa-box stat-icon"></i>
+            <div class="stat-number">{{ stats.total_products|intcomma }}</div>
+            <div>إجمالي المنتجات</div>
+            <small class="d-block mt-2"><i class="fas fa-eye me-1"></i> {{ stats.active_products }} متاح</small>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card stat-card-orange text-center">
+            <i class="fas fa-tags stat-icon"></i>
+            <div class="stat-number">{{ stats.total_deals|intcomma }}</div>
+            <div>إجمالي العروض</div>
+            <small class="d-block mt-2"><i class="fas fa-fire me-1"></i> {{ stats.active_deals }} نشط</small>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Statistics -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-4 col-md-6">
+        <div class="stat-card stat-card-purple text-center">
+            <i class="fas fa-star stat-icon"></i>
+            <div class="stat-number">{{ stats.total_reviews|intcomma }}</div>
+            <div>إجمالي التقييمات</div>
+            <small class="d-block mt-2">
+                <i class="fas fa-clock me-1"></i> {{ stats.pending_reviews }} بانتظار المراجعة
+            </small>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6">
+        <div class="stat-card stat-card-teal text-center">
+            <i class="fas fa-eye stat-icon"></i>
+            <div class="stat-number">{{ stats.total_views|intcomma }}</div>
+            <div>إجمالي المشاهدات</div>
+            <small class="d-block mt-2"><i class="fas fa-mouse-pointer me-1"></i> {{ stats.total_clicks|intcomma }} نقرة</small>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-12">
+        <div class="stat-card stat-card-red text-center">
+            <i class="fas fa-exclamation-circle stat-icon"></i>
+            <div class="stat-number">{{ stats.pending_verification }}</div>
+            <div>بانتظار التوثيق</div>
+            <small class="d-block mt-2">
+                <a href="{% url 'admin_dashboard:businesses_list' %}?status=pending" class="text-white text-decoration-underline">
+                    مراجعة الآن
+                </a>
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions & Recent Activity -->
+<div class="row g-3">
+    <!-- Quick Actions -->
+    <div class="col-lg-4">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-bolt text-warning me-2"></i>
+                إجراءات سريعة
+            </h5>
+            <div class="d-grid gap-2">
+                <a href="{% url 'admin_dashboard:users_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-users me-2"></i> إدارة المستخدمين
+                </a>
+                <a href="{% url 'admin_dashboard:businesses_list' %}?status=pending" class="btn btn-outline-warning">
+                    <i class="fas fa-clock me-2"></i> مراجعة المحلات ({{ stats.pending_verification }})
+                </a>
+                <a href="{% url 'admin_dashboard:reviews_list' %}?status=pending" class="btn btn-outline-info">
+                    <i class="fas fa-star me-2"></i> مراجعة التقييمات ({{ stats.pending_reviews }})
+                </a>
+                <a href="{% url 'admin_dashboard:categories_list' %}" class="btn btn-outline-success">
+                    <i class="fas fa-list me-2"></i> إدارة التصنيفات
+                </a>
+                <a href="{% url 'admin_dashboard:analytics' %}" class="btn btn-outline-danger">
+                    <i class="fas fa-chart-line me-2"></i> التحليلات المتقدمة
+                </a>
+                <a href="{% url 'admin_dashboard:settings' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-cog me-2"></i> إعدادات النظام
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Users -->
+    <div class="col-lg-4">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-user-plus text-primary me-2"></i>
+                مستخدمين جدد
+            </h5>
+            {% if recent_users %}
+                <div class="list-group list-group-flush">
+                    {% for user_obj in recent_users %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ user_obj.username }}</strong>
+                                <br><small class="text-muted">{{ user_obj.email }}</small>
+                            </div>
+                            <small class="text-muted">{{ user_obj.date_joined|timesince }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'admin_dashboard:users_list' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                    عرض الكل <i class="fas fa-arrow-left ms-1"></i>
+                </a>
+            {% else %}
+                <p class="text-muted text-center">لا توجد بيانات</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Pending Reviews -->
+    <div class="col-lg-4">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-clock text-warning me-2"></i>
+                تقييمات بانتظار المراجعة
+            </h5>
+            {% if pending_reviews %}
+                <div class="list-group list-group-flush">
+                    {% for review in pending_reviews %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <strong>{{ review.user.username }}</strong>
+                                <br><small class="text-muted">{{ review.business.name_ar }}</small>
+                                <br>
+                                <span class="text-warning">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
+                            <a href="{% url 'admin_dashboard:review_approve' review.id %}" class="btn btn-sm btn-success">
+                                <i class="fas fa-check"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'admin_dashboard:reviews_list' %}?status=pending" class="btn btn-sm btn-outline-warning w-100 mt-2">
+                    عرض الكل <i class="fas fa-arrow-left ms-1"></i>
+                </a>
+            {% else %}
+                <p class="text-muted text-center">لا توجد تقييمات بانتظار المراجعة</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Top Businesses & Categories -->
+<div class="row g-3 mt-3">
+    <div class="col-lg-6">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-trophy text-success me-2"></i>
+                أفضل المحلات
+            </h5>
+            {% if top_businesses %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>المحل</th>
+                                <th>المشاهدات</th>
+                                <th>النقرات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for business in top_businesses %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <a href="{% url 'admin_dashboard:business_detail' business.id %}">
+                                        {{ business.name_ar }}
+                                    </a>
+                                </td>
+                                <td>{{ business.view_count|intcomma }}</td>
+                                <td>{{ business.click_count|intcomma }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-list text-info me-2"></i>
+                أكثر التصنيفات
+            </h5>
+            {% if top_categories %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>التصنيف</th>
+                                <th>عدد المحلات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in top_categories %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ category.name_ar }}</td>
+                                <td>{{ category.business_count|intcomma }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
