@@ -3,6 +3,23 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+#map {
+    height: 400px;
+    width: 100%;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+}
+.map-instructions {
+    background: #e3f2fd;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 
 <!-- Page Header -->
@@ -138,7 +155,7 @@
             <!-- Location -->
             <div class="card mb-4">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> العنوان</h5>
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> العنوان والموقع</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
@@ -157,10 +174,36 @@
                         {% endif %}
                     </div>
                     
+                    <!-- Map Section -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-map"></i> حدد الموقع على الخريطة
+                        </label>
+                        <div class="map-instructions">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>تعليمات:</strong> انقر على الخريطة لتحديد موقع المحل. سيتم حفظ الإحداثيات تلقائياً.
+                        </div>
+                        <div id="map"></div>
+                    </div>
+                    
+                    <!-- Coordinates (Hidden) -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.latitude.label_tag }}
+                            {{ form.latitude }}
+                            <small class="form-text text-muted">سيتم تعبئته تلقائياً من الخريطة</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.longitude.label_tag }}
+                            {{ form.longitude }}
+                            <small class="form-text text-muted">سيتم تعبئته تلقائياً من الخريطة</small>
+                        </div>
+                    </div>
+                    
                     <div class="mb-3">
                         {{ form.location_url.label_tag }}
                         {{ form.location_url }}
-                        <small class="form-text text-muted">رابط Google Maps</small>
+                        <small class="form-text text-muted">رابط Google Maps (اختياري)</small>
                         {% if form.location_url.errors %}
                         <div class="text-danger small">{{ form.location_url.errors }}</div>
                         {% endif %}
@@ -267,4 +310,70 @@
     </div>
 </form>
 
+{% endblock %}
+
+{% block extra_js %}
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&language=ar"></script>
+<script>
+let map;
+let marker;
+
+// Default location: Riyadh, Saudi Arabia
+const defaultLat = {{ business.latitude|default:"24.7136" }};
+const defaultLng = {{ business.longitude|default:"46.6753" }};
+
+function initMap() {
+    // Create map centered on Riyadh or existing location
+    const center = { lat: parseFloat(defaultLat), lng: parseFloat(defaultLng) };
+    
+    map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        center: center,
+        mapTypeId: 'roadmap'
+    });
+    
+    // Add marker
+    marker = new google.maps.Marker({
+        position: center,
+        map: map,
+        draggable: true,
+        title: 'موقع المحل'
+    });
+    
+    // Update coordinates on marker drag
+    marker.addListener('dragend', function(event) {
+        updateCoordinates(event.latLng.lat(), event.latLng.lng());
+    });
+    
+    // Add marker on map click
+    map.addListener('click', function(event) {
+        marker.setPosition(event.latLng);
+        updateCoordinates(event.latLng.lat(), event.latLng.lng());
+    });
+}
+
+function updateCoordinates(lat, lng) {
+    document.getElementById('id_latitude').value = lat.toFixed(6);
+    document.getElementById('id_longitude').value = lng.toFixed(6);
+}
+
+// Initialize map when page loads
+window.addEventListener('load', initMap);
+
+// Try to get user's current location
+if (navigator.geolocation && !{{ business|yesno:"true,false" }}) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        };
+        if (map) {
+            map.setCenter(userLocation);
+            marker.setPosition(userLocation);
+            updateCoordinates(userLocation.lat, userLocation.lng);
+        }
+    });
+}
+</script>
 {% endblock %}
