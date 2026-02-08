@@ -2,7 +2,18 @@
 Dashboard Views
 """
 
-from .main import dashboard_home, dashboard_stats
+from .main import (
+    index, 
+    get_districts_by_governorate,
+    profile,
+    settings,
+    notifications,
+    help_center,
+    get_business_stats,
+    get_product_stats,
+    get_deal_stats,
+    get_review_stats,
+)
 from .business import (
     business_list, business_create, business_update, 
     business_detail, business_delete
@@ -16,8 +27,16 @@ from .deal import (
 from .review import review_list, review_reply
 
 __all__ = [
-    'dashboard_home',
-    'dashboard_stats',
+    'index',
+    'get_districts_by_governorate',
+    'profile',
+    'settings',
+    'notifications',
+    'help_center',
+    'get_business_stats',
+    'get_product_stats',
+    'get_deal_stats',
+    'get_review_stats',
     'business_list',
     'business_create',
     'business_update',
