@@ -223,7 +223,7 @@
                             {% if form.governorate.errors %}
                             <div class="text-danger small">{{ form.governorate.errors }}</div>
                             {% endif %}
-                            <small class="form-text text-muted">ابحث عن المحافظة</small>
+                            <small class="form-text text-muted">اختر المحافظة أولاً</small>
                         </div>
                         
                         <div class="col-md-6 mb-3">
@@ -236,7 +236,7 @@
                             {% if form.district.errors %}
                             <div class="text-danger small">{{ form.district.errors }}</div>
                             {% endif %}
-                            <small class="form-text text-muted">ابحث عن الحي</small>
+                            <small class="form-text text-muted">سيتم تحديثها حسب المحافظة</small>
                         </div>
                     </div>
                     
@@ -440,8 +440,9 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/ar.js"></script>
 <script>
-// Initialize Select2 for all dropdowns: Category, Governorate, District
+// Initialize Select2 for all dropdowns
 $(document).ready(function() {
+    // Initialize all select2 dropdowns
     $('.select2-dropdown').select2({
         theme: 'bootstrap-5',
         language: 'ar',
@@ -449,6 +450,41 @@ $(document).ready(function() {
         placeholder: '-- اختر --',
         allowClear: true,
         width: '100%'
+    });
+    
+    // Cascading dropdown: Governorate -> District
+    $('#id_governorate').on('change', function() {
+        const governorateId = $(this).val();
+        const $districtSelect = $('#id_district');
+        
+        // Clear and disable district dropdown
+        $districtSelect.empty().prop('disabled', true);
+        
+        if (governorateId) {
+            // Fetch districts for selected governorate
+            $.ajax({
+                url: '{% url "dashboard:ajax_get_districts" %}',
+                data: { governorate_id: governorateId },
+                success: function(data) {
+                    // Add placeholder
+                    $districtSelect.append('<option value="">-- اختر الحي --</option>');
+                    
+                    // Add districts
+                    $.each(data.results, function(index, district) {
+                        $districtSelect.append(
+                            $('<option></option>').val(district.id).text(district.text)
+                        );
+                    });
+                    
+                    // Enable and refresh Select2
+                    $districtSelect.prop('disabled', false);
+                    $districtSelect.trigger('change');
+                },
+                error: function() {
+                    alert('حدث خطأ في تحميل الأحياء');
+                }
+            });
+        }
     });
     
     // Initialize map after page loads

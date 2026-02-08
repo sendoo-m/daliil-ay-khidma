@@ -82,7 +82,7 @@ class Governorate(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.name_ar} / {self.name_en}"
+        return f"{self.name_ar}"
     
     @property
     def name(self):
@@ -147,7 +147,7 @@ class City(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.governorate.name_ar} » {self.name_ar}"
+        return f"{self.name_ar}"
     
     @property
     def name(self):
@@ -209,8 +209,8 @@ class District(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        """يعرض المسار الكامل: المحافظة » المدينة » الحي"""
-        return f"{self.city.governorate.name_ar} » {self.city.name_ar} » {self.name_ar}"
+        """يعرض الحي مع المدينة"""
+        return f"{self.city.name_ar} - {self.name_ar}"
     
     @property
     def name(self):
