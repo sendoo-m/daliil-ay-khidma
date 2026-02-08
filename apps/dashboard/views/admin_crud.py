@@ -14,10 +14,108 @@ from apps.directory.models import Business
 from apps.products.models import Product
 from apps.deals.models import Deal
 from apps.categories.models import Category
-from apps.dashboard.forms import (
-    AdminUserCreateForm, AdminUserEditForm,
-    BusinessForm, ProductForm, CategoryForm, DealForm
-)
+
+# Import forms from the forms.py file directly
+import sys
+import os
+from importlib import import_module
+
+# Get the forms module
+forms_module = import_module('apps.dashboard.forms')
+
+# Try to get the new forms, fallback to creating inline forms
+try:
+    from django import forms as django_forms
+    from django.contrib.auth.forms import UserCreationForm
+    
+    # Define forms inline if not available
+    class AdminUserCreateForm(UserCreationForm):
+        email = django_forms.EmailField(required=True)
+        first_name = django_forms.CharField(max_length=150, required=False)
+        last_name = django_forms.CharField(max_length=150, required=False)
+        is_staff = django_forms.BooleanField(required=False, label='مشرف')
+        is_active = django_forms.BooleanField(required=False, initial=True, label='فعّال')
+        
+        class Meta:
+            model = User
+            fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'is_staff', 'is_active')
+
+    class AdminUserEditForm(django_forms.ModelForm):
+        class Meta:
+            model = User
+            fields = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
+            widgets = {
+                'username': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'email': django_forms.EmailInput(attrs={'class': 'form-control'}),
+                'first_name': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'last_name': django_forms.TextInput(attrs={'class': 'form-control'}),
+            }
+
+    class BusinessForm(django_forms.ModelForm):
+        class Meta:
+            model = Business
+            fields = [
+                'name_en', 'name_ar', 'description_en', 'description_ar',
+                'category', 'business_type', 'email', 'phone', 'whatsapp', 'website',
+                'address_ar', 'city_ar', 'district_ar', 'logo', 'cover_image',
+                'is_active', 'is_verified', 'is_featured', 'latitude', 'longitude',
+            ]
+            widgets = {
+                'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+                'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+                'category': django_forms.Select(attrs={'class': 'form-select'}),
+                'business_type': django_forms.Select(attrs={'class': 'form-select'}),
+            }
+
+    class ProductForm(django_forms.ModelForm):
+        class Meta:
+            model = Product
+            fields = [
+                'name_en', 'name_ar', 'description_en', 'description_ar',
+                'product_type', 'price', 'image', 'is_available', 'is_featured',
+            ]
+            widgets = {
+                'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'product_type': django_forms.Select(attrs={'class': 'form-select'}),
+                'price': django_forms.NumberInput(attrs={'class': 'form-control'}),
+            }
+
+    class CategoryForm(django_forms.ModelForm):
+        class Meta:
+            model = Category
+            fields = [
+                'name_en', 'name_ar', 'description_en', 'description_ar',
+                'parent', 'icon', 'image', 'order', 'is_active',
+                'meta_keywords_en', 'meta_keywords_ar',
+            ]
+            widgets = {
+                'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'parent': django_forms.Select(attrs={'class': 'form-select'}),
+            }
+
+    class DealForm(django_forms.ModelForm):
+        class Meta:
+            model = Deal
+            fields = [
+                'title_en', 'title_ar', 'description_en', 'description_ar',
+                'deal_type', 'discount_percentage', 'discount_amount',
+                'original_price', 'final_price', 'start_date', 'end_date',
+                'terms_en', 'terms_ar', 'image', 'max_uses', 'max_uses_per_user',
+                'is_active', 'is_featured',
+            ]
+            widgets = {
+                'title_en': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'title_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+                'deal_type': django_forms.Select(attrs={'class': 'form-select'}),
+                'start_date': django_forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+                'end_date': django_forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            }
+except Exception as e:
+    print(f"Error loading forms: {e}")
 
 
 # ========================================
@@ -72,9 +170,7 @@ def admin_business_create(request):
         form = BusinessForm(request.POST, request.FILES)
         if form.is_valid():
             business = form.save(commit=False)
-            # Set owner to admin if not specified
-            if not hasattr(business, 'owner'):
-                business.owner = request.user
+            business.owner = request.user
             business.save()
             messages.success(request, f'تم إضافة المحل {business.name_ar} بنجاح')
             return redirect('admin_dashboard:business_detail', business_id=business.id)
@@ -124,8 +220,6 @@ def admin_product_create(request, business_id=None):
             product = form.save(commit=False)
             if business:
                 product.business = business
-            elif 'business' in request.POST:
-                product.business_id = request.POST['business']
             product.save()
             messages.success(request, f'تم إضافة المنتج {product.name_ar} بنجاح')
             return redirect('admin_dashboard:product_detail', product_id=product.id)
@@ -215,8 +309,6 @@ def admin_deal_create(request, business_id=None):
             deal = form.save(commit=False)
             if business:
                 deal.business = business
-            elif 'business' in request.POST:
-                deal.business_id = request.POST['business']
             deal.save()
             messages.success(request, f'تم إضافة العرض {deal.title_ar} بنجاح')
             return redirect('admin_dashboard:deal_detail', deal_id=deal.id)
