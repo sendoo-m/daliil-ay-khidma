@@ -110,14 +110,7 @@
                     
                     <div class="mb-3">
                         <label class="form-label">التصنيف</label>
-                        <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" class="form-select select2-dropdown" required>
-                            <option value="">-- اختر التصنيف --</option>
-                            {% for choice in form.category.field.queryset %}
-                            <option value="{{ choice.pk }}" {% if form.category.value == choice.pk|stringformat:"s" %}selected{% endif %}>
-                                {{ choice.name_ar }}
-                            </option>
-                            {% endfor %}
-                        </select>
+                        {{ form.category }}
                         {% if form.category.errors %}
                         <div class="text-danger small">{{ form.category.errors }}</div>
                         {% endif %}
@@ -166,7 +159,7 @@
                             {% if form.phone.errors %}
                             <div class="text-danger small">{{ form.phone.errors }}</div>
                             {% endif %}
-                            <small class="form-text text-muted">مثال: +966501234567</small>
+                            <small class="form-text text-muted">مثال: 01234567890</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             {{ form.whatsapp.label_tag }}
@@ -214,31 +207,18 @@
                     <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> العنوان والموقع</h5>
                 </div>
                 <div class="card-body">
-                    <!-- المحافظة والحي -->
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-city text-primary me-1"></i>
-                                المحافظة / المدينة
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-city"></i></span>
-                                {{ form.city_ar }}
-                            </div>
-                            <small class="form-text text-muted">مثال: الرياض</small>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-map-pin text-success me-1"></i>
-                                الحي
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
-                                {{ form.district_ar }}
-                            </div>
-                            <small class="form-text text-muted">مثال: العليا</small>
-                        </div>
+                    <!-- District Dropdown -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-map-marker-alt text-primary me-1"></i>
+                            المحافظة » المدينة » الحي
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.district }}
+                        {% if form.district.errors %}
+                        <div class="text-danger small">{{ form.district.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">ابحث عن الحي أو المدينة</small>
                     </div>
                     
                     <div class="row">
@@ -441,7 +421,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/ar.js"></script>
 <script>
-// Initialize Select2 for category only
+// Initialize Select2 for category and district
 $(document).ready(function() {
     $('.select2-dropdown').select2({
         theme: 'bootstrap-5',
@@ -459,8 +439,8 @@ $(document).ready(function() {
 let map;
 let marker;
 
-const defaultLat = {{ business.latitude|default:"24.7136" }};
-const defaultLng = {{ business.longitude|default:"46.6753" }};
+const defaultLat = {{ business.latitude|default:"30.0444" }};
+const defaultLng = {{ business.longitude|default:"31.2357" }};
 
 function initMap() {
     try {
