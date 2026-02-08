@@ -7,22 +7,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}لوحة التحكم الإدارية{% endblock %} - دليل أي خدمة</title>
     
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <!-- Bootstrap 5 RTL -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Global Theme CSS -->
+    <link rel="stylesheet" href="{% static 'dashboard/css/global-theme.css' %}">
+    
     <style>
         :root {
-            --admin-primary: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            --admin-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --admin-sidebar: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-        }
-        
-        body {
-            font-family: 'Segoe UI', 'Cairo', Tahoma, Geneva, Verdana, sans-serif;
-            background: #ecf0f1;
-            overflow-x: hidden;
         }
         
         /* Admin Sidebar */
@@ -41,8 +43,8 @@
         }
         
         .admin-logo {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             background: var(--admin-primary);
             border-radius: 50%;
             display: flex;
@@ -51,6 +53,7 @@
             margin: 0 auto 1rem;
             font-size: 2rem;
             color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
         
         .admin-sidebar .nav-link {
@@ -59,22 +62,25 @@
             margin: 0.25rem 1rem;
             border-radius: 10px;
             transition: all 0.3s ease;
+            font-weight: 600;
         }
         
         .admin-sidebar .nav-link:hover {
             background: rgba(255,255,255,0.1);
             color: white;
-            transform: translateX(-3px);
+            transform: translateX(-5px);
         }
         
         .admin-sidebar .nav-link.active {
             background: var(--admin-primary);
             color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         
         .admin-sidebar .nav-link i {
             margin-left: 12px;
             width: 24px;
+            text-align: center;
         }
         
         .admin-topbar {
@@ -88,6 +94,7 @@
         
         .main-content {
             padding: 2rem;
+            min-height: 100vh;
         }
         
         .stat-card {
@@ -128,25 +135,6 @@
             padding: 1.5rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
-        
-        .btn-admin {
-            background: var(--admin-primary);
-            border: none;
-            color: white;
-            padding: 0.65rem 1.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-admin:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
-            color: white;
-        }
-        
-        .badge-pending { background: #f39c12; }
-        .badge-approved { background: #27ae60; }
-        .badge-rejected { background: #e74c3c; }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -160,22 +148,27 @@
                 <i class="fas fa-bars fa-lg"></i>
             </button>
             
-            <span class="navbar-brand fw-bold" style="color: #e74c3c;">
-                <i class="fas fa-shield-alt"></i> لوحة التحكم الإدارية
+            <span class="navbar-brand fw-bold" style="background: var(--admin-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                <i class="fas fa-shield-alt" style="color: #667eea;"></i> لوحة التحكم الإدارية
             </span>
             
             <div class="ms-auto d-flex align-items-center gap-2">
-                <a href="/" class="btn btn-outline-danger btn-sm" target="_blank">
+                <a href="/" class="btn btn-outline-primary btn-sm" target="_blank">
                     <i class="fas fa-external-link-alt"></i> الموقع
                 </a>
-                <a href="/admin/" class="btn btn-outline-primary btn-sm" target="_blank">
+                <a href="/admin/" class="btn btn-outline-secondary btn-sm" target="_blank">
                     <i class="fas fa-cog"></i> Django Admin
                 </a>
                 <div class="dropdown">
-                    <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle fa-lg"></i> {{ user.username }}
+                    <button class="btn btn-link dropdown-toggle text-decoration-none" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle fa-lg" style="color: #667eea;"></i> 
+                        <span class="fw-bold">{{ user.username }}</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><h6 class="dropdown-header">مرحباً {{ user.get_full_name|default:user.username }}</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'admin_dashboard:home' %}"><i class="fas fa-home me-2"></i> الرئيسية</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i> تسجيل الخروج</a></li>
                     </ul>
                 </div>
@@ -192,37 +185,37 @@
                         <div class="admin-logo">
                             <i class="fas fa-shield-alt"></i>
                         </div>
-                        <h6 class="text-white">الإدارة</h6>
-                        <small class="text-white-50">{{ user.username }}</small>
+                        <h6 class="text-white fw-bold">الإدارة</h6>
+                        <small class="text-white-50"><i class="fas fa-user me-1"></i>{{ user.username }}</small>
                     </div>
                     
                     <nav class="nav flex-column mt-3">
-                        <a class="nav-link" href="{% url 'admin_dashboard:home' %}">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'admin_dashboard:home' %}">
                             <i class="fas fa-tachometer-alt"></i> الرئيسية
                         </a>
-                        <a class="nav-link" href="{% url 'admin_dashboard:users_list' %}">
+                        <a class="nav-link {% if 'users' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:users_list' %}">
                             <i class="fas fa-users"></i> المستخدمين
                         </a>
-                        <a class="nav-link" href="{% url 'admin_dashboard:businesses_list' %}">
+                        <a class="nav-link {% if 'business' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:businesses_list' %}">
                             <i class="fas fa-store"></i> المحلات
                         </a>
-                        <a class="nav-link" href="{% url 'admin_dashboard:products_list' %}">
+                        <a class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:products_list' %}">
                             <i class="fas fa-box"></i> المنتجات
                         </a>
-                        <a class="nav-link" href="{% url 'admin_dashboard:deals_list' %}">
-                            <i class="fas fa-tags"></i> العروض
+                        <a class="nav-link {% if 'deal' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:deals_list' %}">
+                            <i class="fas fa-percent"></i> العروض
                         </a>
-                        <a class="nav-link" href="{% url 'admin_dashboard:reviews_list' %}">
+                        <a class="nav-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:reviews_list' %}">
                             <i class="fas fa-star"></i> التقييمات
                         </a>
-                        <a class="nav-link" href="{% url 'admin_dashboard:categories_list' %}">
+                        <a class="nav-link {% if 'categor' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:categories_list' %}">
                             <i class="fas fa-list"></i> التصنيفات
                         </a>
                         <hr class="text-white-50 mx-3">
-                        <a class="nav-link" href="{% url 'admin_dashboard:analytics' %}">
+                        <a class="nav-link {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:analytics' %}">
                             <i class="fas fa-chart-line"></i> التحليلات
                         </a>
-                        <a class="nav-link" href="{% url 'admin_dashboard:settings' %}">
+                        <a class="nav-link {% if 'settings' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:settings' %}">
                             <i class="fas fa-cog"></i> الإعدادات
                         </a>
                     </nav>
@@ -235,6 +228,7 @@
                 <div class="mb-4">
                     {% for message in messages %}
                     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -249,7 +243,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Auto-dismiss alerts
+        // Auto-dismiss alerts after 5 seconds
         setTimeout(function() {
             let alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {
@@ -257,6 +251,13 @@
                 bsAlert.close();
             });
         }, 5000);
+        
+        // Active navigation highlight
+        document.querySelectorAll('.admin-sidebar .nav-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>
