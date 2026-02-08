@@ -3,136 +3,402 @@
 {% block title %}{{ action }} محل{% endblock %}
 
 {% block content %}
-<div class="mb-4">
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">لوحة التحكم</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:businesses_list' %}">المحلات</a></li>
+        <li class="breadcrumb-item active">{{ action }} محل</li>
+    </ol>
+</nav>
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fas fa-store" style="color: #27ae60;"></i> {{ action }} محل / خدمة
+        </h2>
+        <p class="text-muted mb-0">املأ البيانات أدناه لإضافة أو تعديل محل أو خدمة</p>
+    </div>
     <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-right me-1"></i> عودة
+        <i class="fas fa-arrow-right me-1"></i> رجوع
     </a>
 </div>
 
-<div class="table-card">
-    <h4 class="fw-bold mb-4">
-        <i class="fas fa-store text-success me-2"></i>
-        {{ action }} محل / خدمة
-    </h4>
-    
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <div class="row g-3">
-            <div class="col-12"><h5 class="border-bottom pb-2">المعلومات الأساسية</h5></div>
-            
-            <div class="col-md-6">
-                <label class="form-label">الاسم بالعربي *</label>
-                {{ form.name_ar }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">الاسم بالإنجليزي *</label>
-                {{ form.name_en }}
-            </div>
-            
-            <div class="col-md-6">
-                <label class="form-label">التصنيف *</label>
-                {{ form.category }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">نوع المحل *</label>
-                {{ form.business_type }}
-            </div>
-            
-            <div class="col-12">
-                <label class="form-label">الوصف بالعربي</label>
-                {{ form.description_ar }}
-            </div>
-            <div class="col-12">
-                <label class="form-label">الوصف بالإنجليزي</label>
-                {{ form.description_en }}
-            </div>
-            
-            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">بيانات الاتصال</h5></div>
-            
-            <div class="col-md-6">
-                <label class="form-label">رقم الهاتف</label>
-                {{ form.phone }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">واتساب</label>
-                {{ form.whatsapp }}
-            </div>
-            
-            <div class="col-md-6">
-                <label class="form-label">البريد الإلكتروني</label>
-                {{ form.email }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">الموقع الإلكتروني</label>
-                {{ form.website }}
-            </div>
-            
-            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">العنوان</h5></div>
-            
-            <div class="col-md-4">
-                <label class="form-label">العنوان</label>
-                {{ form.address_ar }}
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">المدينة</label>
-                {{ form.city_ar }}
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">الحي</label>
-                {{ form.district_ar }}
-            </div>
-            
-            <div class="col-md-6">
-                <label class="form-label">خط الطول (Latitude)</label>
-                {{ form.latitude }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">خط العرض (Longitude)</label>
-                {{ form.longitude }}
-            </div>
-            
-            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">الصور</h5></div>
-            
-            <div class="col-md-6">
-                <label class="form-label">اللوجو</label>
-                {{ form.logo }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">صورة الغلاف</label>
-                {{ form.cover_image }}
-            </div>
-            
-            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">الحالة</h5></div>
-            
-            <div class="col-md-4">
-                <div class="form-check form-switch">
-                    {{ form.is_active }}
-                    <label class="form-check-label">فعّال</label>
+<!-- Progress Steps -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-3">
+        <div class="d-flex justify-content-between">
+            <div class="text-center flex-fill">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="fas fa-info"></i>
                 </div>
+                <div class="small fw-bold mt-2">المعلومات الأساسية</div>
             </div>
-            <div class="col-md-4">
-                <div class="form-check form-switch">
-                    {{ form.is_verified }}
-                    <label class="form-check-label">موثّق</label>
+            <div class="text-center flex-fill">
+                <div class="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="fas fa-phone"></i>
                 </div>
+                <div class="small fw-bold mt-2">بيانات الاتصال</div>
             </div>
-            <div class="col-md-4">
-                <div class="form-check form-switch">
-                    {{ form.is_featured }}
-                    <label class="form-check-label">مُبرز</label>
+            <div class="text-center flex-fill">
+                <div class="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="fas fa-map-marker-alt"></i>
                 </div>
+                <div class="small fw-bold mt-2">الموقع</div>
+            </div>
+            <div class="text-center flex-fill">
+                <div class="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="fas fa-image"></i>
+                </div>
+                <div class="small fw-bold mt-2">الصور</div>
             </div>
         </div>
-        
-        <div class="mt-4">
-            <button type="submit" class="btn btn-admin">
-                <i class="fas fa-save me-1"></i> {{ action }}
-            </button>
-            <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-secondary">
-                <i class="fas fa-times me-1"></i> إلغاء
-            </a>
-        </div>
-    </form>
+    </div>
 </div>
+
+<!-- Form -->
+<form method="post" enctype="multipart/form-data" id="businessForm">
+    {% csrf_token %}
+    
+    <!-- Error Messages -->
+    {% if form.errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <strong>خطأ!</strong> يرجى تصحيح الأخطاء التالية:
+        <ul class="mb-0 mt-2">
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    <!-- 1. المعلومات الأساسية -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h5 class="mb-0">
+                <i class="fas fa-info-circle me-2"></i>
+                المعلومات الأساسية
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-tag text-primary me-1"></i>
+                        الاسم بالعربي
+                        <span class="text-danger">*</span>
+                    </label>
+                    {{ form.name_ar }}
+                    <div class="form-text">الاسم كما سيظهر للمستخدمين العرب</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-tag text-primary me-1"></i>
+                        الاسم بالإنجليزي
+                        <span class="text-danger">*</span>
+                    </label>
+                    {{ form.name_en }}
+                    <div class="form-text">English name for international users</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-layer-group text-success me-1"></i>
+                        التصنيف
+                        <span class="text-danger">*</span>
+                    </label>
+                    {{ form.category }}
+                    <div class="form-text">اختر التصنيف المناسب للمحل</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-briefcase text-info me-1"></i>
+                        نوع المحل
+                        <span class="text-danger">*</span>
+                    </label>
+                    {{ form.business_type }}
+                    <div class="form-text">محل تجاري أم خدمة عامة</div>
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-align-right text-secondary me-1"></i>
+                        الوصف بالعربي
+                    </label>
+                    {{ form.description_ar }}
+                    <div class="form-text">وصف تفصيلي عن المحل وخدماته</div>
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-align-left text-secondary me-1"></i>
+                        الوصف بالإنجليزي
+                    </label>
+                    {{ form.description_en }}
+                    <div class="form-text">Detailed description in English</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 2. بيانات الاتصال -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <h5 class="mb-0">
+                <i class="fas fa-phone me-2"></i>
+                بيانات الاتصال
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-phone text-primary me-1"></i>
+                        رقم الهاتف
+                    </label>
+                    {{ form.phone }}
+                    <div class="form-text">رقم الهاتف مع كود الدولة (مثال: +966...)</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fab fa-whatsapp text-success me-1"></i>
+                        واتساب
+                    </label>
+                    {{ form.whatsapp }}
+                    <div class="form-text">رقم واتساب للتواصل السريع</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-envelope text-danger me-1"></i>
+                        البريد الإلكتروني
+                    </label>
+                    {{ form.email }}
+                    <div class="form-text">البريد الإلكتروني للمحل</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-globe text-info me-1"></i>
+                        الموقع الإلكتروني
+                    </label>
+                    {{ form.website }}
+                    <div class="form-text">رابط الموقع الرسمي (إن وجد)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 3. الموقع -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <h5 class="mb-0">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                الموقع والعنوان
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-map-signs text-primary me-1"></i>
+                        العنوان
+                    </label>
+                    {{ form.address_ar }}
+                    <div class="form-text">العنوان الكامل للمحل</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-location-arrow text-danger me-1"></i>
+                        خط الطول (Latitude)
+                    </label>
+                    {{ form.latitude }}
+                    <div class="form-text">موقع المحل على الخريطة</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-location-arrow text-success me-1"></i>
+                        خط العرض (Longitude)
+                    </label>
+                    {{ form.longitude }}
+                    <div class="form-text">موقع المحل على الخريطة</div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>نصيحة:</strong> يمكنك الحصول على الإحداثيات من خرائط جوجل
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 4. الصور -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <h5 class="mb-0">
+                <i class="fas fa-images me-2"></i>
+                الصور
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-image text-primary me-1"></i>
+                        شعار المحل (Logo)
+                    </label>
+                    {{ form.logo }}
+                    <div class="form-text">شعار المحل بجودة عالية (مربع 500x500 موصى به)</div>
+                    {% if business.logo %}
+                    <div class="mt-2">
+                        <img src="{{ business.logo.url }}" class="img-thumbnail" style="max-width: 150px;">
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-image text-success me-1"></i>
+                        صورة الغلاف (Cover)
+                    </label>
+                    {{ form.cover_image }}
+                    <div class="form-text">صورة الغلاف (1200x400 موصى بها)</div>
+                    {% if business.cover_image %}
+                    <div class="mt-2">
+                        <img src="{{ business.cover_image.url }}" class="img-thumbnail" style="max-width: 250px;">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 5. الحالة والمميزات -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+            <h5 class="mb-0 text-dark">
+                <i class="fas fa-cog me-2"></i>
+                الحالة والمميزات
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <div class="form-check form-switch">
+                            {{ form.is_active }}
+                            <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">
+                                <i class="fas fa-toggle-on text-success me-1"></i>
+                                نشط
+                            </label>
+                        </div>
+                        <small class="text-muted d-block mt-2">المحل ظاهر للمستخدمين</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <div class="form-check form-switch">
+                            {{ form.is_verified }}
+                            <label class="form-check-label fw-bold" for="{{ form.is_verified.id_for_label }}">
+                                <i class="fas fa-check-circle text-primary me-1"></i>
+                                موثّق
+                            </label>
+                        </div>
+                        <small class="text-muted d-block mt-2">علامة التوثيق الزرقاء</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <div class="form-check form-switch">
+                            {{ form.is_featured }}
+                            <label class="form-check-label fw-bold" for="{{ form.is_featured.id_for_label }}">
+                                <i class="fas fa-star text-warning me-1"></i>
+                                مُميّز
+                            </label>
+                        </div>
+                        <small class="text-muted d-block mt-2">يظهر في القوائم المميزة</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="d-flex gap-2 justify-content-center mb-4">
+        <button type="submit" class="btn btn-admin btn-lg px-5">
+            <i class="fas fa-save me-2"></i> {{ action }}
+        </button>
+        <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-secondary btn-lg px-5">
+            <i class="fas fa-times me-2"></i> إلغاء
+        </a>
+    </div>
+</form>
+
+<style>
+.form-control, .form-select, textarea.form-control {
+    border: 1.5px solid #e0e0e0;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.form-control:focus, .form-select:focus, textarea.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+}
+
+.form-check-input:checked {
+    background-color: #27ae60;
+    border-color: #27ae60;
+}
+
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1rem 1.5rem;
+}
+
+.bg-gradient {
+    position: relative;
+}
+
+.form-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+textarea.form-control {
+    min-height: 120px;
+}
+
+.breadcrumb-item a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+.img-thumbnail {
+    border-radius: 8px;
+}
+</style>
 {% endblock %}
