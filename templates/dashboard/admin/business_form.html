@@ -325,21 +325,13 @@ textarea.form-control {
                 <div class="col-md-6">
                     <label class="form-label fw-bold">
                         <i class="fas fa-city text-primary me-1"></i>
-                        المحافظة
+                        المحافظة / المدينة
                     </label>
-                    {% if form.province %}
-                    <select name="{{ form.province.name }}" id="{{ form.province.id_for_label }}" class="form-select select2-dropdown">
-                        <option value="">-- اختر المحافظة --</option>
-                        {% for choice in form.province.field.queryset %}
-                        <option value="{{ choice.pk }}" {% if form.province.value == choice.pk|stringformat:"s" %}selected{% endif %}>
-                            {{ choice.name_ar }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    {% else %}
-                    {{ form.province }}
-                    {% endif %}
-                    <div class="form-text">اختر المحافظة</div>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-city"></i></span>
+                        {{ form.city_ar }}
+                    </div>
+                    <div class="form-text">مثال: الرياض</div>
                 </div>
                 
                 <div class="col-md-6">
@@ -347,19 +339,11 @@ textarea.form-control {
                         <i class="fas fa-map-pin text-success me-1"></i>
                         الحي
                     </label>
-                    {% if form.district %}
-                    <select name="{{ form.district.name }}" id="{{ form.district.id_for_label }}" class="form-select select2-dropdown">
-                        <option value="">-- اختر الحي --</option>
-                        {% for choice in form.district.field.queryset %}
-                        <option value="{{ choice.pk }}" {% if form.district.value == choice.pk|stringformat:"s" %}selected{% endif %}>
-                            {{ choice.name_ar }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    {% else %}
-                    {{ form.district }}
-                    {% endif %}
-                    <div class="form-text">اختر الحي</div>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+                        {{ form.district_ar }}
+                    </div>
+                    <div class="form-text">مثال: العليا</div>
                 </div>
                 
                 <div class="col-md-6">
@@ -426,7 +410,42 @@ textarea.form-control {
         </div>
     </div>
     
-    <!-- 4. الصور -->
+    <!-- 4. ساعات العمل -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-clock me-2"></i>
+                ساعات العمل
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-clock text-primary me-1"></i>
+                        ساعات العمل (عربي)
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                        {{ form.working_hours_ar }}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-clock text-primary me-1"></i>
+                        ساعات العمل (English)
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                        {{ form.working_hours_en }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 5. الصور -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header">
             <h5 class="mb-0">
@@ -467,7 +486,64 @@ textarea.form-control {
         </div>
     </div>
     
-    <!-- 5. الحالة والمميزات -->
+    <!-- 6. السوشيال ميديا -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fab fa-facebook me-2"></i>
+                السوشيال ميديا (اختياري)
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fab fa-facebook text-primary me-1"></i>
+                        Facebook
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fab fa-facebook"></i></span>
+                        {{ form.facebook }}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fab fa-instagram text-danger me-1"></i>
+                        Instagram
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                        {{ form.instagram }}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fab fa-twitter text-info me-1"></i>
+                        Twitter
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fab fa-twitter"></i></span>
+                        {{ form.twitter }}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fab fa-tiktok text-dark me-1"></i>
+                        TikTok
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fab fa-tiktok"></i></span>
+                        {{ form.tiktok }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 7. الحالة والمميزات -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header">
             <h5 class="mb-0">
@@ -540,7 +616,7 @@ textarea.form-control {
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/ar.js"></script>
 <script>
-// Initialize Select2 for all dropdowns
+// Initialize Select2 for category dropdown only
 $(document).ready(function() {
     $('.select2-dropdown').select2({
         theme: 'bootstrap-5',

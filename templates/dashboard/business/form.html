@@ -108,29 +108,20 @@
                         </div>
                     </div>
                     
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">التصنيف</label>
-                            <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" class="form-select select2-dropdown" required>
-                                <option value="">-- اختر التصنيف --</option>
-                                {% for choice in form.category.field.queryset %}
-                                <option value="{{ choice.pk }}" {% if form.category.value == choice.pk|stringformat:"s" %}selected{% endif %}>
-                                    {{ choice.name_ar }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                            {% if form.category.errors %}
-                            <div class="text-danger small">{{ form.category.errors }}</div>
-                            {% endif %}
-                            <small class="form-text text-muted">ابحث عن التصنيف المناسب</small>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.district.label_tag }}
-                            {{ form.district }}
-                            {% if form.district.errors %}
-                            <div class="text-danger small">{{ form.district.errors }}</div>
-                            {% endif %}
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">التصنيف</label>
+                        <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" class="form-select select2-dropdown" required>
+                            <option value="">-- اختر التصنيف --</option>
+                            {% for choice in form.category.field.queryset %}
+                            <option value="{{ choice.pk }}" {% if form.category.value == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ choice.name_ar }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.category.errors %}
+                        <div class="text-danger small">{{ form.category.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">ابحث عن التصنيف المناسب</small>
                     </div>
                 </div>
             </div>
@@ -228,21 +219,13 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">
                                 <i class="fas fa-city text-primary me-1"></i>
-                                المحافظة
+                                المحافظة / المدينة
                             </label>
-                            {% if form.province %}
-                            <select name="{{ form.province.name }}" id="{{ form.province.id_for_label }}" class="form-select select2-dropdown">
-                                <option value="">-- اختر المحافظة --</option>
-                                {% for choice in form.province.field.queryset %}
-                                <option value="{{ choice.pk }}" {% if form.province.value == choice.pk|stringformat:"s" %}selected{% endif %}>
-                                    {{ choice.name_ar }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                            {% else %}
-                            {{ form.province }}
-                            {% endif %}
-                            <small class="form-text text-muted">اختر المحافظة</small>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-city"></i></span>
+                                {{ form.city_ar }}
+                            </div>
+                            <small class="form-text text-muted">مثال: الرياض</small>
                         </div>
                         
                         <div class="col-md-6 mb-3">
@@ -250,19 +233,11 @@
                                 <i class="fas fa-map-pin text-success me-1"></i>
                                 الحي
                             </label>
-                            {% if form.district %}
-                            <select name="{{ form.district.name }}" id="{{ form.district.id_for_label }}" class="form-select select2-dropdown">
-                                <option value="">-- اختر الحي --</option>
-                                {% for choice in form.district.field.queryset %}
-                                <option value="{{ choice.pk }}" {% if form.district.value == choice.pk|stringformat:"s" %}selected{% endif %}>
-                                    {{ choice.name_ar }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                            {% else %}
-                            {{ form.district }}
-                            {% endif %}
-                            <small class="form-text text-muted">اختر الحي</small>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+                                {{ form.district_ar }}
+                            </div>
+                            <small class="form-text text-muted">مثال: العليا</small>
                         </div>
                     </div>
                     
@@ -342,20 +317,28 @@
                     <h5 class="mb-0"><i class="fas fa-clock"></i> ساعات العمل</h5>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        {{ form.working_hours_ar.label_tag }}
-                        {{ form.working_hours_ar }}
-                        {% if form.working_hours_ar.errors %}
-                        <div class="text-danger small">{{ form.working_hours_ar.errors }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ form.working_hours_en.label_tag }}
-                        {{ form.working_hours_en }}
-                        {% if form.working_hours_en.errors %}
-                        <div class="text-danger small">{{ form.working_hours_en.errors }}</div>
-                        {% endif %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.working_hours_ar.label_tag }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                {{ form.working_hours_ar }}
+                            </div>
+                            {% if form.working_hours_ar.errors %}
+                            <div class="text-danger small">{{ form.working_hours_ar.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form.working_hours_en.label_tag }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                {{ form.working_hours_en }}
+                            </div>
+                            {% if form.working_hours_en.errors %}
+                            <div class="text-danger small">{{ form.working_hours_en.errors }}</div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -458,7 +441,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/ar.js"></script>
 <script>
-// Initialize Select2
+// Initialize Select2 for category only
 $(document).ready(function() {
     $('.select2-dropdown').select2({
         theme: 'bootstrap-5',
