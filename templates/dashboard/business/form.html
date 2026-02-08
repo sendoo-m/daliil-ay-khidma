@@ -111,7 +111,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">التصنيف</label>
-                            <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" class="form-select select2-category" required>
+                            <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" class="form-select select2-dropdown" required>
                                 <option value="">-- اختر التصنيف --</option>
                                 {% for choice in form.category.field.queryset %}
                                 <option value="{{ choice.pk }}" {% if form.category.value == choice.pk|stringformat:"s" %}selected{% endif %}>
@@ -223,6 +223,49 @@
                     <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> العنوان والموقع</h5>
                 </div>
                 <div class="card-body">
+                    <!-- المحافظة والحي -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-city text-primary me-1"></i>
+                                المحافظة
+                            </label>
+                            {% if form.province %}
+                            <select name="{{ form.province.name }}" id="{{ form.province.id_for_label }}" class="form-select select2-dropdown">
+                                <option value="">-- اختر المحافظة --</option>
+                                {% for choice in form.province.field.queryset %}
+                                <option value="{{ choice.pk }}" {% if form.province.value == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                    {{ choice.name_ar }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                            {{ form.province }}
+                            {% endif %}
+                            <small class="form-text text-muted">اختر المحافظة</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-map-pin text-success me-1"></i>
+                                الحي
+                            </label>
+                            {% if form.district %}
+                            <select name="{{ form.district.name }}" id="{{ form.district.id_for_label }}" class="form-select select2-dropdown">
+                                <option value="">-- اختر الحي --</option>
+                                {% for choice in form.district.field.queryset %}
+                                <option value="{{ choice.pk }}" {% if form.district.value == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                    {{ choice.name_ar }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                            {{ form.district }}
+                            {% endif %}
+                            <small class="form-text text-muted">اختر الحي</small>
+                        </div>
+                    </div>
+                    
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             {{ form.address_ar.label_tag }}
@@ -417,11 +460,11 @@
 <script>
 // Initialize Select2
 $(document).ready(function() {
-    $('.select2-category').select2({
+    $('.select2-dropdown').select2({
         theme: 'bootstrap-5',
         language: 'ar',
         dir: 'rtl',
-        placeholder: '-- ابحث عن التصنيف --',
+        placeholder: '-- اختر --',
         allowClear: true,
         width: '100%'
     });
