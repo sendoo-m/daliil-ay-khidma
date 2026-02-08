@@ -19,6 +19,7 @@ from django.contrib import messages
 from django.views import View
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
 from django.urls import reverse_lazy
 
 from .models import User
@@ -27,11 +28,11 @@ from .models import User
 # ========================================
 # LOGIN VIEW
 # ========================================
+@method_decorator(never_cache, name='dispatch')
 class LoginView(View):
     """صفحة تسجيل الدخول"""
     template_name = 'accounts/login.html'
     
-    @never_cache
     def get(self, request):
         # If already logged in, redirect based on role
         if request.user.is_authenticated:
@@ -77,10 +78,41 @@ class LoginView(View):
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     """صفحة تسجيل الدخول (Function-based)"""
-    view = LoginView()
-    if request.method == 'GET':
-        return view.get(request)
-    return view.post(request)
+    # If already logged in, redirect based on role
+    if request.user.is_authenticated:
+        if request.user.is_staff or request.user.is_superuser:
+            return redirect('admin_dashboard:home')
+        return redirect('dashboard:home')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        
+        if not username or not password:
+            messages.error(request, 'الرجاء إدخال اسم المستخدم وكلمة المرور')
+            return render(request, 'accounts/login.html')
+        
+        # Authenticate user
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            # Login successful
+            login(request, user)
+            messages.success(request, f'مرحباً بك {user.get_full_name() or user.username}!')
+            
+            # Redirect based on role
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            elif user.is_staff or user.is_superuser:
+                return redirect('admin_dashboard:home')
+            else:
+                return redirect('dashboard:home')
+        else:
+            # Authentication failed
+            messages.error(request, 'اسم المستخدم أو كلمة المرور غير صحيحة')
+    
+    return render(request, 'accounts/login.html')
 
 
 # ========================================
