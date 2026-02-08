@@ -4,11 +4,13 @@ Location Models - نماذج المواقع الجغرافية
 Governorate > City > District (3 levels)
 """
 
+
 from django.db import models
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator
 from django.urls import reverse
 from django.db.models import Count, Q
+
 
 
 class Governorate(models.Model):
@@ -80,7 +82,7 @@ class Governorate(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.name_en} / {self.name_ar}"
+        return f"{self.name_ar} / {self.name_en}"
     
     @property
     def name(self):
@@ -89,6 +91,7 @@ class Governorate(models.Model):
     
     def get_absolute_url(self):
         return reverse('directory:governorate_detail', kwargs={'slug': self.slug})
+
 
 
 class City(models.Model):
@@ -144,12 +147,13 @@ class City(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.name_en} / {self.name_ar}"
+        return f"{self.governorate.name_ar} » {self.name_ar}"
     
     @property
     def name(self):
         from django.utils.translation import get_language
         return self.name_ar if get_language() == 'ar' else self.name_en
+
 
 
 class District(models.Model):
@@ -205,7 +209,8 @@ class District(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.name_en} / {self.name_ar}"
+        """يعرض المسار الكامل: المحافظة » المدينة » الحي"""
+        return f"{self.city.governorate.name_ar} » {self.city.name_ar} » {self.name_ar}"
     
     @property
     def name(self):
