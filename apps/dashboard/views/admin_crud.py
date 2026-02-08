@@ -52,26 +52,14 @@ class BusinessForm(django_forms.ModelForm):
     """Form for creating/editing businesses"""
     class Meta:
         model = Business
-        fields = [
-            'name_en', 'name_ar', 'description_en', 'description_ar',
-            'category', 'business_type', 'email', 'phone', 'whatsapp', 'website',
-            'address_ar', 'logo', 'cover_image',
-            'is_active', 'is_verified', 'is_featured', 'latitude', 'longitude',
-        ]
+        exclude = ('owner', 'created_at', 'updated_at', 'slug', 'views_count', 'clicks_count')
         widgets = {
-            'name_en': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Business Name'}),
-            'name_ar': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المحل'}),
+            'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
             'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'category': django_forms.Select(attrs={'class': 'form-select'}),
             'business_type': django_forms.Select(attrs={'class': 'form-select'}),
-            'email': django_forms.EmailInput(attrs={'class': 'form-control'}),
-            'phone': django_forms.TextInput(attrs={'class': 'form-control'}),
-            'whatsapp': django_forms.TextInput(attrs={'class': 'form-control'}),
-            'website': django_forms.URLInput(attrs={'class': 'form-control'}),
-            'address_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
-            'latitude': django_forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
-            'longitude': django_forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
         }
 
 
@@ -79,10 +67,7 @@ class ProductForm(django_forms.ModelForm):
     """Form for creating/editing products"""
     class Meta:
         model = Product
-        fields = [
-            'name_en', 'name_ar', 'description_en', 'description_ar',
-            'product_type', 'price', 'image', 'is_available', 'is_featured',
-        ]
+        exclude = ('business', 'created_at', 'updated_at', 'slug')
         widgets = {
             'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
             'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
@@ -97,11 +82,7 @@ class CategoryForm(django_forms.ModelForm):
     """Form for creating/editing categories"""
     class Meta:
         model = Category
-        fields = [
-            'name_en', 'name_ar', 'description_en', 'description_ar',
-            'parent', 'icon', 'image', 'order', 'is_active',
-            'meta_keywords_en', 'meta_keywords_ar',
-        ]
+        exclude = ('created_at', 'updated_at', 'slug')
         widgets = {
             'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
             'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
@@ -109,9 +90,6 @@ class CategoryForm(django_forms.ModelForm):
             'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'parent': django_forms.Select(attrs={'class': 'form-select'}),
             'icon': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'fas fa-store'}),
-            'order': django_forms.NumberInput(attrs={'class': 'form-control'}),
-            'meta_keywords_en': django_forms.TextInput(attrs={'class': 'form-control'}),
-            'meta_keywords_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 
@@ -119,29 +97,15 @@ class DealForm(django_forms.ModelForm):
     """Form for creating/editing deals"""
     class Meta:
         model = Deal
-        fields = [
-            'title_en', 'title_ar', 'description_en', 'description_ar',
-            'deal_type', 'discount_percentage', 'discount_amount',
-            'original_price', 'final_price', 'start_date', 'end_date',
-            'terms_en', 'terms_ar', 'image', 'max_uses', 'max_uses_per_user',
-            'is_active', 'is_featured',
-        ]
+        exclude = ('business', 'created_at', 'updated_at', 'slug', 'used_count')
         widgets = {
             'title_en': django_forms.TextInput(attrs={'class': 'form-control'}),
             'title_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
             'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'deal_type': django_forms.Select(attrs={'class': 'form-select'}),
-            'discount_percentage': django_forms.NumberInput(attrs={'class': 'form-control'}),
-            'discount_amount': django_forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'original_price': django_forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'final_price': django_forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'start_date': django_forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'end_date': django_forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'terms_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'terms_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'max_uses': django_forms.NumberInput(attrs={'class': 'form-control'}),
-            'max_uses_per_user': django_forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 
