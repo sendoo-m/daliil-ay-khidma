@@ -5,14 +5,17 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold"><i class="fas fa-store me-2" style="color: #3498db;"></i> إدارة المحلات</h2>
+    <h2 class="fw-bold"><i class="fas fa-store me-2" style="color: #27ae60;"></i> إدارة المحلات والخدمات</h2>
+    <a href="{% url 'admin_dashboard:business_create' %}" class="btn btn-admin">
+        <i class="fas fa-plus me-1"></i> إضافة محل/خدمة
+    </a>
 </div>
 
 <!-- Search & Filters -->
 <div class="table-card mb-4">
     <form method="get" class="row g-3">
         <div class="col-md-6">
-            <input type="text" name="search" class="form-control" placeholder="بحث باسم المحل..." value="{{ search }}">
+            <input type="text" name="search" class="form-control" placeholder="بحث بالاسم..." value="{{ search }}">
         </div>
         <div class="col-md-4">
             <select name="status" class="form-select">
@@ -35,10 +38,10 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>اسم المحل</th>
-                    <th>المالك</th>
+                    <th>الاسم</th>
                     <th>التصنيف</th>
-                    <th>المشاهدات</th>
+                    <th>النوع</th>
+                    <th>المالك</th>
                     <th>الحالة</th>
                     <th>الإجراءات</th>
                 </tr>
@@ -50,17 +53,17 @@
                     <td>
                         <strong>{{ business.name_ar }}</strong>
                         {% if business.is_featured %}
-                            <i class="fas fa-star text-warning" title="مُبرز"></i>
+                            <span class="badge bg-warning ms-1">مُبرز</span>
                         {% endif %}
                     </td>
+                    <td><span class="badge bg-info">{{ business.category.name_ar }}</span></td>
+                    <td>{{ business.get_business_type_display }}</td>
                     <td>{{ business.owner.username }}</td>
-                    <td>{{ business.category.name_ar }}</td>
-                    <td>{{ business.view_count|intcomma }}</td>
                     <td>
                         {% if business.is_verified %}
                             <span class="badge bg-success">موثّق</span>
                         {% else %}
-                            <span class="badge bg-warning">معلّق</span>
+                            <span class="badge bg-warning">غير موثق</span>
                         {% endif %}
                         {% if not business.is_active %}
                             <span class="badge bg-secondary">معطّل</span>
@@ -70,11 +73,11 @@
                         <a href="{% url 'admin_dashboard:business_detail' business.id %}" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye"></i>
                         </a>
+                        <a href="{% url 'admin_dashboard:business_edit' business.id %}" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
                         <a href="{% url 'admin_dashboard:business_verify' business.id %}" class="btn btn-sm btn-outline-success">
                             <i class="fas fa-check"></i>
-                        </a>
-                        <a href="{% url 'admin_dashboard:business_toggle_status' business.id %}" class="btn btn-sm btn-outline-warning">
-                            <i class="fas fa-power-off"></i>
                         </a>
                     </td>
                 </tr>

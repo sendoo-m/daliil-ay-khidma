@@ -1,13 +1,98 @@
 {% extends 'dashboard/admin/base.html' %}
+{% load humanize %}
 
 {% block title %}إدارة العروض{% endblock %}
 
 {% block content %}
-<div class="mb-4">
-    <h2 class="fw-bold"><i class="fas fa-tags me-2" style="color: #f39c12;"></i> إدارة العروض</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fas fa-tags me-2" style="color: #f39c12;"></i> إدارة العروض والخصومات</h2>
+    <a href="{% url 'admin_dashboard:deal_create' %}" class="btn btn-admin">
+        <i class="fas fa-plus me-1"></i> إضافة عرض
+    </a>
 </div>
 
+<!-- Deals Table -->
 <div class="table-card">
-    <p class="text-center text-muted py-5">صفحة إدارة العروض قيد التطوير</p>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>العرض</th>
+                    <th>المحل</th>
+                    <th>النوع</th>
+                    <th>الفترة</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for deal in deals %}
+                <tr>
+                    <td>{{ deal.id }}</td>
+                    <td>
+                        <strong>{{ deal.title_ar }}</strong>
+                        {% if deal.is_featured %}
+                            <span class="badge bg-warning ms-1">مُبرز</span>
+                        {% endif %}
+                        {% if deal.discount_percentage %}
+                            <span class="badge bg-danger ms-1">{{ deal.discount_percentage }}%</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ deal.business.name_ar }}</td>
+                    <td><span class="badge bg-info">{{ deal.get_deal_type_display }}</span></td>
+                    <td>
+                        <small>{{ deal.start_date|date:"Y-m-d" }}</small><br>
+                        <small>{{ deal.end_date|date:"Y-m-d" }}</small>
+                    </td>
+                    <td>
+                        {% if deal.is_valid %}
+                            <span class="badge bg-success">ساري</span>
+                        {% elif deal.is_expired %}
+                            <span class="badge bg-secondary">منتهي</span>
+                        {% elif deal.is_upcoming %}
+                            <span class="badge bg-info">قادم</span>
+                        {% endif %}
+                        {% if not deal.is_active %}
+                            <span class="badge bg-danger">معطّل</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'admin_dashboard:deal_detail' deal.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'admin_dashboard:deal_edit' deal.id %}" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'admin_dashboard:deal_approve' deal.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-check"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">لا توجد عروض</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if deals.has_other_pages %}
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            {% if deals.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ deals.previous_page_number }}">السابق</a></li>
+            {% endif %}
+            
+            <li class="page-item active"><span class="page-link">{{ deals.number }} / {{ deals.paginator.num_pages }}</span></li>
+            
+            {% if deals.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ deals.next_page_number }}">التالي</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}
