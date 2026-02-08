@@ -8,6 +8,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.db import transaction
+from django import forms as django_forms
+from django.contrib.auth.forms import UserCreationForm
 
 from apps.accounts.models import User
 from apps.directory.models import Business
@@ -15,107 +17,134 @@ from apps.products.models import Product
 from apps.deals.models import Deal
 from apps.categories.models import Category
 
-# Import forms from the forms.py file directly
-import sys
-import os
-from importlib import import_module
 
-# Get the forms module
-forms_module = import_module('apps.dashboard.forms')
+# ========================================
+# FORM DEFINITIONS
+# ========================================
 
-# Try to get the new forms, fallback to creating inline forms
-try:
-    from django import forms as django_forms
-    from django.contrib.auth.forms import UserCreationForm
+class AdminUserCreateForm(UserCreationForm):
+    """Form for creating users by admin"""
+    email = django_forms.EmailField(required=True)
+    first_name = django_forms.CharField(max_length=150, required=False)
+    last_name = django_forms.CharField(max_length=150, required=False)
+    is_staff = django_forms.BooleanField(required=False, label='مشرف')
+    is_active = django_forms.BooleanField(required=False, initial=True, label='فعّال')
     
-    # Define forms inline if not available
-    class AdminUserCreateForm(UserCreationForm):
-        email = django_forms.EmailField(required=True)
-        first_name = django_forms.CharField(max_length=150, required=False)
-        last_name = django_forms.CharField(max_length=150, required=False)
-        is_staff = django_forms.BooleanField(required=False, label='مشرف')
-        is_active = django_forms.BooleanField(required=False, initial=True, label='فعّال')
-        
-        class Meta:
-            model = User
-            fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'is_staff', 'is_active')
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'is_staff', 'is_active')
 
-    class AdminUserEditForm(django_forms.ModelForm):
-        class Meta:
-            model = User
-            fields = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
-            widgets = {
-                'username': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'email': django_forms.EmailInput(attrs={'class': 'form-control'}),
-                'first_name': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'last_name': django_forms.TextInput(attrs={'class': 'form-control'}),
-            }
 
-    class BusinessForm(django_forms.ModelForm):
-        class Meta:
-            model = Business
-            fields = [
-                'name_en', 'name_ar', 'description_en', 'description_ar',
-                'category', 'business_type', 'email', 'phone', 'whatsapp', 'website',
-                'address_ar', 'city_ar', 'district_ar', 'logo', 'cover_image',
-                'is_active', 'is_verified', 'is_featured', 'latitude', 'longitude',
-            ]
-            widgets = {
-                'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-                'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-                'category': django_forms.Select(attrs={'class': 'form-select'}),
-                'business_type': django_forms.Select(attrs={'class': 'form-select'}),
-            }
+class AdminUserEditForm(django_forms.ModelForm):
+    """Form for editing users by admin"""
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
+        widgets = {
+            'username': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'email': django_forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': django_forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
-    class ProductForm(django_forms.ModelForm):
-        class Meta:
-            model = Product
-            fields = [
-                'name_en', 'name_ar', 'description_en', 'description_ar',
-                'product_type', 'price', 'image', 'is_available', 'is_featured',
-            ]
-            widgets = {
-                'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'product_type': django_forms.Select(attrs={'class': 'form-select'}),
-                'price': django_forms.NumberInput(attrs={'class': 'form-control'}),
-            }
 
-    class CategoryForm(django_forms.ModelForm):
-        class Meta:
-            model = Category
-            fields = [
-                'name_en', 'name_ar', 'description_en', 'description_ar',
-                'parent', 'icon', 'image', 'order', 'is_active',
-                'meta_keywords_en', 'meta_keywords_ar',
-            ]
-            widgets = {
-                'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'parent': django_forms.Select(attrs={'class': 'form-select'}),
-            }
+class BusinessForm(django_forms.ModelForm):
+    """Form for creating/editing businesses"""
+    class Meta:
+        model = Business
+        fields = [
+            'name_en', 'name_ar', 'description_en', 'description_ar',
+            'category', 'business_type', 'email', 'phone', 'whatsapp', 'website',
+            'address_ar', 'city_ar', 'district_ar', 'logo', 'cover_image',
+            'is_active', 'is_verified', 'is_featured', 'latitude', 'longitude',
+        ]
+        widgets = {
+            'name_en': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Business Name'}),
+            'name_ar': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المحل'}),
+            'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'category': django_forms.Select(attrs={'class': 'form-select'}),
+            'business_type': django_forms.Select(attrs={'class': 'form-select'}),
+            'email': django_forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'whatsapp': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'website': django_forms.URLInput(attrs={'class': 'form-control'}),
+            'address_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'city_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'district_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'latitude': django_forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
+            'longitude': django_forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
+        }
 
-    class DealForm(django_forms.ModelForm):
-        class Meta:
-            model = Deal
-            fields = [
-                'title_en', 'title_ar', 'description_en', 'description_ar',
-                'deal_type', 'discount_percentage', 'discount_amount',
-                'original_price', 'final_price', 'start_date', 'end_date',
-                'terms_en', 'terms_ar', 'image', 'max_uses', 'max_uses_per_user',
-                'is_active', 'is_featured',
-            ]
-            widgets = {
-                'title_en': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'title_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
-                'deal_type': django_forms.Select(attrs={'class': 'form-select'}),
-                'start_date': django_forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-                'end_date': django_forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            }
-except Exception as e:
-    print(f"Error loading forms: {e}")
+
+class ProductForm(django_forms.ModelForm):
+    """Form for creating/editing products"""
+    class Meta:
+        model = Product
+        fields = [
+            'name_en', 'name_ar', 'description_en', 'description_ar',
+            'product_type', 'price', 'image', 'is_available', 'is_featured',
+        ]
+        widgets = {
+            'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'product_type': django_forms.Select(attrs={'class': 'form-select'}),
+            'price': django_forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+
+
+class CategoryForm(django_forms.ModelForm):
+    """Form for creating/editing categories"""
+    class Meta:
+        model = Category
+        fields = [
+            'name_en', 'name_ar', 'description_en', 'description_ar',
+            'parent', 'icon', 'image', 'order', 'is_active',
+            'meta_keywords_en', 'meta_keywords_ar',
+        ]
+        widgets = {
+            'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'parent': django_forms.Select(attrs={'class': 'form-select'}),
+            'icon': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'fas fa-store'}),
+            'order': django_forms.NumberInput(attrs={'class': 'form-control'}),
+            'meta_keywords_en': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'meta_keywords_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
+class DealForm(django_forms.ModelForm):
+    """Form for creating/editing deals"""
+    class Meta:
+        model = Deal
+        fields = [
+            'title_en', 'title_ar', 'description_en', 'description_ar',
+            'deal_type', 'discount_percentage', 'discount_amount',
+            'original_price', 'final_price', 'start_date', 'end_date',
+            'terms_en', 'terms_ar', 'image', 'max_uses', 'max_uses_per_user',
+            'is_active', 'is_featured',
+        ]
+        widgets = {
+            'title_en': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'title_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
+            'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'deal_type': django_forms.Select(attrs={'class': 'form-select'}),
+            'discount_percentage': django_forms.NumberInput(attrs={'class': 'form-control'}),
+            'discount_amount': django_forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'original_price': django_forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'final_price': django_forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'start_date': django_forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'end_date': django_forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'terms_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'terms_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'max_uses': django_forms.NumberInput(attrs={'class': 'form-control'}),
+            'max_uses_per_user': django_forms.NumberInput(attrs={'class': 'form-control'}),
+        }
 
 
 # ========================================
