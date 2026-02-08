@@ -81,7 +81,7 @@ def admin_dashboard_home(request):
     # Top Performing
     top_businesses = Business.objects.order_by('-view_count')[:5]
     top_categories = Category.objects.annotate(
-        business_count=Count('businesses')
+        business_count=Count('business')
     ).order_by('-business_count')[:5]
     
     context = {
@@ -462,7 +462,7 @@ def admin_review_delete(request, review_id):
 @staff_member_required
 def admin_categories_list(request):
     categories = Category.objects.annotate(
-        business_count=Count('businesses')
+        business_count=Count('business')
     ).order_by('-business_count')
     return render(request, 'dashboard/admin/categories_list.html', {'categories': categories})
 
