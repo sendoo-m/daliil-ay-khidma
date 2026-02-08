@@ -5,7 +5,7 @@
 {% block extra_css %}
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<!-- Select2 CSS for searchable dropdowns -->
+<!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 <style>
@@ -14,7 +14,6 @@
     width: 100%;
     border-radius: 8px;
     border: 2px solid #ddd;
-    z-index: 1;
     margin-bottom: 15px;
 }
 .map-instructions {
@@ -26,6 +25,7 @@
 }
 .leaflet-container {
     font-family: inherit;
+    z-index: 1;
 }
 .form-control, .form-select, textarea.form-control {
     border: 1.5px solid #e0e0e0;
@@ -47,13 +47,11 @@
 }
 .card-header {
     padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
 }
 .card-header h5 {
     color: #fff !important;
     font-weight: 600;
-}
-.bg-gradient {
-    position: relative;
 }
 .form-text {
     font-size: 0.85rem;
@@ -72,7 +70,14 @@ textarea.form-control {
 .img-thumbnail {
     border-radius: 8px;
 }
-/* Select2 RTL Support */
+.input-group-text {
+    min-width: 45px;
+    justify-content: center;
+}
+/* Select2 Styles */
+.select2-container {
+    width: 100% !important;
+}
 .select2-container--bootstrap-5 .select2-selection {
     border: 1.5px solid #e0e0e0;
     border-radius: 8px;
@@ -84,6 +89,10 @@ textarea.form-control {
 }
 .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
     height: 45px;
+}
+.select2-dropdown {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
 }
 </style>
 {% endblock %}
@@ -165,7 +174,7 @@ textarea.form-control {
     
     <!-- 1. المعلومات الأساسية -->
     <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="card-header">
             <h5 class="mb-0">
                 <i class="fas fa-info-circle me-2"></i>
                 المعلومات الأساسية
@@ -207,7 +216,7 @@ textarea.form-control {
                         </option>
                         {% endfor %}
                     </select>
-                    <div class="form-text">ابحث واختر التصنيف المناسب للمحل</div>
+                    <div class="form-text">ابحث واختر التصنيف المناسب</div>
                 </div>
                 
                 <div class="col-md-6">
@@ -243,7 +252,7 @@ textarea.form-control {
     
     <!-- 2. بيانات الاتصال -->
     <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+        <div class="card-header">
             <h5 class="mb-0">
                 <i class="fas fa-phone me-2"></i>
                 بيانات الاتصال
@@ -304,7 +313,7 @@ textarea.form-control {
     
     <!-- 3. الموقع -->
     <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+        <div class="card-header">
             <h5 class="mb-0">
                 <i class="fas fa-map-marker-alt me-2"></i>
                 الموقع والعنوان
@@ -378,7 +387,7 @@ textarea.form-control {
     
     <!-- 4. الصور -->
     <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+        <div class="card-header">
             <h5 class="mb-0">
                 <i class="fas fa-images me-2"></i>
                 الصور
@@ -419,8 +428,8 @@ textarea.form-control {
     
     <!-- 5. الحالة والمميزات -->
     <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
-            <h5 class="mb-0 text-dark">
+        <div class="card-header">
+            <h5 class="mb-0">
                 <i class="fas fa-cog me-2"></i>
                 الحالة والمميزات
             </h5>
@@ -482,9 +491,11 @@ textarea.form-control {
 {% endblock %}
 
 {% block extra_js %}
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- Select2 JS for searchable dropdowns -->
+<!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/ar.js"></script>
 <script>
@@ -498,6 +509,9 @@ $(document).ready(function() {
         allowClear: true,
         width: '100%'
     });
+    
+    // Initialize map after page loads
+    setTimeout(initMap, 100);
 });
 
 // Map initialization
@@ -508,64 +522,63 @@ const defaultLat = {{ business.latitude|default:"24.7136" }};
 const defaultLng = {{ business.longitude|default:"46.6753" }};
 
 function initMap() {
-    map = L.map('map').setView([defaultLat, defaultLng], 13);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19
-    }).addTo(map);
-    
-    const customIcon = L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    });
-    
-    marker = L.marker([defaultLat, defaultLng], {
-        draggable: true,
-        icon: customIcon
-    }).addTo(map);
-    
-    marker.bindPopup('<b>موقع المحل</b><br>اسحب العلامة لتغيير الموقع').openPopup();
-    
-    marker.on('dragend', function(event) {
-        const position = marker.getLatLng();
-        updateCoordinates(position.lat, position.lng);
-    });
-    
-    map.on('click', function(event) {
-        marker.setLatLng(event.latlng);
-        updateCoordinates(event.latlng.lat, event.latlng.lng);
-        marker.bindPopup('<b>موقع المحل</b><br>الإحداثيات: ' + 
-                         event.latlng.lat.toFixed(6) + ', ' + 
-                         event.latlng.lng.toFixed(6)).openPopup();
-    });
+    try {
+        map = L.map('map').setView([defaultLat, defaultLng], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19
+        }).addTo(map);
+        
+        const customIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+        
+        marker = L.marker([defaultLat, defaultLng], {
+            draggable: true,
+            icon: customIcon
+        }).addTo(map);
+        
+        marker.bindPopup('<b>موقع المحل</b><br>اسحب العلامة لتغيير الموقع').openPopup();
+        
+        marker.on('dragend', function(event) {
+            const position = marker.getLatLng();
+            updateCoordinates(position.lat, position.lng);
+        });
+        
+        map.on('click', function(event) {
+            marker.setLatLng(event.latlng);
+            updateCoordinates(event.latlng.lat, event.latlng.lng);
+            marker.bindPopup('<b>موقع المحل</b><br>الإحداثيات: ' + 
+                             event.latlng.lat.toFixed(6) + ', ' + 
+                             event.latlng.lng.toFixed(6)).openPopup();
+        });
+        
+        // Get user location for new businesses
+        {% if not business %}
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const userLocation = [position.coords.latitude, position.coords.longitude];
+                map.setView(userLocation, 15);
+                marker.setLatLng(userLocation);
+                updateCoordinates(position.coords.latitude, position.coords.longitude);
+                marker.bindPopup('<b>موقعك الحالي</b>').openPopup();
+            });
+        }
+        {% endif %}
+    } catch(e) {
+        console.error('Error initializing map:', e);
+    }
 }
 
 function updateCoordinates(lat, lng) {
     document.getElementById('id_latitude').value = lat.toFixed(6);
     document.getElementById('id_longitude').value = lng.toFixed(6);
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    initMap();
-    
-    {% if not business %}
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            const userLocation = [position.coords.latitude, position.coords.longitude];
-            map.setView(userLocation, 15);
-            marker.setLatLng(userLocation);
-            updateCoordinates(position.coords.latitude, position.coords.longitude);
-            marker.bindPopup('<b>موقعك الحالي</b>').openPopup();
-        }, function(error) {
-            console.log('Could not get location:', error);
-        });
-    }
-    {% endif %}
-});
 </script>
 {% endblock %}
