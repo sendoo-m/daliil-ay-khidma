@@ -1,0 +1,86 @@
+{% extends 'dashboard/admin/base.html' %}
+
+{% block title %}{{ action }} منتج{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'admin_dashboard:products_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-right me-1"></i> عودة
+    </a>
+</div>
+
+<div class="table-card">
+    <h4 class="fw-bold mb-4">
+        <i class="fas fa-box text-info me-2"></i>
+        {{ action }} منتج
+    </h4>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% if business %}
+        <input type="hidden" name="business" value="{{ business.id }}">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            سيتم إضافة المنتج إلى: <strong>{{ business.name_ar }}</strong>
+        </div>
+        {% endif %}
+        
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">الاسم بالعربي *</label>
+                {{ form.name_ar }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">الاسم بالإنجليزي *</label>
+                {{ form.name_en }}
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label">الوصف بالعربي</label>
+                {{ form.description_ar }}
+            </div>
+            <div class="col-12">
+                <label class="form-label">الوصف بالإنجليزي</label>
+                {{ form.description_en }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">النوع *</label>
+                {{ form.product_type }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">السعر *</label>
+                {{ form.price }}
+            </div>
+            
+            <div class="col-md-12">
+                <label class="form-label">الصورة</label>
+                {{ form.image }}
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-check form-switch">
+                    {{ form.is_available }}
+                    <label class="form-check-label">متاح</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-switch">
+                    {{ form.is_featured }}
+                    <label class="form-check-label">مُبرز</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <button type="submit" class="btn btn-admin">
+                <i class="fas fa-save me-1"></i> {{ action }}
+            </button>
+            <a href="{% url 'admin_dashboard:products_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times me-1"></i> إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

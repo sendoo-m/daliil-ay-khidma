@@ -1,0 +1,138 @@
+{% extends 'dashboard/admin/base.html' %}
+
+{% block title %}{{ action }} محل{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-right me-1"></i> عودة
+    </a>
+</div>
+
+<div class="table-card">
+    <h4 class="fw-bold mb-4">
+        <i class="fas fa-store text-success me-2"></i>
+        {{ action }} محل / خدمة
+    </h4>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row g-3">
+            <div class="col-12"><h5 class="border-bottom pb-2">المعلومات الأساسية</h5></div>
+            
+            <div class="col-md-6">
+                <label class="form-label">الاسم بالعربي *</label>
+                {{ form.name_ar }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">الاسم بالإنجليزي *</label>
+                {{ form.name_en }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">التصنيف *</label>
+                {{ form.category }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">نوع المحل *</label>
+                {{ form.business_type }}
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label">الوصف بالعربي</label>
+                {{ form.description_ar }}
+            </div>
+            <div class="col-12">
+                <label class="form-label">الوصف بالإنجليزي</label>
+                {{ form.description_en }}
+            </div>
+            
+            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">بيانات الاتصال</h5></div>
+            
+            <div class="col-md-6">
+                <label class="form-label">رقم الهاتف</label>
+                {{ form.phone }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">واتساب</label>
+                {{ form.whatsapp }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">البريد الإلكتروني</label>
+                {{ form.email }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">الموقع الإلكتروني</label>
+                {{ form.website }}
+            </div>
+            
+            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">العنوان</h5></div>
+            
+            <div class="col-md-4">
+                <label class="form-label">العنوان</label>
+                {{ form.address_ar }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">المدينة</label>
+                {{ form.city_ar }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">الحي</label>
+                {{ form.district_ar }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">خط الطول (Latitude)</label>
+                {{ form.latitude }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">خط العرض (Longitude)</label>
+                {{ form.longitude }}
+            </div>
+            
+            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">الصور</h5></div>
+            
+            <div class="col-md-6">
+                <label class="form-label">اللوجو</label>
+                {{ form.logo }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">صورة الغلاف</label>
+                {{ form.cover_image }}
+            </div>
+            
+            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">الحالة</h5></div>
+            
+            <div class="col-md-4">
+                <div class="form-check form-switch">
+                    {{ form.is_active }}
+                    <label class="form-check-label">فعّال</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check form-switch">
+                    {{ form.is_verified }}
+                    <label class="form-check-label">موثّق</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check form-switch">
+                    {{ form.is_featured }}
+                    <label class="form-check-label">مُبرز</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <button type="submit" class="btn btn-admin">
+                <i class="fas fa-save me-1"></i> {{ action }}
+            </button>
+            <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times me-1"></i> إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

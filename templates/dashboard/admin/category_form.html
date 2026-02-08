@@ -1,0 +1,86 @@
+{% extends 'dashboard/admin/base.html' %}
+
+{% block title %}{{ action }} تصنيف{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'admin_dashboard:categories_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-right me-1"></i> عودة
+    </a>
+</div>
+
+<div class="table-card">
+    <h4 class="fw-bold mb-4">
+        <i class="fas fa-list text-success me-2"></i>
+        {{ action }} تصنيف
+    </h4>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">الاسم بالعربي *</label>
+                {{ form.name_ar }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">الاسم بالإنجليزي *</label>
+                {{ form.name_en }}
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label">الوصف بالعربي</label>
+                {{ form.description_ar }}
+            </div>
+            <div class="col-12">
+                <label class="form-label">الوصف بالإنجليزي</label>
+                {{ form.description_en }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">التصنيف الأب</label>
+                {{ form.parent }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">الأيقونة</label>
+                {{ form.icon }}
+                <small class="text-muted d-block">FontAwesome class (e.g., fas fa-store)</small>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">الترتيب</label>
+                {{ form.order }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">الصورة</label>
+                {{ form.image }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">كلمات مفتاحية (عربي)</label>
+                {{ form.meta_keywords_ar }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">كلمات مفتاحية (إنجليزي)</label>
+                {{ form.meta_keywords_en }}
+            </div>
+            
+            <div class="col-md-12">
+                <div class="form-check form-switch">
+                    {{ form.is_active }}
+                    <label class="form-check-label">فعّال</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <button type="submit" class="btn btn-admin">
+                <i class="fas fa-save me-1"></i> {{ action }}
+            </button>
+            <a href="{% url 'admin_dashboard:categories_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times me-1"></i> إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

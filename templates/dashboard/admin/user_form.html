@@ -1,0 +1,75 @@
+{% extends 'dashboard/admin/base.html' %}
+
+{% block title %}{{ action }} مستخدم{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'admin_dashboard:users_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-right me-1"></i> عودة
+    </a>
+</div>
+
+<div class="table-card">
+    <h4 class="fw-bold mb-4">
+        <i class="fas fa-user-plus text-primary me-2"></i>
+        {{ action }} مستخدم
+    </h4>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">اسم المستخدم *</label>
+                {{ form.username }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">البريد الإلكتروني *</label>
+                {{ form.email }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">الاسم الأول</label>
+                {{ form.first_name }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">الاسم الأخير</label>
+                {{ form.last_name }}
+            </div>
+            
+            {% if form.password1 %}
+            <div class="col-md-6">
+                <label class="form-label">كلمة المرور *</label>
+                {{ form.password1 }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">تأكيد كلمة المرور *</label>
+                {{ form.password2 }}
+            </div>
+            {% endif %}
+            
+            <div class="col-md-6">
+                <div class="form-check form-switch">
+                    {{ form.is_active }}
+                    <label class="form-check-label">فعّال</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-switch">
+                    {{ form.is_staff }}
+                    <label class="form-check-label">مشرف</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <button type="submit" class="btn btn-admin">
+                <i class="fas fa-save me-1"></i> {{ action }}
+            </button>
+            <a href="{% url 'admin_dashboard:users_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times me-1"></i> إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

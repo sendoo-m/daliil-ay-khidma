@@ -1,0 +1,138 @@
+{% extends 'dashboard/admin/base.html' %}
+
+{% block title %}{{ action }} عرض{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'admin_dashboard:deals_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-right me-1"></i> عودة
+    </a>
+</div>
+
+<div class="table-card">
+    <h4 class="fw-bold mb-4">
+        <i class="fas fa-tags text-warning me-2"></i>
+        {{ action }} عرض
+    </h4>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% if business %}
+        <input type="hidden" name="business" value="{{ business.id }}">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            سيتم إضافة العرض إلى: <strong>{{ business.name_ar }}</strong>
+        </div>
+        {% endif %}
+        
+        <div class="row g-3">
+            <div class="col-12"><h5 class="border-bottom pb-2">معلومات العرض</h5></div>
+            
+            <div class="col-md-6">
+                <label class="form-label">العنوان بالعربي *</label>
+                {{ form.title_ar }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">العنوان بالإنجليزي *</label>
+                {{ form.title_en }}
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label">الوصف بالعربي</label>
+                {{ form.description_ar }}
+            </div>
+            <div class="col-12">
+                <label class="form-label">الوصف بالإنجليزي</label>
+                {{ form.description_en }}
+            </div>
+            
+            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">تفاصيل الخصم</h5></div>
+            
+            <div class="col-md-4">
+                <label class="form-label">نوع العرض *</label>
+                {{ form.deal_type }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">نسبة الخصم (%)</label>
+                {{ form.discount_percentage }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">قيمة الخصم</label>
+                {{ form.discount_amount }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">السعر الأصلي</label>
+                {{ form.original_price }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">السعر النهائي</label>
+                {{ form.final_price }}
+            </div>
+            
+            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">فترة العرض</h5></div>
+            
+            <div class="col-md-6">
+                <label class="form-label">تاريخ البداية *</label>
+                {{ form.start_date }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">تاريخ الانتهاء *</label>
+                {{ form.end_date }}
+            </div>
+            
+            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">الشروط والأحكام</h5></div>
+            
+            <div class="col-12">
+                <label class="form-label">الشروط بالعربي</label>
+                {{ form.terms_ar }}
+            </div>
+            <div class="col-12">
+                <label class="form-label">الشروط بالإنجليزي</label>
+                {{ form.terms_en }}
+            </div>
+            
+            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">الحدود</h5></div>
+            
+            <div class="col-md-4">
+                <label class="form-label">الحد الأقصى للاستخدام</label>
+                {{ form.max_uses }}
+                <small class="text-muted d-block">اتركها فارغة لعدد غير محدود</small>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">الحد الأقصى لكل مستخدم</label>
+                {{ form.max_uses_per_user }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">الصورة</label>
+                {{ form.image }}
+            </div>
+            
+            <div class="col-12"><h5 class="border-bottom pb-2 mt-3">الحالة</h5></div>
+            
+            <div class="col-md-6">
+                <div class="form-check form-switch">
+                    {{ form.is_active }}
+                    <label class="form-check-label">فعّال</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-switch">
+                    {{ form.is_featured }}
+                    <label class="form-check-label">مُبرز</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <button type="submit" class="btn btn-admin">
+                <i class="fas fa-save me-1"></i> {{ action }}
+            </button>
+            <a href="{% url 'admin_dashboard:deals_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times me-1"></i> إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
