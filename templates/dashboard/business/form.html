@@ -109,7 +109,11 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">التصنيف</label>
+                        <label class="form-label">
+                            <i class="fas fa-layer-group text-success me-1"></i>
+                            التصنيف
+                            <span class="text-danger">*</span>
+                        </label>
                         {{ form.category }}
                         {% if form.category.errors %}
                         <div class="text-danger small">{{ form.category.errors }}</div>
@@ -207,18 +211,33 @@
                     <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> العنوان والموقع</h5>
                 </div>
                 <div class="card-body">
-                    <!-- District Dropdown -->
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <i class="fas fa-map-marker-alt text-primary me-1"></i>
-                            المحافظة » المدينة » الحي
-                            <span class="text-danger">*</span>
-                        </label>
-                        {{ form.district }}
-                        {% if form.district.errors %}
-                        <div class="text-danger small">{{ form.district.errors }}</div>
-                        {% endif %}
-                        <small class="form-text text-muted">ابحث عن الحي أو المدينة</small>
+                    <!-- المحافظة والحي -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-city text-primary me-1"></i>
+                                المحافظة
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.governorate }}
+                            {% if form.governorate.errors %}
+                            <div class="text-danger small">{{ form.governorate.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">ابحث عن المحافظة</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-map-pin text-success me-1"></i>
+                                الحي
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.district }}
+                            {% if form.district.errors %}
+                            <div class="text-danger small">{{ form.district.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">ابحث عن الحي</small>
+                        </div>
                     </div>
                     
                     <div class="row">
@@ -421,7 +440,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/ar.js"></script>
 <script>
-// Initialize Select2 for category and district
+// Initialize Select2 for all dropdowns: Category, Governorate, District
 $(document).ready(function() {
     $('.select2-dropdown').select2({
         theme: 'bootstrap-5',
