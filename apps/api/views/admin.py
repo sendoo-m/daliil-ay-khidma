@@ -24,7 +24,7 @@ from apps.api.serializers.admin import (
     AdminAnalyticsSerializer
 )
 from apps.api.permissions import IsAdminUser
-from apps.api.pagination import StandardResultsPagination
+from apps.api.pagination import StandardResultsSetPagination
 
 User = get_user_model()
 
@@ -103,7 +103,7 @@ class AdminUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = AdminUserSerializer
     permission_classes = [IsAdminUser]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     filterset_fields = ['is_active', 'is_staff', 'is_superuser']
     search_fields = ['username', 'email', 'first_name', 'last_name']
     ordering_fields = ['date_joined', 'username', 'email']
@@ -130,7 +130,7 @@ class AdminBusinessViewSet(viewsets.ModelViewSet):
     queryset = Business.objects.all().select_related('owner', 'category').order_by('-created_at')
     serializer_class = AdminBusinessSerializer
     permission_classes = [IsAdminUser]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     filterset_fields = ['is_active', 'is_verified', 'is_featured', 'business_type', 'category']
     search_fields = ['name_ar', 'name_en', 'owner__username']
     ordering_fields = ['created_at', 'views_count', 'clicks_count']
@@ -157,7 +157,7 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('order', 'name_ar')
     serializer_class = AdminCategorySerializer
     permission_classes = [IsAdminUser]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     filterset_fields = ['is_active', 'parent']
     search_fields = ['name_ar', 'name_en']
     ordering_fields = ['order', 'name_ar']
@@ -168,7 +168,7 @@ class AdminProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().select_related('business').order_by('-created_at')
     serializer_class = AdminProductSerializer
     permission_classes = [IsAdminUser]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     filterset_fields = ['is_available', 'is_featured', 'product_type', 'business']
     search_fields = ['name_ar', 'name_en', 'business__name_ar']
     ordering_fields = ['created_at', 'price']
@@ -179,7 +179,7 @@ class AdminDealViewSet(viewsets.ModelViewSet):
     queryset = Deal.objects.all().select_related('business').order_by('-created_at')
     serializer_class = AdminDealSerializer
     permission_classes = [IsAdminUser]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     filterset_fields = ['is_active', 'is_featured', 'deal_type', 'business']
     search_fields = ['title_ar', 'title_en', 'business__name_ar']
     ordering_fields = ['created_at', 'start_date', 'end_date', 'used_count']
@@ -190,7 +190,7 @@ class AdminReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all().select_related('user', 'business').order_by('-created_at')
     serializer_class = AdminReviewSerializer
     permission_classes = [IsAdminUser]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     filterset_fields = ['is_approved', 'rating', 'business']
     search_fields = ['user__username', 'business__name_ar', 'comment']
     ordering_fields = ['created_at', 'rating']

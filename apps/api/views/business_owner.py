@@ -19,7 +19,7 @@ from apps.api.serializers.business_owner import (
     BusinessOwnerReviewSerializer
 )
 from apps.api.permissions import IsBusinessOwner
-from apps.api.pagination import StandardResultsPagination
+from apps.api.pagination import StandardResultsSetPagination
 
 
 class BusinessOwnerDashboardViewSet(viewsets.ViewSet):
@@ -60,7 +60,7 @@ class BusinessOwnerBusinessViewSet(viewsets.ModelViewSet):
     """Business owner business management"""
     serializer_class = BusinessOwnerBusinessSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     
     def get_queryset(self):
         return Business.objects.filter(owner=self.request.user).select_related('category')
@@ -73,7 +73,7 @@ class BusinessOwnerProductViewSet(viewsets.ModelViewSet):
     """Business owner product management"""
     serializer_class = BusinessOwnerProductSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     
     def get_queryset(self):
         business_id = self.kwargs.get('business_pk')
@@ -92,7 +92,7 @@ class BusinessOwnerDealViewSet(viewsets.ModelViewSet):
     """Business owner deal management"""
     serializer_class = BusinessOwnerDealSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     
     def get_queryset(self):
         business_id = self.kwargs.get('business_pk')
@@ -111,7 +111,7 @@ class BusinessOwnerReviewViewSet(viewsets.ReadOnlyModelViewSet):
     """Business owner review viewing"""
     serializer_class = BusinessOwnerReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = StandardResultsPagination
+    pagination_class = StandardResultsSetPagination
     
     def get_queryset(self):
         business_id = self.kwargs.get('business_pk')
