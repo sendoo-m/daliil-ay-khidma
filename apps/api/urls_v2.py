@@ -20,6 +20,14 @@ from apps.api.views.business_owner import (
     BusinessOwnerReviewViewSet
 )
 from apps.api.views import directory, deals, products, reviews, subscriptions
+from apps.api.views.auth import (
+    CustomTokenObtainPairView,
+    TokenRefreshView,
+    register,
+    get_user_profile,
+    update_user_profile,
+    change_password
+)
 
 app_name = 'api_v2'
 
@@ -54,9 +62,15 @@ router.register(r'reviews', reviews.ReviewViewSet, basename='reviews')
 router.register(r'subscriptions', subscriptions.SubscriptionViewSet, basename='subscriptions')
 
 urlpatterns = [
+    # Authentication
+    path('auth/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/register/', register, name='register'),
+    path('auth/profile/', get_user_profile, name='profile'),
+    path('auth/profile/update/', update_user_profile, name='profile_update'),
+    path('auth/change-password/', change_password, name='change_password'),
+    
+    # Include all routers
     path('', include(router.urls)),
     path('', include(business_router.urls)),
-    
-    # Authentication endpoints (JWT)
-    path('auth/', include('rest_framework.urls')),
 ]

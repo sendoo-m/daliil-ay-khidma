@@ -15,7 +15,10 @@ urlpatterns = [
     path('products/', include('apps.products.urls', namespace='products')),
     path('deals/', include('apps.deals.urls', namespace='deals')),
     path('reviews/', include('apps.reviews.urls', namespace='reviews')),
-    path('api/v1/', include('apps.api.urls', namespace='api')),
+    
+    # API Endpoints
+    path('api/v1/', include('apps.api.urls', namespace='api')),  # Old API
+    path('api/v2/', include('apps.api.urls_v2', namespace='api_v2')),  # New comprehensive API
 ]
 
 # Static & Media files

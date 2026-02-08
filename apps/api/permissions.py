@@ -1,41 +1,54 @@
-"""
-API Permissions
-===============
-Custom permissions for API endpoints
-"""
-
+"""Custom API Permissions"""
 from rest_framework import permissions
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
-    """
-    Custom permission to only allow owners to edit objects.
-    """
+    """Allow owners to edit, others to read only"""
     
     def has_object_permission(self, request, view, obj):
-        # Read permissions for any request
         if request.method in permissions.SAFE_METHODS:
             return True
         
-        # Write permissions only to owner
+        # Check if object has owner attribute
         if hasattr(obj, 'owner'):
             return obj.owner == request.user
+        
+        # Check if object has user attribute
         if hasattr(obj, 'user'):
             return obj.user == request.user
-        if hasattr(obj, 'business'):
-            return obj.business.owner == request.user
         
         return False
 
 
 class IsBusinessOwner(permissions.BasePermission):
-    """
-    Permission to check if user owns the business
-    """
+    """Allow only business owners to access"""
+    
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated
     
     def has_object_permission(self, request, view, obj):
-        if hasattr(obj, 'business'):
-            return obj.business.owner == request.user
+        # For Business model
         if hasattr(obj, 'owner'):
             return obj.owner == request.user
+        
+        # For related models (Product, Deal, etc.)
+        if hasattr(obj, 'business'):
+            return obj.business.owner == request.user
+        
         return False
+
+
+class IsAdminUser(permissions.BasePermission):
+    """Allow only admin/staff users"""
+    
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.is_staff
+
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    """Allow admins to edit, others to read only"""
+    
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user and request.user.is_staff
