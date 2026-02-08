@@ -3,84 +3,215 @@
 {% block title %}{{ action }} تصنيف{% endblock %}
 
 {% block content %}
-<div class="mb-4">
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">لوحة التحكم</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:categories_list' %}">التصنيفات</a></li>
+        <li class="breadcrumb-item active">{{ action }} تصنيف</li>
+    </ol>
+</nav>
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fas fa-layer-group" style="color: #1abc9c;"></i> {{ action }} تصنيف
+        </h2>
+        <p class="text-muted mb-0">إضافة أو تعديل تصنيف</p>
+    </div>
     <a href="{% url 'admin_dashboard:categories_list' %}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-right me-1"></i> عودة
+        <i class="fas fa-arrow-right me-1"></i> رجوع
     </a>
 </div>
 
-<div class="table-card">
-    <h4 class="fw-bold mb-4">
-        <i class="fas fa-list text-success me-2"></i>
-        {{ action }} تصنيف
-    </h4>
+<!-- Form -->
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
     
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">الاسم بالعربي *</label>
-                {{ form.name_ar }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">الاسم بالإنجليزي *</label>
-                {{ form.name_en }}
+    {% if form.errors %}
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <strong>خطأ!</strong> يرجى تصحيح الأخطاء
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <!-- معلومات أساسية -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> معلومات التصنيف</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tag text-primary me-1"></i>
+                                الاسم بالعربي <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name_ar }}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tag text-primary me-1"></i>
+                                الاسم بالإنجليزي <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name_en }}
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-align-right text-secondary me-1"></i>
+                                الوصف بالعربي
+                            </label>
+                            {{ form.description_ar }}
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-align-left text-secondary me-1"></i>
+                                الوصف بالإنجليزي
+                            </label>
+                            {{ form.description_en }}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-sitemap text-info me-1"></i>
+                                التصنيف الأب
+                            </label>
+                            {{ form.parent }}
+                            <div class="form-text">للتصنيفات الفرعية فقط</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-sort-numeric-up text-success me-1"></i>
+                                الترتيب
+                            </label>
+                            {{ form.order }}
+                            <div class="form-text">ترتيب الظهور (1, 2, 3...)</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="col-12">
-                <label class="form-label">الوصف بالعربي</label>
-                {{ form.description_ar }}
-            </div>
-            <div class="col-12">
-                <label class="form-label">الوصف بالإنجليزي</label>
-                {{ form.description_en }}
-            </div>
-            
-            <div class="col-md-6">
-                <label class="form-label">التصنيف الأب</label>
-                {{ form.parent }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">الأيقونة</label>
-                {{ form.icon }}
-                <small class="text-muted d-block">FontAwesome class (e.g., fas fa-store)</small>
-            </div>
-            
-            <div class="col-md-6">
-                <label class="form-label">الترتيب</label>
-                {{ form.order }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">الصورة</label>
-                {{ form.image }}
-            </div>
-            
-            <div class="col-md-6">
-                <label class="form-label">كلمات مفتاحية (عربي)</label>
-                {{ form.meta_keywords_ar }}
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">كلمات مفتاحية (إنجليزي)</label>
-                {{ form.meta_keywords_en }}
-            </div>
-            
-            <div class="col-md-12">
-                <div class="form-check form-switch">
-                    {{ form.is_active }}
-                    <label class="form-check-label">فعّال</label>
+            <!-- SEO -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h5 class="mb-0"><i class="fas fa-search text-dark me-2"></i> تحسين محركات البحث (SEO)</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-key text-warning me-1"></i>
+                                الكلمات المفتاحية بالعربي
+                            </label>
+                            {{ form.meta_keywords_ar }}
+                            <div class="form-text">مفصولة بفاصلة (مثال: مطاعم, أكل, طعام)</div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-key text-warning me-1"></i>
+                                الكلمات المفتاحية بالإنجليزي
+                            </label>
+                            {{ form.meta_keywords_en }}
+                            <div class="form-text">Comma separated (e.g: restaurant, food, dining)</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="mt-4">
-            <button type="submit" class="btn btn-admin">
-                <i class="fas fa-save me-1"></i> {{ action }}
-            </button>
-            <a href="{% url 'admin_dashboard:categories_list' %}" class="btn btn-secondary">
-                <i class="fas fa-times me-1"></i> إلغاء
-            </a>
+        <div class="col-lg-4">
+            <!-- الأيقونة -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-icons text-primary me-2"></i> الأيقونة</h5>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3">
+                        <div class="p-4 bg-light rounded">
+                            <i class="{{ category.icon|default:'fas fa-layer-group' }} fa-4x text-primary"></i>
+                        </div>
+                    </div>
+                    {{ form.icon }}
+                    <div class="form-text text-start mt-2">
+                        <strong>أمثلة:</strong><br>
+                        <code>fas fa-utensils</code> - مطعم<br>
+                        <code>fas fa-shopping-cart</code> - تسوق<br>
+                        <code>fas fa-home</code> - منزل<br>
+                    </div>
+                    <a href="https://fontawesome.com/icons" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                        <i class="fas fa-external-link-alt me-1"></i>
+                        تصفح FontAwesome
+                    </a>
+                </div>
+            </div>
+            
+            <!-- صورة التصنيف -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-image text-success me-2"></i> الصورة</h5>
+                </div>
+                <div class="card-body p-4 text-center">
+                    {% if category.image %}
+                    <img src="{{ category.image.url }}" class="img-fluid rounded mb-3">
+                    {% else %}
+                    <div class="bg-light rounded p-4 mb-3">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    {{ form.image }}
+                    <div class="form-text text-start mt-2">صورة تمثيلية للتصنيف</div>
+                </div>
+            </div>
+            
+            <!-- الحالة -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-cog text-info me-2"></i> الحالة</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="p-3 bg-light rounded">
+                        <div class="form-check form-switch">
+                            {{ form.is_active }}
+                            <label class="form-check-label fw-bold">
+                                <i class="fas fa-toggle-on text-success me-1"></i>
+                                نشط
+                            </label>
+                        </div>
+                        <small class="text-muted d-block mt-2">التصنيف ظاهر للمستخدمين</small>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
-</div>
+    </div>
+    
+    <!-- Buttons -->
+    <div class="d-flex gap-2 justify-content-center mt-4">
+        <button type="submit" class="btn btn-admin btn-lg px-5">
+            <i class="fas fa-save me-2"></i> {{ action }}
+        </button>
+        <a href="{% url 'admin_dashboard:categories_list' %}" class="btn btn-secondary btn-lg px-5">
+            <i class="fas fa-times me-2"></i> إلغاء
+        </a>
+    </div>
+</form>
+
+<style>
+.form-control, .form-select, textarea.form-control {
+    border: 1.5px solid #e0e0e0;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+}
+textarea.form-control { min-height: 80px; }
+.card { border-radius: 12px; }
+code { background: #f8f9fa; padding: 2px 6px; border-radius: 4px; }
+</style>
 {% endblock %}
