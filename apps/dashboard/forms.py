@@ -51,7 +51,7 @@ class AdminUserEditForm(forms.ModelForm):
 class BusinessForm(forms.ModelForm):
     """Form for creating/editing businesses"""
     
-    # Add custom governorate field for better UX
+    # Add custom governorate field for better UX (NOT saved to DB)
     governorate = forms.ModelChoiceField(
         queryset=Governorate.objects.filter(is_active=True).order_by('order', 'name_ar'),
         required=False,
@@ -107,6 +107,14 @@ class BusinessForm(forms.ModelForm):
         # If editing existing business, set the governorate
         if self.instance.pk and self.instance.district:
             self.fields['governorate'].initial = self.instance.district.city.governorate
+    
+    def save(self, commit=True):
+        # Don't save governorate (it's just a helper field)
+        # The district field already contains all location data
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
 
 
 # ========================================
