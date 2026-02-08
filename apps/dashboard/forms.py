@@ -58,10 +58,14 @@ class BusinessForm(forms.ModelForm):
             'category',
             'business_type',
             'email', 'phone', 'whatsapp', 'website',
-            'address_ar', 'city_ar', 'district_ar',
+            'address_ar', 'address_en',
+            'city_ar', 'district_ar',
             'logo', 'cover_image',
             'is_active', 'is_verified', 'is_featured',
             'latitude', 'longitude',
+            'working_hours_ar', 'working_hours_en',
+            'facebook', 'instagram', 'twitter', 'tiktok',
+            'location_url',
         ]
         widgets = {
             'name_en': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Business Name'}),
@@ -75,10 +79,18 @@ class BusinessForm(forms.ModelForm):
             'whatsapp': forms.TextInput(attrs={'class': 'form-control'}),
             'website': forms.URLInput(attrs={'class': 'form-control'}),
             'address_ar': forms.TextInput(attrs={'class': 'form-control'}),
-            'city_ar': forms.TextInput(attrs={'class': 'form-control'}),
-            'district_ar': forms.TextInput(attrs={'class': 'form-control'}),
+            'address_en': forms.TextInput(attrs={'class': 'form-control'}),
+            'city_ar': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'المدينة / المحافظة'}),
+            'district_ar': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'الحي'}),
             'latitude': forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
             'longitude': forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
+            'working_hours_ar': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'مثال: 9 صباحاً - 10 مساءً'}),
+            'working_hours_en': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Example: 9 AM - 10 PM'}),
+            'facebook': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://facebook.com/...'}),
+            'instagram': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://instagram.com/...'}),
+            'twitter': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://twitter.com/...'}),
+            'tiktok': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://tiktok.com/@...'}),
+            'location_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Google Maps Link'}),
         }
 
 
