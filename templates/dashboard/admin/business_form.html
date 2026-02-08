@@ -282,15 +282,25 @@ textarea.form-control {
         </div>
         <div class="card-body p-4">
             <div class="row g-4">
-                <!-- District Dropdown -->
-                <div class="col-12">
+                <!-- المحافظة والحي -->
+                <div class="col-md-6">
                     <label class="form-label fw-bold">
-                        <i class="fas fa-map-marker-alt text-primary me-1"></i>
-                        المحافظة » المدينة » الحي
+                        <i class="fas fa-city text-primary me-1"></i>
+                        المحافظة
+                        <span class="text-danger">*</span>
+                    </label>
+                    {{ form.governorate }}
+                    <div class="form-text">ابحث عن المحافظة</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-map-pin text-success me-1"></i>
+                        الحي
                         <span class="text-danger">*</span>
                     </label>
                     {{ form.district }}
-                    <div class="form-text">ابحث عن الحي أو المدينة أو المحافظة</div>
+                    <div class="form-text">ابحث عن الحي</div>
                 </div>
                 
                 <div class="col-md-6">
@@ -563,7 +573,7 @@ textarea.form-control {
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/ar.js"></script>
 <script>
-// Initialize Select2 for category and district dropdowns
+// Initialize Select2 for all dropdowns (Category, Governorate, District)
 $(document).ready(function() {
     $('.select2-dropdown').select2({
         theme: 'bootstrap-5',
@@ -582,8 +592,8 @@ $(document).ready(function() {
 let map;
 let marker;
 
-const defaultLat = {{ business.latitude|default:"24.7136" }};
-const defaultLng = {{ business.longitude|default:"46.6753" }};
+const defaultLat = {{ business.latitude|default:"30.0444" }};
+const defaultLng = {{ business.longitude|default:"31.2357" }};
 
 function initMap() {
     try {
