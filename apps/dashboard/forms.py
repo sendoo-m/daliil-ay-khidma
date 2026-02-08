@@ -8,6 +8,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from apps.accounts.models import User
 from apps.directory.models import Business
+from apps.directory.models.location import Governorate, District
 from apps.products.models import Product
 from apps.deals.models import Deal
 from apps.categories.models import Category
@@ -50,6 +51,15 @@ class AdminUserEditForm(forms.ModelForm):
 class BusinessForm(forms.ModelForm):
     """Form for creating/editing businesses"""
     
+    # Add custom governorate field for better UX
+    governorate = forms.ModelChoiceField(
+        queryset=Governorate.objects.filter(is_active=True).order_by('order', 'name_ar'),
+        required=False,
+        label='المحافظة',
+        widget=forms.Select(attrs={'class': 'form-select select2-dropdown'}),
+        help_text='اختر المحافظة أولاً'
+    )
+    
     class Meta:
         model = Business
         fields = [
@@ -91,6 +101,12 @@ class BusinessForm(forms.ModelForm):
             'tiktok': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://tiktok.com/@...'}),
             'location_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Google Maps Link'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If editing existing business, set the governorate
+        if self.instance.pk and self.instance.district:
+            self.fields['governorate'].initial = self.instance.district.city.governorate
 
 
 # ========================================
