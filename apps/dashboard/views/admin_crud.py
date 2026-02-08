@@ -55,7 +55,7 @@ class BusinessForm(django_forms.ModelForm):
         fields = [
             'name_en', 'name_ar', 'description_en', 'description_ar',
             'category', 'business_type', 'email', 'phone', 'whatsapp', 'website',
-            'address_ar', 'city_ar', 'district_ar', 'logo', 'cover_image',
+            'address_ar', 'logo', 'cover_image',
             'is_active', 'is_verified', 'is_featured', 'latitude', 'longitude',
         ]
         widgets = {
@@ -70,8 +70,6 @@ class BusinessForm(django_forms.ModelForm):
             'whatsapp': django_forms.TextInput(attrs={'class': 'form-control'}),
             'website': django_forms.URLInput(attrs={'class': 'form-control'}),
             'address_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
-            'city_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
-            'district_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
             'latitude': django_forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
             'longitude': django_forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
         }
