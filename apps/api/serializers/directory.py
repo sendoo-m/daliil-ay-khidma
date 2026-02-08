@@ -75,7 +75,8 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['slug']
     
     def get_business_count(self, obj):
-        return obj.businesses.filter(is_active=True, is_verified=True).count()
+        # Use business_set which is the correct related_name
+        return obj.business_set.filter(is_active=True, is_verified=True).count()
 
 
 class BusinessImageSerializer(serializers.ModelSerializer):
@@ -134,10 +135,14 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['slug', 'owner', 'view_count', 'click_count']
     
     def get_city(self, obj):
-        return CitySerializer(obj.city).data
+        if obj.city:
+            return CitySerializer(obj.city).data
+        return None
     
     def get_governorate(self, obj):
-        return GovernorateSerializer(obj.governorate).data
+        if obj.governorate:
+            return GovernorateSerializer(obj.governorate).data
+        return None
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
