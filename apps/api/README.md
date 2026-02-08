@@ -1,253 +1,178 @@
-# Daliil Ay Khidma - REST API v2
+# Daliil Ay Khidma - REST API
 
 ## 🎯 Overview
 
-Comprehensive REST API for the Daliil Ay Khidma platform with three main interfaces:
-
-1. **Public API** - For mobile app users
-2. **Business Owner API** - For business management
-3. **Admin API** - For platform administration
-
-## 📁 Project Structure
-
-```
-apps/api/
-├── serializers/
-│   ├── __init__.py
-│   ├── admin.py              # Admin serializers
-│   ├── business_owner.py     # Business owner serializers
-│   ├── deals.py              # Deal serializers (public)
-│   ├── directory.py          # Business & Category serializers (public)
-│   ├── products.py           # Product serializers (public)
-│   ├── reviews.py            # Review serializers (public)
-│   └── subscriptions.py      # Subscription serializers
-├── views/
-│   ├── __init__.py
-│   ├── admin.py              # Admin views
-│   ├── auth.py               # Authentication views
-│   ├── business_owner.py     # Business owner views
-│   ├── deals.py              # Deal views (public)
-│   ├── directory.py          # Business & Category views (public)
-│   ├── products.py           # Product views (public)
-│   ├── reviews.py            # Review views (public)
-│   └── subscriptions.py      # Subscription views
-├── authentication.py         # Custom authentication
-├── pagination.py             # Custom pagination
-├── permissions.py            # Custom permissions
-├── urls.py                   # API v1 URLs (legacy)
-├── urls_v2.py               # API v2 URLs (new)
-└── README.md                # This file
-```
+Comprehensive REST API for the Daliil Ay Khidma platform with JWT authentication.
 
 ## 🔑 Authentication
 
 ### JWT Authentication
 
-#### Register
-```http
-POST /api/v2/auth/register/
-Content-Type: application/json
+The API uses JWT (JSON Web Tokens) for authentication.
 
-{
-  "username": "testuser",
-  "email": "test@example.com",
-  "password": "SecurePass123!",
-  "password_confirm": "SecurePass123!"
-}
+#### Register New User
+```bash
+curl -X POST http://localhost:8008/api/v1/auth/register/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "SecurePass123!",
+    "password_confirm": "SecurePass123!"
+  }'
 ```
 
 #### Login
-```http
-POST /api/v2/auth/login/
-Content-Type: application/json
+```bash
+curl -X POST http://localhost:8008/api/v1/auth/login/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "password": "SecurePass123!"
+  }'
+```
 
+Response:
+```json
 {
-  "username": "testuser",
-  "password": "SecurePass123!"
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "user": {
+    "id": 1,
+    "username": "testuser",
+    "email": "test@example.com"
+  }
 }
 ```
 
 #### Use Token
-```http
-GET /api/v2/businesses/
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
+```bash
+curl http://localhost:8008/api/v1/businesses/ \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc..."
 ```
 
 ## 📱 API Endpoints
 
-### Public API
-
-#### Categories
+### Authentication
 ```
-GET    /api/v2/categories/
-GET    /api/v2/categories/{id}/
-```
-
-#### Businesses
-```
-GET    /api/v2/businesses/
-GET    /api/v2/businesses/{id}/
-GET    /api/v2/businesses/search/
-GET    /api/v2/businesses/nearby/
+POST   /api/v1/auth/login/
+POST   /api/v1/auth/refresh/
+POST   /api/v1/auth/register/
+GET    /api/v1/auth/profile/
+PUT    /api/v1/auth/profile/update/
+POST   /api/v1/auth/change-password/
 ```
 
-#### Products
+### Categories
 ```
-GET    /api/v2/products/
-GET    /api/v2/products/{id}/
-```
-
-#### Deals
-```
-GET    /api/v2/deals/
-GET    /api/v2/deals/{id}/
-POST   /api/v2/deals/{id}/use/
+GET    /api/v1/categories/
+GET    /api/v1/categories/{id}/
 ```
 
-#### Reviews
+### Businesses
 ```
-GET    /api/v2/reviews/
-POST   /api/v2/reviews/
-GET    /api/v2/reviews/{id}/
-PUT    /api/v2/reviews/{id}/
-DELETE /api/v2/reviews/{id}/
-```
-
-### Business Owner API
-
-#### Dashboard
-```
-GET /api/v2/business-owner/dashboard/stats/
+GET    /api/v1/businesses/
+POST   /api/v1/businesses/          # Auth required
+GET    /api/v1/businesses/{id}/
+PUT    /api/v1/businesses/{id}/     # Owner only
+DELETE /api/v1/businesses/{id}/     # Owner only
 ```
 
-#### Businesses
+### Products
 ```
-GET    /api/v2/business-owner/businesses/
-POST   /api/v2/business-owner/businesses/
-GET    /api/v2/business-owner/businesses/{id}/
-PUT    /api/v2/business-owner/businesses/{id}/
-DELETE /api/v2/business-owner/businesses/{id}/
-```
-
-#### Products (nested under business)
-```
-GET    /api/v2/business-owner/businesses/{id}/products/
-POST   /api/v2/business-owner/businesses/{id}/products/
-GET    /api/v2/business-owner/businesses/{id}/products/{pid}/
-PUT    /api/v2/business-owner/businesses/{id}/products/{pid}/
-DELETE /api/v2/business-owner/businesses/{id}/products/{pid}/
+GET    /api/v1/products/
+POST   /api/v1/products/             # Auth required
+GET    /api/v1/products/{id}/
+PUT    /api/v1/products/{id}/        # Owner only
+DELETE /api/v1/products/{id}/        # Owner only
 ```
 
-#### Deals (nested under business)
+### Deals
 ```
-GET    /api/v2/business-owner/businesses/{id}/deals/
-POST   /api/v2/business-owner/businesses/{id}/deals/
-GET    /api/v2/business-owner/businesses/{id}/deals/{did}/
-PUT    /api/v2/business-owner/businesses/{id}/deals/{did}/
-DELETE /api/v2/business-owner/businesses/{id}/deals/{did}/
-```
-
-#### Reviews (read-only, nested under business)
-```
-GET /api/v2/business-owner/businesses/{id}/reviews/
+GET    /api/v1/deals/
+POST   /api/v1/deals/                # Auth required
+GET    /api/v1/deals/{id}/
+PUT    /api/v1/deals/{id}/           # Owner only
+DELETE /api/v1/deals/{id}/           # Owner only
+POST   /api/v1/deals/{id}/use/       # Auth required
 ```
 
-### Admin API
-
-#### Dashboard
+### Favorites
 ```
-GET /api/v2/admin/dashboard/stats/
-GET /api/v2/admin/dashboard/analytics/
-```
-
-#### Users
-```
-GET    /api/v2/admin/users/
-GET    /api/v2/admin/users/{id}/
-PUT    /api/v2/admin/users/{id}/
-DELETE /api/v2/admin/users/{id}/
-POST   /api/v2/admin/users/{id}/toggle_active/
-POST   /api/v2/admin/users/{id}/make_staff/
+GET    /api/v1/favorites/            # Auth required
+POST   /api/v1/favorites/            # Auth required
+DELETE /api/v1/favorites/{id}/       # Auth required
 ```
 
-#### Businesses
+### Subscriptions
 ```
-GET    /api/v2/admin/businesses/
-GET    /api/v2/admin/businesses/{id}/
-PUT    /api/v2/admin/businesses/{id}/
-DELETE /api/v2/admin/businesses/{id}/
-POST   /api/v2/admin/businesses/{id}/verify/
-POST   /api/v2/admin/businesses/{id}/toggle_featured/
+GET    /api/v1/subscription-plans/
+GET    /api/v1/subscriptions/        # Auth required
+POST   /api/v1/subscriptions/        # Auth required
 ```
 
-#### Categories
+### Locations
 ```
-GET    /api/v2/admin/categories/
-POST   /api/v2/admin/categories/
-GET    /api/v2/admin/categories/{id}/
-PUT    /api/v2/admin/categories/{id}/
-DELETE /api/v2/admin/categories/{id}/
+GET    /api/v1/governorates/
+GET    /api/v1/cities/
+GET    /api/v1/districts/
 ```
 
-#### Products
-```
-GET    /api/v2/admin/products/
-GET    /api/v2/admin/products/{id}/
-PUT    /api/v2/admin/products/{id}/
-DELETE /api/v2/admin/products/{id}/
+## 🔍 Filtering & Search
+
+### Search Businesses
+```bash
+curl "http://localhost:8008/api/v1/businesses/?search=restaurant"
 ```
 
-#### Deals
-```
-GET    /api/v2/admin/deals/
-GET    /api/v2/admin/deals/{id}/
-PUT    /api/v2/admin/deals/{id}/
-DELETE /api/v2/admin/deals/{id}/
+### Filter by Category
+```bash
+curl "http://localhost:8008/api/v1/businesses/?category=1"
 ```
 
-#### Reviews
-```
-GET    /api/v2/admin/reviews/
-GET    /api/v2/admin/reviews/{id}/
-PUT    /api/v2/admin/reviews/{id}/
-DELETE /api/v2/admin/reviews/{id}/
-POST   /api/v2/admin/reviews/{id}/approve/
-POST   /api/v2/admin/reviews/{id}/reject/
+### Filter by City
+```bash
+curl "http://localhost:8008/api/v1/businesses/?city=الرياض"
 ```
 
-## 🔒 Permissions
-
-### Custom Permission Classes
-
-- `IsAdminUser` - Only admin/staff users
-- `IsBusinessOwner` - Only business owners
-- `IsOwnerOrReadOnly` - Owner can edit, others read-only
-- `IsAdminOrReadOnly` - Admin can edit, others read-only
+### Combined Filters
+```bash
+curl "http://localhost:8008/api/v1/businesses/?category=1&city=الرياض&is_verified=true"
+```
 
 ## 📄 Pagination
 
 All list endpoints support pagination:
 
-```
-GET /api/v2/businesses/?page=1&page_size=20
+```bash
+curl "http://localhost:8008/api/v1/businesses/?page=1&page_size=20"
 ```
 
 Response:
 ```json
 {
   "count": 150,
-  "next": "http://api.example.com/api/v2/businesses/?page=2",
+  "next": "http://localhost:8008/api/v1/businesses/?page=2",
   "previous": null,
   "results": [...]
 }
 ```
 
-## 🔍 Filtering & Search
+## 📚 API Documentation
 
-Most endpoints support filtering:
-
+### Swagger UI (Interactive)
 ```
-GET /api/v2/businesses/?search=restaurant&category=1&is_verified=true&ordering=-created_at
+http://localhost:8008/api/v1/docs/
+```
+
+### ReDoc (Clean)
+```
+http://localhost:8008/api/v1/redoc/
+```
+
+### OpenAPI Schema
+```
+http://localhost:8008/api/v1/schema/
 ```
 
 ## 🛠️ Setup
@@ -257,16 +182,6 @@ GET /api/v2/businesses/?search=restaurant&category=1&is_verified=true&ordering=-
 pip install -r requirements.txt
 ```
 
-### Run Migrations
-```bash
-python manage.py migrate
-```
-
-### Create Superuser
-```bash
-python manage.py createsuperuser
-```
-
 ### Run Server
 ```bash
 python manage.py runserver 0.0.0.0:8008
@@ -274,25 +189,87 @@ python manage.py runserver 0.0.0.0:8008
 
 ### Test API
 ```bash
-# Get categories
-curl http://localhost:8008/api/v2/categories/
+# Get all categories
+curl http://localhost:8008/api/v1/categories/
 
 # Register user
-curl -X POST http://localhost:8008/api/v2/auth/register/ \
+curl -X POST http://localhost:8008/api/v1/auth/register/ \
   -H "Content-Type: application/json" \
   -d '{"username":"test","email":"test@test.com","password":"Test123!","password_confirm":"Test123!"}'
-
-# Login
-curl -X POST http://localhost:8008/api/v2/auth/login/ \
-  -H "Content-Type: application/json" \
-  -d '{"username":"test","password":"Test123!"}'
 ```
 
-## 📚 Complete Documentation
+## 📱 Mobile App Integration
 
-See [API_DOCUMENTATION.md](../../API_DOCUMENTATION.md) in the project root for complete API documentation with examples.
+### Flutter Example
+```dart
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-## 🐛 Error Handling
+class ApiService {
+  static const String baseUrl = 'http://your-domain.com/api/v1';
+  String? accessToken;
+  
+  Future<void> login(String username, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/login/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'username': username, 'password': password}),
+    );
+    
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      accessToken = data['access'];
+    }
+  }
+  
+  Future<List<dynamic>> getBusinesses() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/businesses/'),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+    
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['results'];
+    }
+    return [];
+  }
+}
+```
+
+### React Native Example
+```javascript
+import axios from 'axios';
+
+const API_URL = 'http://your-domain.com/api/v1';
+let accessToken = null;
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {'Content-Type': 'application/json'},
+});
+
+// Add token to requests
+api.interceptors.request.use((config) => {
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  return config;
+});
+
+export const login = async (username, password) => {
+  const response = await api.post('/auth/login/', {username, password});
+  accessToken = response.data.access;
+  return response.data;
+};
+
+export const getBusinesses = async () => {
+  const response = await api.get('/businesses/');
+  return response.data.results;
+};
+```
+
+## ⚠️ Error Handling
 
 ### Error Response Format
 ```json
@@ -311,20 +288,6 @@ See [API_DOCUMENTATION.md](../../API_DOCUMENTATION.md) in the project root for c
 - `404 Not Found` - Resource not found
 - `500 Internal Server Error` - Server error
 
-## 📱 Mobile App Integration
-
-### Flutter
-See example in [API_DOCUMENTATION.md](../../API_DOCUMENTATION.md#-mobile-app-integration)
-
-### React Native
-See example in [API_DOCUMENTATION.md](../../API_DOCUMENTATION.md#-mobile-app-integration)
-
-## 🔗 Useful Links
-
-- **API Root:** http://localhost:8008/api/v2/
-- **Admin Panel:** http://localhost:8008/admin/
-- **Dashboard:** http://localhost:8008/admin-dashboard/
-
 ## 📝 Notes
 
 1. All dates in ISO 8601 format: `YYYY-MM-DD`
@@ -332,12 +295,17 @@ See example in [API_DOCUMENTATION.md](../../API_DOCUMENTATION.md#-mobile-app-int
 3. Image uploads use multipart/form-data
 4. Max file size: 5MB
 5. Supported formats: JPG, PNG, WebP
+6. JWT access token expires in 15 minutes
+7. JWT refresh token expires in 7 days
 
-## 🤝 Contributing
+## 🔗 Useful Links
 
-For bugs or feature requests, please create an issue on GitHub.
+- **API Root:** http://localhost:8008/api/v1/
+- **API Docs:** http://localhost:8008/api/v1/docs/
+- **Admin Panel:** http://localhost:8008/admin/
+- **Dashboard:** http://localhost:8008/dashboard/
 
 ---
 
-**Version:** 2.0  
+**Version:** 1.0 (Enhanced with JWT)  
 **Last Updated:** February 2026
