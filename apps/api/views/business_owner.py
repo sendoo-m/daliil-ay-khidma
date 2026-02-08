@@ -5,7 +5,12 @@ from rest_framework.response import Response
 from django.db.models import Count, Sum, Avg
 from django.utils import timezone
 
-from apps.directory.models import Business, Product, Deal, Review
+# Import models from their respective apps
+from apps.directory.models import Business
+from apps.products.models import Product
+from apps.deals.models import Deal
+from apps.reviews.models import Review
+
 from apps.api.serializers.business_owner import (
     BusinessOwnerStatsSerializer,
     BusinessOwnerBusinessSerializer,

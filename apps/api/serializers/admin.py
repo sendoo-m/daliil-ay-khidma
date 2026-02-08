@@ -1,10 +1,15 @@
 """Admin Dashboard API Serializers"""
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from apps.directory.models import Business, Category, Product, Deal, Review
 from django.db.models import Count, Sum, Avg, Q
 from django.utils import timezone
 from datetime import timedelta
+
+# Import models from their respective apps
+from apps.directory.models import Business, Category
+from apps.products.models import Product
+from apps.deals.models import Deal
+from apps.reviews.models import Review
 
 User = get_user_model()
 

@@ -1,7 +1,12 @@
 """Business Owner API Serializers"""
 from rest_framework import serializers
-from apps.directory.models import Business, Product, Deal, Review
 from django.utils import timezone
+
+# Import models from their respective apps
+from apps.directory.models import Business
+from apps.products.models import Product
+from apps.deals.models import Deal
+from apps.reviews.models import Review
 
 
 class BusinessOwnerStatsSerializer(serializers.Serializer):
