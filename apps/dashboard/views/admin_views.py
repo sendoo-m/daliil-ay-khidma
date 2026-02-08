@@ -56,9 +56,10 @@ def admin_dashboard_home(request):
         'total_deals': Deal.objects.count(),
         'active_deals': Deal.objects.filter(
             start_date__lte=today,
-            end_date__gte=today
+            end_date__gte=today,
+            is_active=True
         ).count(),
-        'total_deal_claims': Deal.objects.aggregate(Sum('claim_count'))['claim_count__sum'] or 0,
+        'total_deal_claims': Deal.objects.aggregate(Sum('current_uses'))['current_uses__sum'] or 0,
         
         # Reviews
         'total_reviews': Review.objects.count(),
@@ -380,7 +381,8 @@ def admin_deal_detail(request, deal_id):
 @staff_member_required
 def admin_deal_approve(request, deal_id):
     deal = get_object_or_404(Deal, id=deal_id)
-    # Toggle approval logic
+    deal.is_active = not deal.is_active
+    deal.save()
     messages.success(request, 'تم تغيير حالة العرض')
     return redirect('admin_dashboard:deal_detail', deal_id=deal_id)
 
