@@ -16,6 +16,13 @@ urlpatterns = [
     # AJAX endpoints
     path('ajax/get-districts/', main_views.get_districts_by_governorate, name='ajax_get_districts'),
     
+    # Stats & Profile
+    path('stats/', main_views.index, name='stats'),  # Placeholder - redirect to index
+    path('profile/', main_views.profile, name='profile'),
+    path('settings/', main_views.settings, name='settings'),
+    path('notifications/', main_views.notifications, name='notifications'),
+    path('help/', main_views.help_center, name='help'),
+    
     # Business Management
     path('businesses/', business.business_list, name='business_list'),
     path('businesses/create/', business.business_create, name='business_create'),
