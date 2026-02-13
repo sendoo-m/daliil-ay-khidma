@@ -13,25 +13,12 @@
     --danger: #ef4444;
 }
 
-/* Hero Section */
 .business-hero {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     padding: 3rem 0;
     color: white;
     border-radius: 0 0 40px 40px;
     margin-bottom: 3rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.business-hero::before {
-    content: '🏪';
-    position: absolute;
-    font-size: 12rem;
-    opacity: 0.08;
-    top: 50%;
-    left: 10%;
-    transform: translateY(-50%);
 }
 
 .business-logo {
@@ -43,32 +30,17 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-.business-logo-placeholder {
-    width: 130px;
-    height: 130px;
-    border-radius: 50%;
-    border: 5px solid white;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-/* Stats */
 .stat-card {
     background: white;
     border-radius: 20px;
     padding: 1.5rem;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    border: 1px solid rgba(0,0,0,0.05);
     transition: all 0.3s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(102,126,234,0.2);
 }
 
 .stat-card i {
@@ -76,7 +48,6 @@
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
 }
 
 .stat-card .number {
@@ -86,20 +57,11 @@
     display: block;
 }
 
-.stat-card .label {
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-/* Info Card */
 .info-card {
     background: white;
     border-radius: 20px;
     padding: 2rem;
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    border: 1px solid rgba(0,0,0,0.05);
     margin-bottom: 2rem;
 }
 
@@ -112,11 +74,6 @@
     gap: 0.75rem;
 }
 
-.info-card h5 i {
-    font-size: 1.5rem;
-}
-
-/* Products & Services Grid */
 .product-card {
     background: white;
     border-radius: 20px;
@@ -124,30 +81,22 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     transition: all 0.3s ease;
     height: 100%;
-    border: 1px solid rgba(0,0,0,0.05);
 }
 
 .product-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(102,126,234,0.2);
 }
 
 .product-image {
     height: 220px;
     background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
     position: relative;
-    overflow: hidden;
 }
 
 .product-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.product-card:hover .product-image img {
-    transform: scale(1.1);
 }
 
 .discount-badge {
@@ -159,7 +108,6 @@
     padding: 0.5rem 1rem;
     border-radius: 50px;
     font-weight: 800;
-    box-shadow: 0 4px 15px rgba(239,68,68,0.3);
 }
 
 .price {
@@ -168,41 +116,26 @@
     color: var(--success);
 }
 
-.old-price {
-    text-decoration: line-through;
-    color: #94a3b8;
-    font-size: 1rem;
-}
-
-/* Tabs */
 .nav-pills .nav-link {
     border-radius: 50px;
     padding: 0.75rem 1.5rem;
     font-weight: 700;
     color: #64748b;
-    transition: all 0.3s ease;
 }
 
 .nav-pills .nav-link.active {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
-    box-shadow: 0 4px 15px rgba(102,126,234,0.3);
 }
 
-/* Map */
+/* Map in Sidebar */
 #businessMap {
-    height: 450px;
+    height: 350px;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    border: 2px solid rgba(102,126,234,0.1);
+    border: 2px solid rgba(102,126,234,0.2);
 }
 
-.leaflet-container {
-    font-family: 'Cairo', sans-serif !important;
-}
-
-/* Action Buttons */
 .action-btn {
     border-radius: 15px;
     padding: 1rem 1.5rem;
@@ -213,7 +146,6 @@
 
 .action-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
 .btn-call {
@@ -231,7 +163,6 @@
     color: white;
 }
 
-/* Contact Items */
 .contact-item {
     background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
     border-radius: 15px;
@@ -258,25 +189,24 @@
 
 .stars {
     color: #fbbf24;
+    font-size: 1.1rem;
 }
 
 .stars .far {
     color: #e2e8f0;
 }
 
-/* Badges */
-.badge-verified {
-    background: linear-gradient(135deg, #10b981, #059669);
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-weight: 700;
+.star-label {
+    cursor: pointer;
+    color: #e2e8f0;
+    transition: all 0.2s ease;
 }
 
-.badge-featured {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-weight: 700;
+.star-label:hover,
+.star-label:hover ~ .star-label,
+input:checked ~ .star-label {
+    color: #fbbf24;
+    transform: scale(1.1);
 }
 
 .sticky-sidebar {
@@ -295,7 +225,7 @@
                 {% if business.logo %}
                 <img src="{{ business.logo.url }}" class="business-logo" alt="{{ business.name_ar }}">
                 {% else %}
-                <div class="business-logo-placeholder">
+                <div class="business-logo" style="background: white; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-store fa-3x" style="color: var(--primary);"></i>
                 </div>
                 {% endif %}
@@ -313,12 +243,12 @@
             
             <div class="col-md-3 text-center">
                 {% if business.is_verified %}
-                <span class="badge badge-verified d-inline-block mb-2">
+                <span class="badge bg-success mb-2" style="padding: 0.5rem 1rem; border-radius: 50px;">
                     <i class="fas fa-check-circle me-1"></i>موثّق
                 </span><br>
                 {% endif %}
                 {% if business.is_featured %}
-                <span class="badge badge-featured d-inline-block">
+                <span class="badge bg-warning" style="padding: 0.5rem 1rem; border-radius: 50px;">
                     <i class="fas fa-star me-1"></i>مميز
                 </span>
                 {% endif %}
@@ -334,28 +264,28 @@
             <div class="stat-card">
                 <i class="fas fa-eye"></i>
                 <span class="number">{{ business.view_count|default:0 }}</span>
-                <span class="label">مشاهدة</span>
+                <span class="small text-muted">مشاهدة</span>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="stat-card">
                 <i class="fas fa-star"></i>
                 <span class="number">{{ average_rating|floatformat:1|default:"0.0" }}</span>
-                <span class="label">التقييم</span>
+                <span class="small text-muted">التقييم</span>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="stat-card">
                 <i class="fas fa-box"></i>
                 <span class="number">{{ products.count|default:0 }}</span>
-                <span class="label">منتج</span>
+                <span class="small text-muted">منتج</span>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="stat-card">
                 <i class="fas fa-comment"></i>
                 <span class="number">{{ total_reviews|default:0 }}</span>
-                <span class="label">تقييم</span>
+                <span class="small text-muted">تقييم</span>
             </div>
         </div>
     </div>
@@ -424,7 +354,7 @@
                                                 <span class="price">{{ product.price }}</span>
                                                 <small class="text-muted">جنيه</small>
                                                 {% if product.old_price %}
-                                                <span class="old-price ms-2">{{ product.old_price }}</span>
+                                                <span class="text-decoration-line-through text-muted ms-2">{{ product.old_price }}</span>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -443,6 +373,30 @@
                     
                     <!-- Reviews Tab -->
                     <div class="tab-pane fade" id="reviews" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span style="font-size: 2rem; font-weight: 900;">{{ average_rating|floatformat:1|default:"0.0" }}</span>
+                                    <div class="stars">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= average_rating|floatformat:0 %}
+                                            <i class="fas fa-star"></i>
+                                            {% else %}
+                                            <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">({{ total_reviews|default:0 }} تقييم)</small>
+                            </div>
+                            
+                            {% if user.is_authenticated %}
+                            <button class="btn btn-primary action-btn" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                <i class="fas fa-plus me-2"></i>أضف تقييمك
+                            </button>
+                            {% endif %}
+                        </div>
+                        
                         {% if reviews %}
                             {% for review in reviews %}
                             <div class="review-card">
@@ -479,24 +433,6 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Map Section -->
-            {% if business.latitude and business.longitude %}
-            <div class="info-card">
-                <h5>
-                    <i class="fas fa-map-marked-alt"></i>
-                    الموقع على الخريطة
-                </h5>
-                <div id="businessMap"></div>
-                <div class="mt-3">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ business.latitude }},{{ business.longitude }}" 
-                       target="_blank" class="btn action-btn btn-directions w-100">
-                        <i class="fas fa-directions me-2"></i>
-                        احصل على الاتجاهات
-                    </a>
-                </div>
-            </div>
-            {% endif %}
         </div>
         
         <!-- Sidebar -->
@@ -568,41 +504,98 @@
                     </div>
                     {% endif %}
                 </div>
+                
+                <!-- Map -->
+                {% if business.latitude and business.longitude %}
+                <div class="info-card">
+                    <h5>
+                        <i class="fas fa-map-marked-alt"></i>
+                        الموقع على الخريطة
+                    </h5>
+                    <div id="businessMap"></div>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ business.latitude }},{{ business.longitude }}" 
+                       target="_blank" 
+                       class="btn action-btn btn-directions w-100 mt-3">
+                        <i class="fas fa-directions me-2"></i>
+                        احصل على الاتجاهات
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<!-- Review Modal -->
+{% if user.is_authenticated %}
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; overflow: hidden; border: none;">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-star me-2"></i>أضف تقييمك
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'reviews:add_review' business.slug %}">
+                {% csrf_token %}
+                <div class="modal-body" style="padding: 2rem;">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">التقييم *</label>
+                        <div class="d-flex justify-content-center gap-2" style="flex-direction: row-reverse; font-size: 2.5rem;">
+                            {% for i in "54321" %}
+                            <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" required style="display:none;">
+                            <label for="star{{ i }}" class="star-label">
+                                <i class="fas fa-star"></i>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-0">
+                        <label class="form-label fw-bold">تعليقك</label>
+                        <textarea name="comment" class="form-control" rows="4" 
+                                  style="border-radius: 12px;"
+                                  placeholder="شارك تجربتك مع هذا المحل..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary action-btn" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn action-btn" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+                        <i class="fas fa-paper-plane me-2"></i>إرسال
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
 {% if business.latitude and business.longitude %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
-// Initialize map
 const map = L.map('businessMap', {
     scrollWheelZoom: false,
     zoomControl: true
 }).setView([{{ business.latitude }}, {{ business.longitude }}], 15);
 
-// Add tile layer with correct URL
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© أوبن ستريت ماب',
     maxZoom: 19
 }).addTo(map);
 
-// Custom marker icon
 const customIcon = L.divIcon({
     html: '<div style="font-size: 2.5rem; color: #667eea;"><i class="fas fa-map-marker-alt"></i></div>',
     iconSize: [40, 40],
     className: ''
 });
 
-// Add marker
 const marker = L.marker([{{ business.latitude }}, {{ business.longitude }}], {
     icon: customIcon
 }).addTo(map);
 
-// Popup content
 const popupContent = `
     <div style="text-align: right; direction: rtl; font-family: Cairo, sans-serif; min-width: 220px;">
         <h6 class="fw-bold mb-2" style="color: #667eea;">{{ business.name_ar }}</h6>
@@ -623,10 +616,9 @@ const popupContent = `
 
 marker.bindPopup(popupContent, { maxWidth: 300 });
 
-// Fix map rendering
 setTimeout(() => {
     map.invalidateSize();
-}, 200);
+}, 300);
 </script>
 {% endif %}
 {% endblock %}
