@@ -23,36 +23,9 @@
     }
 }
 
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
 @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
-}
-
-@keyframes shimmer {
-    0% { background-position: -1000px 0; }
-    100% { background-position: 1000px 0; }
 }
 
 /* ============= HERO SECTION ============= */
@@ -82,7 +55,6 @@
 .hero-content {
     position: relative;
     z-index: 2;
-    animation: slideInLeft 1s ease-out;
 }
 
 .hero-title {
@@ -112,7 +84,6 @@
     border-radius: 50px;
     padding: 8px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    animation: fadeInUp 1s ease-out 0.3s both;
 }
 
 .search-box input {
@@ -141,10 +112,6 @@
     box-shadow: 0 10px 30px rgba(102,126,234,0.4);
 }
 
-.popular-tags {
-    animation: fadeInUp 1s ease-out 0.5s both;
-}
-
 .popular-tags .badge {
     padding: 10px 20px;
     font-weight: 500;
@@ -164,7 +131,7 @@
     margin-top: -80px;
     position: relative;
     z-index: 10;
-    padding-bottom: 80px;
+    padding-bottom: 60px;
 }
 
 .stat-card {
@@ -199,25 +166,10 @@
     transform: scale(1.1) rotate(5deg);
 }
 
-.stat-icon.primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-}
-
-.stat-icon.success {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color: #fff;
-}
-
-.stat-icon.warning {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: #fff;
-}
-
-.stat-icon.info {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    color: #fff;
-}
+.stat-icon.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+.stat-icon.success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff; }
+.stat-icon.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; }
+.stat-icon.info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff; }
 
 .stat-number {
     font-size: 2.5rem;
@@ -238,15 +190,12 @@
 /* ============= SECTION HEADERS ============= */
 .section-header {
     margin-bottom: 50px;
-    animation: fadeInUp 0.8s ease-out;
 }
 
 .section-title {
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 800;
     margin-bottom: 15px;
-    position: relative;
-    display: inline-block;
 }
 
 .section-title i {
@@ -271,25 +220,7 @@
     border: 1px solid rgba(255,255,255,0.3);
     box-shadow: 0 8px 30px rgba(0,0,0,0.08);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
     height: 100%;
-}
-
-.category-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.category-card:hover::before {
-    opacity: 0.05;
 }
 
 .category-card:hover {
@@ -357,12 +288,38 @@
     transform: scale(1.1);
 }
 
-.business-image .verified-badge {
+.verified-badge {
     position: absolute;
     top: 15px;
     right: 15px;
     background: #fff;
     color: #10b981;
+    padding: 8px 15px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.new-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #f59e0b;
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.trending-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #ef4444;
+    color: #fff;
     padding: 8px 15px;
     border-radius: 50px;
     font-size: 0.85rem;
@@ -390,10 +347,6 @@
     color: #718096;
 }
 
-.business-meta i {
-    width: 20px;
-}
-
 .business-footer {
     display: flex;
     justify-content: space-between;
@@ -418,7 +371,44 @@
     color: #fff;
 }
 
-.view-count {
+/* ============= GOVERNORATE CARDS ============= */
+.governorate-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    border-right: 4px solid #667eea;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.governorate-card:hover {
+    transform: translateX({% if LANGUAGE_CODE == 'ar' %}-10px{% else %}10px{% endif %});
+    box-shadow: 0 10px 30px rgba(102,126,234,0.15);
+    border-right-color: #764ba2;
+}
+
+.governorate-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.governorate-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 5px;
+}
+
+.governorate-count {
     color: #718096;
     font-size: 0.9rem;
 }
@@ -564,57 +554,8 @@
 
 /* ============= RESPONSIVE ============= */
 @media (max-width: 991px) {
-    .hero-section {
-        min-height: auto;
-        padding: 40px 0;
-    }
-    
-    .stats-section {
-        margin-top: 40px;
-    }
-    
-    .stat-card {
-        margin-bottom: 20px;
-    }
-}
-
-@media (max-width: 767px) {
-    .hero-title {
-        font-size: 2rem;
-    }
-    
-    .search-box {
-        padding: 6px;
-    }
-    
-    .search-box input {
-        padding: 12px 20px;
-        font-size: 0.9rem;
-    }
-    
-    .search-box .btn {
-        padding: 10px 25px;
-        font-size: 0.9rem;
-    }
-}
-
-/* ============= UTILITIES ============= */
-.text-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.animate-on-scroll {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s ease-out;
-}
-
-.animate-on-scroll.animated {
-    opacity: 1;
-    transform: translateY(0);
+    .hero-section { min-height: auto; padding: 40px 0; }
+    .stats-section { margin-top: 40px; }
 }
 </style>
 {% endblock %}
@@ -641,42 +582,33 @@
                     {% endif %}
                 </p>
                 
-                {# Search Box #}
                 <form method="get" action="{% url 'directory:business_search' %}">
                     <div class="search-box">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-search text-muted mx-3"></i>
-                            <input type="text" 
-                                   class="form-control flex-grow-1" 
-                                   name="q" 
+                            <input type="text" class="form-control flex-grow-1" name="q" 
                                    placeholder="{% trans 'Search for businesses, products, services...' %}">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search me-2"></i>
-                                {% trans "Search" %}
+                                <i class="fas fa-search me-2"></i>{% trans "Search" %}
                             </button>
                         </div>
                     </div>
                 </form>
                 
-                {# Popular Tags #}
                 <div class="popular-tags mt-4">
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <span class="text-white fw-semibold">{% trans "Popular:" %}</span>
                         <a href="#" class="badge bg-white bg-opacity-25 text-white text-decoration-none">
-                            <i class="fas fa-utensils me-1"></i>
-                            {% trans "Restaurants" %}
+                            <i class="fas fa-utensils me-1"></i>{% trans "Restaurants" %}
                         </a>
                         <a href="#" class="badge bg-white bg-opacity-25 text-white text-decoration-none">
-                            <i class="fas fa-stethoscope me-1"></i>
-                            {% trans "Medical" %}
+                            <i class="fas fa-stethoscope me-1"></i>{% trans "Medical" %}
                         </a>
                         <a href="#" class="badge bg-white bg-opacity-25 text-white text-decoration-none">
-                            <i class="fas fa-shopping-bag me-1"></i>
-                            {% trans "Shopping" %}
+                            <i class="fas fa-shopping-bag me-1"></i>{% trans "Shopping" %}
                         </a>
                         <a href="#" class="badge bg-white bg-opacity-25 text-white text-decoration-none">
-                            <i class="fas fa-cut me-1"></i>
-                            {% trans "Beauty" %}
+                            <i class="fas fa-cut me-1"></i>{% trans "Beauty" %}
                         </a>
                     </div>
                 </div>
@@ -684,23 +616,22 @@
             
             <div class="col-lg-6 text-center">
                 <div class="hero-illustration">
-                    {# You can replace this with actual SVG illustration #}
-                    <svg width="500" height="400" viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="500" height="400" viewBox="0 0 500 400" fill="none">
                         <circle cx="250" cy="200" r="150" fill="url(#paint0_linear)" opacity="0.2"/>
                         <circle cx="250" cy="200" r="120" fill="url(#paint1_linear)" opacity="0.3"/>
                         <path d="M200 150 L300 150 L300 250 L200 250 Z" fill="#fff" opacity="0.9" rx="10"/>
                         <circle cx="250" cy="200" r="40" fill="url(#paint2_linear)"/>
                         <path d="M250 180 L250 220 M230 200 L270 200" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
                         <defs>
-                            <linearGradient id="paint0_linear" x1="100" y1="50" x2="400" y2="350" gradientUnits="userSpaceOnUse">
+                            <linearGradient id="paint0_linear" x1="100" y1="50" x2="400" y2="350">
                                 <stop stop-color="#667eea"/>
                                 <stop offset="1" stop-color="#764ba2"/>
                             </linearGradient>
-                            <linearGradient id="paint1_linear" x1="130" y1="80" x2="370" y2="320" gradientUnits="userSpaceOnUse">
+                            <linearGradient id="paint1_linear" x1="130" y1="80" x2="370" y2="320">
                                 <stop stop-color="#f093fb"/>
                                 <stop offset="1" stop-color="#f5576c"/>
                             </linearGradient>
-                            <linearGradient id="paint2_linear" x1="210" y1="160" x2="290" y2="240" gradientUnits="userSpaceOnUse">
+                            <linearGradient id="paint2_linear" x1="210" y1="160" x2="290" y2="240">
                                 <stop stop-color="#4facfe"/>
                                 <stop offset="1" stop-color="#00f2fe"/>
                             </linearGradient>
@@ -717,41 +648,30 @@
 <section class="stats-section">
     <div class="container">
         <div class="row g-4">
-            <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="stat-card">
-                    <div class="stat-icon primary">
-                        <i class="fas fa-store-alt"></i>
-                    </div>
+                    <div class="stat-icon primary"><i class="fas fa-store-alt"></i></div>
                     <div class="stat-number">{{ stats.total_businesses|default:0 }}+</div>
                     <div class="stat-label">{% trans "Total Businesses" %}</div>
                 </div>
             </div>
-            
-            <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="stat-card">
-                    <div class="stat-icon success">
-                        <i class="fas fa-check-double"></i>
-                    </div>
+                    <div class="stat-icon success"><i class="fas fa-check-double"></i></div>
                     <div class="stat-number">{{ stats.verified_businesses|default:0 }}+</div>
                     <div class="stat-label">{% trans "Verified Businesses" %}</div>
                 </div>
             </div>
-            
-            <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="stat-card">
-                    <div class="stat-icon warning">
-                        <i class="fas fa-tags"></i>
-                    </div>
+                    <div class="stat-icon warning"><i class="fas fa-tags"></i></div>
                     <div class="stat-number">{{ stats.total_deals|default:0 }}+</div>
                     <div class="stat-label">{% trans "Active Deals" %}</div>
                 </div>
             </div>
-            
-            <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="stat-card">
-                    <div class="stat-icon info">
-                        <i class="fas fa-th-large"></i>
-                    </div>
+                    <div class="stat-icon info"><i class="fas fa-th-large"></i></div>
                     <div class="stat-number">{{ stats.total_categories|default:0 }}+</div>
                     <div class="stat-label">{% trans "Categories" %}</div>
                 </div>
@@ -767,12 +687,9 @@
     <div class="container">
         <div class="section-header text-center">
             <h2 class="section-title">
-                <i class="fas fa-th-large me-2"></i>
-                {% trans "Browse by Category" %}
+                <i class="fas fa-th-large me-2"></i>{% trans "Browse by Category" %}
             </h2>
-            <p class="section-subtitle">
-                {% trans "Explore businesses in different categories" %}
-            </p>
+            <p class="section-subtitle">{% trans "Explore businesses in different categories" %}</p>
         </div>
         
         <div class="row g-4">
@@ -780,19 +697,11 @@
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                 <a href="{% url 'categories:category_detail' category.slug %}" class="text-decoration-none">
                     <div class="category-card">
-                        <div class="category-icon">
-                            <i class="{{ category.icon|default:'fas fa-store' }}"></i>
-                        </div>
+                        <div class="category-icon"><i class="{{ category.icon|default:'fas fa-store' }}"></i></div>
                         <div class="category-title">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                {{ category.name_ar }}
-                            {% else %}
-                                {{ category.name_en }}
-                            {% endif %}
+                            {% if LANGUAGE_CODE == 'ar' %}{{ category.name_ar }}{% else %}{{ category.name_en }}{% endif %}
                         </div>
-                        <div class="category-count">
-                            {{ category.get_business_count|default:0 }} {% trans "businesses" %}
-                        </div>
+                        <div class="category-count">{{ category.business_count|default:0 }} {% trans "businesses" %}</div>
                     </div>
                 </a>
             </div>
@@ -815,12 +724,9 @@
     <div class="container">
         <div class="section-header text-center">
             <h2 class="section-title">
-                <i class="fas fa-star me-2"></i>
-                {% trans "Featured Businesses" %}
+                <i class="fas fa-star me-2"></i>{% trans "Featured Businesses" %}
             </h2>
-            <p class="section-subtitle">
-                {% trans "Handpicked top-rated and verified businesses" %}
-            </p>
+            <p class="section-subtitle">{% trans "Handpicked top-rated and verified businesses" %}</p>
         </div>
         
         <div class="row g-4">
@@ -835,52 +741,28 @@
                             <i class="fas fa-store-alt fa-4x text-white opacity-50"></i>
                         </div>
                         {% endif %}
-                        
                         {% if business.is_verified %}
-                        <span class="verified-badge">
-                            <i class="fas fa-check-circle me-1"></i>
-                            {% trans "Verified" %}
-                        </span>
+                        <span class="verified-badge"><i class="fas fa-check-circle me-1"></i>{% trans "Verified" %}</span>
                         {% endif %}
                     </div>
-                    
                     <div class="business-content">
                         <h5 class="business-title">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                {{ business.name_ar }}
-                            {% else %}
-                                {{ business.name_en }}
-                            {% endif %}
+                            {% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en }}{% endif %}
                         </h5>
-                        
                         <div class="business-meta">
-                            <div>
-                                <i class="fas fa-th-large text-primary"></i>
-                                {% if LANGUAGE_CODE == 'ar' %}
-                                    {{ business.category.name_ar }}
-                                {% else %}
-                                    {{ business.category.name_en }}
-                                {% endif %}
+                            <div><i class="fas fa-th-large text-primary"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.category.name_ar }}{% else %}{{ business.category.name_en }}{% endif %}
                             </div>
-                            <div>
-                                <i class="fas fa-map-marker-alt text-danger"></i>
-                                {% if LANGUAGE_CODE == 'ar' %}
-                                    {{ business.district.name_ar }}، {{ business.district.city.name_ar }}
-                                {% else %}
-                                    {{ business.district.name_en }}, {{ business.district.city.name_en }}
-                                {% endif %}
+                            <div><i class="fas fa-map-marker-alt text-danger"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.district.name_ar }}، {{ business.district.city.name_ar }}
+                                {% else %}{{ business.district.name_en }}, {{ business.district.city.name_en }}{% endif %}
                             </div>
                         </div>
-                        
                         <div class="business-footer">
                             <a href="{% url 'directory:business_detail' business.slug %}" class="btn-view">
-                                <i class="fas fa-eye me-2"></i>
-                                {% trans "View Details" %}
+                                <i class="fas fa-eye me-2"></i>{% trans "View Details" %}
                             </a>
-                            <span class="view-count">
-                                <i class="fas fa-eye me-1"></i>
-                                {{ business.view_count|default:0 }}
-                            </span>
+                            <span class="text-muted"><i class="fas fa-eye me-1"></i>{{ business.view_count|default:0 }}</span>
                         </div>
                     </div>
                 </div>
@@ -898,6 +780,159 @@
 </section>
 {% endif %}
 
+{# ==================== LATEST BUSINESSES ==================== #}
+{% if latest_businesses %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-title">
+                <i class="fas fa-clock me-2" style="color: #f59e0b;"></i>
+                <span style="color: #f59e0b;">{% trans "Latest Businesses" %}</span>
+            </h2>
+            <p class="section-subtitle">{% trans "Recently added businesses to our directory" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for business in latest_businesses %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="business-card">
+                    <div class="business-image">
+                        {% if business.logo %}
+                        <img src="{{ business.logo.url }}" alt="{{ business.name }}">
+                        {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <i class="fas fa-store-alt fa-4x text-white opacity-50"></i>
+                        </div>
+                        {% endif %}
+                        <span class="new-badge"><i class="fas fa-star me-1"></i>{% trans "New" %}</span>
+                        {% if business.is_verified %}
+                        <span class="verified-badge"><i class="fas fa-check-circle me-1"></i>{% trans "Verified" %}</span>
+                        {% endif %}
+                    </div>
+                    <div class="business-content">
+                        <h5 class="business-title">
+                            {% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en }}{% endif %}
+                        </h5>
+                        <div class="business-meta">
+                            <div><i class="fas fa-th-large text-primary"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.category.name_ar }}{% else %}{{ business.category.name_en }}{% endif %}
+                            </div>
+                            <div><i class="fas fa-map-marker-alt text-danger"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.district.name_ar }}، {{ business.district.city.name_ar }}
+                                {% else %}{{ business.district.name_en }}, {{ business.district.city.name_en }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="business-footer">
+                            <a href="{% url 'directory:business_detail' business.slug %}" class="btn-view">
+                                <i class="fas fa-eye me-2"></i>{% trans "View Details" %}
+                            </a>
+                            <span class="text-muted"><i class="fas fa-eye me-1"></i>{{ business.view_count|default:0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ==================== MOST VIEWED BUSINESSES ==================== #}
+{% if most_viewed_businesses %}
+<section class="py-5">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-title">
+                <i class="fas fa-fire me-2" style="color: #ef4444;"></i>
+                <span style="color: #ef4444;">{% trans "Most Viewed Businesses" %}</span>
+            </h2>
+            <p class="section-subtitle">{% trans "Popular businesses loved by our community" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for business in most_viewed_businesses %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="business-card">
+                    <div class="business-image">
+                        {% if business.logo %}
+                        <img src="{{ business.logo.url }}" alt="{{ business.name }}">
+                        {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <i class="fas fa-store-alt fa-4x text-white opacity-50"></i>
+                        </div>
+                        {% endif %}
+                        <span class="trending-badge"><i class="fas fa-fire me-1"></i>{% trans "Trending" %}</span>
+                        {% if business.is_verified %}
+                        <span class="verified-badge"><i class="fas fa-check-circle me-1"></i>{% trans "Verified" %}</span>
+                        {% endif %}
+                    </div>
+                    <div class="business-content">
+                        <h5 class="business-title">
+                            {% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en }}{% endif %}
+                        </h5>
+                        <div class="business-meta">
+                            <div><i class="fas fa-th-large text-primary"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.category.name_ar }}{% else %}{{ business.category.name_en }}{% endif %}
+                            </div>
+                            <div><i class="fas fa-map-marker-alt text-danger"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.district.name_ar }}، {{ business.district.city.name_ar }}
+                                {% else %}{{ business.district.name_en }}, {{ business.district.city.name_en }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="business-footer">
+                            <a href="{% url 'directory:business_detail' business.slug %}" class="btn-view">
+                                <i class="fas fa-eye me-2"></i>{% trans "View Details" %}
+                            </a>
+                            <span class="text-danger fw-bold"><i class="fas fa-fire me-1"></i>{{ business.view_count|default:0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ==================== GOVERNORATES SECTION ==================== #}
+{% if governorates %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-title">
+                <i class="fas fa-map-marked-alt me-2"></i>{% trans "Browse by Location" %}
+            </h2>
+            <p class="section-subtitle">{% trans "Find businesses in your governorate" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for governorate in governorates %}
+            <div class="col-lg-4 col-md-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="governorate-card">
+                        <div class="d-flex align-items-center">
+                            <div class="governorate-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="governorate-name">
+                                    {% if LANGUAGE_CODE == 'ar' %}{{ governorate.name_ar }}{% else %}{{ governorate.name_en }}{% endif %}
+                                </div>
+                                <div class="governorate-count">
+                                    {{ governorate.cities.count }} {% trans "cities" %}
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} text-muted fs-4"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 {# ==================== DEALS SECTION ==================== #}
 {% if active_deals %}
 <section class="deals-section">
@@ -907,9 +942,7 @@
                 <i class="fas fa-fire me-2" style="color: #ef4444;"></i>
                 <span style="color: #ef4444;">{% trans "Hot Deals" %}</span>
             </h2>
-            <p class="section-subtitle">
-                {% trans "Limited time offers you don't want to miss" %}
-            </p>
+            <p class="section-subtitle">{% trans "Limited time offers you don't want to miss" %}</p>
         </div>
         
         <div class="row g-4">
@@ -917,42 +950,26 @@
             <div class="col-lg-4 col-md-6">
                 <div class="deal-card">
                     <div class="deal-badge">
-                        <span>
-                            <i class="fas fa-bolt me-2"></i>
-                            {% trans "Limited Offer" %}
-                        </span>
+                        <span><i class="fas fa-bolt me-2"></i>{% trans "Limited Offer" %}</span>
                         {% if deal.discount_percentage %}
                         <span class="fs-5">-{{ deal.discount_percentage }}%</span>
                         {% endif %}
                     </div>
-                    
                     {% if deal.image %}
                     <div class="deal-image">
                         <img src="{{ deal.image.url }}" alt="{{ deal.title }}">
                     </div>
                     {% endif %}
-                    
                     <div class="deal-content">
                         <h5 class="deal-title">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                {{ deal.title_ar }}
-                            {% else %}
-                                {{ deal.title_en }}
-                            {% endif %}
+                            {% if LANGUAGE_CODE == 'ar' %}{{ deal.title_ar }}{% else %}{{ deal.title_en }}{% endif %}
                         </h5>
-                        
                         <p class="deal-business">
                             <i class="fas fa-store me-2"></i>
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                {{ deal.business.name_ar }}
-                            {% else %}
-                                {{ deal.business.name_en }}
-                            {% endif %}
+                            {% if LANGUAGE_CODE == 'ar' %}{{ deal.business.name_ar }}{% else %}{{ deal.business.name_en }}{% endif %}
                         </p>
-                        
                         <a href="{% url 'deals:deal_detail' deal.slug %}" class="btn-deal">
-                            <i class="fas fa-tag me-2"></i>
-                            {% trans "Get This Deal" %}
+                            <i class="fas fa-tag me-2"></i>{% trans "Get This Deal" %}
                         </a>
                     </div>
                 </div>
@@ -974,46 +991,14 @@
 <section class="cta-section">
     <div class="container">
         <div class="cta-content text-center">
-            <h2 class="cta-title">
-                {% trans "Do You Own a Business?" %}
-            </h2>
-            <p class="cta-text">
-                {% trans "Join thousands of businesses and boost your visibility. Reach millions of potential customers today!" %}
-            </p>
+            <h2 class="cta-title">{% trans "Do You Own a Business?" %}</h2>
+            <p class="cta-text">{% trans "Join thousands of businesses and boost your visibility. Reach millions of potential customers today!" %}</p>
             <a href="{% url 'dashboard:business_create' %}" class="btn-cta">
-                <i class="fas fa-plus-circle me-3"></i>
-                {% trans "Add Your Business Now" %}
+                <i class="fas fa-plus-circle me-3"></i>{% trans "Add Your Business Now" %}
                 <i class="fas fa-arrow-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} ms-3"></i>
             </a>
         </div>
     </div>
 </section>
 
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// Animate elements on scroll
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('animated');
-        }
-    });
-}, observerOptions);
-
-document.querySelectorAll('.animate-on-scroll').forEach(el => {
-    observer.observe(el);
-});
-
-// Add animate class to sections
-document.querySelectorAll('.stat-card, .category-card, .business-card, .deal-card').forEach(el => {
-    el.classList.add('animate-on-scroll');
-});
-</script>
 {% endblock %}
