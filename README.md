@@ -1,197 +1,192 @@
 # 📍 دليل أي خدمة | Daliil Ay Khidma
 
-<div align="center">
+## 🎯 نظام دليل خدمات شامل ومتطور
+**Complete & Advanced Service Directory System**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Django](https://img.shields.io/badge/Django-5.0-green.svg)](https://www.djangoproject.com/)
-[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
-[![Made in Egypt](https://img.shields.io/badge/Made%20in-Egypt%20🇪🇬-red.svg)](https://github.com/sendoo-m)
+نظام دليل خدمات متكامل باللغتين العربية والإنجليزية مع كامل الميزات المتقدمة للمحلات التجارية، الخدمات الحرفية، والخدمات العامة.
 
-**نظام دليل خدمات متكامل وشامل | Comprehensive Service Directory System**
-
-منصة متطورة لإدارة دليل الخدمات والمحلات التجارية بميزات احترافية ودعم كامل للغتين العربية والإنجليزية
-
-*An advanced platform for managing service directories and businesses with professional features and full bilingual support*
-
-[العربية](#arabic) • [English](#english) • [التثبيت](#installation) • [التوثيق](#documentation)
-
-</div>
+*A comprehensive bilingual (Arabic/English) service directory system with advanced features for commercial shops, craft services, and public services.*
 
 ---
 
-## 🎯 نظرة عامة | Overview
+## 🚀 **المميزات الرئيسية | Key Features**
 
-**دليل أي خدمة** هو نظام متكامل مبني بإطار Django لإدارة دليل الخدمات والمحلات التجارية. يوفر النظام حلاً شاملاً لعرض وإدارة الأعمال التجارية مع دعم كامل للغتين العربية والإنجليزية، ونظام موقع جغرافي متقدم، وميزات تسويقية قوية.
+### 🌍 **1. دعم ثنائي اللغة الكامل | Full Bilingual Support**
+- ✅ **دعم كامل للعربية والإنجليزية** - Full Arabic & English support
+- ✅ **جميع النماذج ثنائية اللغة** - All models are bilingual
+- ✅ **كشف تلقائي للغة** - Automatic language detection
+- ✅ **روابط URL صديقة لمحركات البحث** - SEO-friendly URLs
+- ✅ **واجهة مستخدم متجاوبة حسب اللغة** - RTL/LTR responsive UI
 
-**Daliil Ay Khidma** is a comprehensive Django-based service directory management system. It provides a complete solution for displaying and managing businesses with full bilingual support (Arabic & English), advanced geographic location system, and powerful marketing features.
+### 📍 **2. نظام مواقع جغرافي متقدم - 3 مستويات | Advanced 3-Level Location System**
+```
+🏛️ محافظة (Governorate)
+   └─ 🌆 مدينة (City)
+       └─ 🏘️ حي (District)
+           └─ 🏪 محل تجاري (Business)
+```
+
+### 🏪 **3. إدارة شاملة للمحلات التجارية | Comprehensive Business Management**
+- ✅ **ملفات تعريف كاملة** - Complete business profiles
+- ✅ **صور متعددة**: شعار، غلاف، معرض صور - Multiple images: Logo, Cover, Gallery
+- ✅ **تفاصيل اتصال شاملة** - Complete contact information
+- ✅ **روابط وسائل التواصل الاجتماعي** - Social media integration (Facebook, Instagram, Twitter, TikTok)
+- ✅ **تكامل مع خرائط Google** - Google Maps integration with coordinates
+- ✅ **ساعات عمل تفصيلية** - Detailed working hours
+- ✅ **عدادات للمشاهدات والنقرات** - View and click counters
+- ✅ **ثلاثة أنواع من الأعمال**: محلات تجارية، حرفيون، خدمات عامة - Three business types: Shops, Crafts, Public Services
+
+### 🛒 **4. نظام المنتجات والخدمات المتقدم | Advanced Products & Services System**
+- ✅ **منتجات وخدمات غير محدودة** - Unlimited products and services
+- ✅ **إدارة الأسعار والخصومات** - Price and discount management
+- ✅ **معرض صور لكل منتج** - Image gallery for each product
+- ✅ **إدارة المخزون والتوفر** - Stock and availability management
+- ✅ **خيارات التوصيل المتنوعة** - Delivery options
+- ✅ **منتجات مميزة** - Featured products
+- ✅ **ترتيب مخصص للعرض** - Custom display ordering
+
+### 🎁 **5. نظام عروض وخصومات قوي | Powerful Deals & Offers System**
+- ✅ **أنواع متعددة من العروض** - Multiple deal types:
+  - خصم بالنسبة المئوية - Percentage discount
+  - خصم بقيمة ثابتة - Fixed amount discount
+  - اشتر واحد واحصل على آخر مجاناً (BOGO) - Buy One Get One
+  - عروض مجمعة - Bundle deals
+- ✅ **فترات صلاحية محددة** - Validity periods with start/end dates
+- ✅ **حدود الاستخدام** - Usage limits per user
+- ✅ **شروط وأحكام مفصلة** - Detailed terms and conditions
+- ✅ **تتبع استخدام العروض** - Deal usage tracking and analytics
+- ✅ **عروض مميزة** - Featured deals
+
+### 💳 **6. نظام اشتراكات مرن | Flexible Subscription System**
+- ✅ **خطط اشتراك متعددة** - Multiple subscription plans:
+  - مجاني (Free) - محدود الميزات
+  - أساسي (Basic) - للأعمال الصغيرة
+  - متقدم (Premium) - للأعمال المتوسطة
+  - VIP - كامل الميزات
+- ✅ **خيارات دفع متنوعة** - Flexible billing cycles:
+  - شهري (Monthly)
+  - ربع سنوي (Quarterly)
+  - نصف سنوي (Semi-Annual)
+  - سنوي (Annual)
+- ✅ **تجديد تلقائي** - Auto-renewal options
+- ✅ **تتبع المدفوعات** - Payment tracking
+- ✅ **إحصائيات مفصلة لكل خطة** - Detailed statistics per plan
+
+### ⭐ **7. نظام تقييمات ومراجعات متطور | Advanced Reviews & Ratings System**
+- ✅ **تقييمات بنظام 5 نجوم** - 5-star rating system
+- ✅ **تعليقات ومراجعات مفصلة** - Detailed comments and reviews
+- ✅ **موافقة إدارية على التقييمات** - Admin approval for reviews
+- ✅ **ردود أصحاب المحلات** - Business owner replies
+- ✅ **حساب تلقائي للمتوسط** - Automatic average calculation
+- ✅ **فلترة حسب التقييم** - Filter by rating
+
+### 🔍 **8. نظام بحث متقدم وذكي | Advanced & Smart Search System**
+- ✅ **بحث بالاسم** - Search by name (Arabic/English)
+- ✅ **بحث بالموقع الجغرافي** - Search by location (Governorate/City/District)
+- ✅ **بحث بالفئة ونوع العمل** - Search by category and business type
+- ✅ **فلترة متقدمة متعددة المعايير** - Multi-criteria advanced filtering
+- ✅ **ترتيب النتائج** - Sorting options (newest, rating, views)
+- ✅ **بحث قريب مني** - Nearby search with geolocation
+
+### 📊 **9. لوحات تحكم احترافية | Professional Dashboards**
+
+#### **لوحة المستخدمين | User Dashboard:**
+- المفضلة والإشارات المرجعية - Favorites and bookmarks
+- سجل المشاهدات - Viewing history
+- التقييمات المقدمة - Submitted reviews
+
+#### **لوحة أصحاب المحلات | Business Owner Dashboard:**
+- ✅ **إحصائيات شاملة** - Comprehensive statistics
+- ✅ **رسوم بيانية تفاعلية** (Chart.js) - Interactive charts
+- ✅ **تتبع الأداء** - Performance tracking
+- ✅ **إدارة المحتوى** - Content management
+- ✅ **إشعارات وتنبيهات** - Notifications and alerts
+- ✅ **تقارير مفصلة** - Detailed reports
+
+#### **لوحة الإدارة | Admin Dashboard:**
+- إدارة كاملة للمستخدمين - Complete user management
+- موافقات التحقق - Verification approvals
+- إدارة الفئات والمواقع - Category and location management
+- إحصائيات عامة للمنصة - Platform-wide statistics
+
+### 🔐 **10. نظام API شامل | Comprehensive API System**
+- ✅ **RESTful API** كامل مع Django REST Framework
+- ✅ **مصادقة JWT** - JWT Authentication
+- ✅ **توثيق تفاعلي** - Interactive API documentation
+- ✅ **ثلاث واجهات API**:
+  - عامة للمستخدمين - Public API
+  - خاصة بأصحاب المحلات - Business Owner API
+  - إدارية - Admin API
+- ✅ **دعم Pagination و Filtering** - Full pagination and filtering support
 
 ---
 
-## ✨ الميزات الرئيسية | Key Features
+## 📦 **البنية التقنية | Tech Stack**
 
-### 🌍 دعم ثنائي اللغة | Bilingual Support
-- ✅ **واجهة كاملة بالعربية والإنجليزية** | Complete Arabic and English interface
-- ✅ **جميع النماذج ثنائية اللغة** | All models are bilingual
-- ✅ **اكتشاف تلقائي للغة** | Automatic language detection
-- ✅ **روابط صديقة لمحركات البحث (SEO)** | SEO-friendly URLs
-- ✅ **ترجمة ديناميكية للمحتوى** | Dynamic content translation
-
-### 📍 نظام المواقع الجغرافية (3 مستويات) | Location System (3 Levels)
+### Backend:
 ```
-🏛️ محافظة | Governorate
-   └─ 🌆 مدينة | City
-       └─ 🏘️ حي | District
-           └─ 🏪 محل تجاري | Business
-```
-- تصنيف جغرافي دقيق ومنظم
-- بحث متقدم بالموقع
-- خرائط تفاعلية
-- تكامل مع Google Maps
-
-### 🏪 إدارة المحلات التجارية | Business Management
-- ✅ **ملفات تعريفية شاملة** | Comprehensive business profiles
-- ✅ **صور متعددة** (لوجو، غلاف، معرض صور) | Multiple images (logo, cover, gallery)
-- ✅ **تفاصيل اتصال كاملة** | Complete contact details
-- ✅ **روابط وسائل التواصل** (Facebook, Instagram, Twitter, TikTok) | Social media links
-- ✅ **تكامل خرائط جوجل** | Google Maps integration
-- ✅ **ساعات العمل** | Working hours
-- ✅ **عدادات مشاهدة ونقرات** | View and click counters
-- ✅ **أنواع متعددة من الأعمال** (متجر فعلي، متجر إلكتروني، خدمة، مختلط) | Multiple business types
-
-### 🛒 نظام المنتجات والخدمات | Products & Services System
-- ✅ **منتجات وخدمات غير محدودة** | Unlimited products and services
-- ✅ **نظام تسعير مرن** (سعر أساسي، سعر مخفض) | Flexible pricing (base price, discounted price)
-- ✅ **معرض صور للمنتجات** | Product image gallery
-- ✅ **إدارة المخزون المتقدمة** | Advanced inventory management
-- ✅ **خيارات توصيل متنوعة** | Various delivery options
-- ✅ **منتجات مميزة** | Featured products
-- ✅ **تصنيف حسب النوع** (منتج، خدمة) | Classification by type
-
-### 🎁 نظام العروض والخصومات | Deals & Offers System
-- ✅ **أنواع عروض متعددة:**
-  - 💯 **خصم بالنسبة المئوية** | Percentage discount
-  - 💵 **خصم بقيمة ثابتة** | Fixed amount discount
-  - 🎉 **اشترِ واحد واحصل على آخر** (BOGO) | Buy One Get One
-  - 📦 **عروض حزم المنتجات** | Bundle deals
-- ✅ **فترات صلاحية محددة** | Specific validity periods
-- ✅ **حدود استخدام للعروض** | Usage limits for offers
-- ✅ **شروط وأحكام مخصصة** | Custom terms and conditions
-- ✅ **تتبع دقيق لاستخدام العروض** | Accurate deal usage tracking
-
-### 💳 نظام الاشتراكات | Subscription System
-- ✅ **خطط متعددة:** Free | Basic | Premium | VIP
-- ✅ **ميزات مميزة لكل خطة** | Unique features for each plan
-- ✅ **فترات اشتراك مرنة:**
-  - شهري | Monthly
-  - ربع سنوي | Quarterly
-  - نصف سنوي | Semi-annual
-  - سنوي | Annual
-- ✅ **تجديد تلقائي** | Auto-renewal
-- ✅ **تتبع المدفوعات** | Payment tracking
-- ✅ **إحصائيات متقدمة لكل خطة** | Advanced plan statistics
-
-### ⭐ نظام التقييمات والمراجعات | Reviews & Ratings System
-- ✅ **تقييم بنظام 5 نجوم** | 5-star rating system
-- ✅ **تعليقات ومراجعات مفصلة** | Detailed comments and reviews
-- ✅ **نظام موافقة المسؤول** | Admin approval system
-- ✅ **ردود أصحاب الأعمال** | Business owner replies
-- ✅ **حساب متوسط التقييمات** | Average rating calculation
-
-### 🔍 نظام بحث متقدم | Advanced Search System
-- ✅ **بحث بالاسم** | Search by name
-- ✅ **بحث بالموقع الجغرافي** | Search by location
-- ✅ **بحث بالفئة** | Search by category
-- ✅ **فلاتر متقدمة** | Advanced filters
-- ✅ **بحث بالقرب من موقعك** | Nearby search
-- ✅ **ترتيب النتائج** (حسب التقييم، المشاهدات، التاريخ) | Result ordering
-
-### 📊 لوحات تحكم احترافية | Professional Dashboards
-
-#### 👤 لوحة المستخدمين | User Dashboard
-- إحصائيات شخصية
-- المفضلة المحفوظة
-- التقييمات المقدمة
-- سجل النشاطات
-
-#### 🏢 لوحة أصحاب الأعمال | Business Owner Dashboard
-- 📈 **رسوم بيانية تفاعلية** (Chart.js)
-- 📊 **إحصائيات شاملة** (مشاهدات، نقرات، تقييمات)
-- 🎯 **مؤشرات أداء رئيسية (KPIs)**
-- 📉 **تتبع الأداء الشهري**
-- 🏆 **ترتيب الأعمال حسب الأداء**
-- ⚡ **إجراءات سريعة** لإدارة المحتوى
-- 🔔 **سجل النشاطات الأخيرة**
-
----
-
-## 📦 البنية التقنية | Tech Stack
-
-### Backend
-```yaml
-Framework: Django 5.0+
-Language: Python 3.11+
-Database: PostgreSQL / SQLite
-API: Django REST Framework
-Authentication: JWT (Simple JWT)
+🐍 Django 4.2+          - إطار عمل الويب الأساسي | Core web framework
+📦 PostgreSQL/SQLite   - قاعدة البيانات | Database
+🔌 Django REST Framework - بناء API | API development
+🔒 JWT Authentication   - أمان API | API security
+🌐 django-modeltranslation - الترجمة | Internationalization
 ```
 
-### Frontend
-```yaml
-UI Framework: Bootstrap 5.3
-Icons: Font Awesome 6.x
-Charts: Chart.js 4.4.0
-Forms: Django Crispy Forms + Crispy Bootstrap 5
+### Frontend:
+```
+🎨 Bootstrap 5         - إطار عمل CSS | CSS framework
+📊 Chart.js v4.4.0     - الرسوم البيانية | Charts & graphs
+🧊 Crispy Forms        - نماذج جميلة | Beautiful forms
+✨ Custom CSS/JS       - تخصيصات إضافية | Custom enhancements
 ```
 
-### Additional Libraries
-```yaml
-Images: Pillow + django-imagekit
-Internationalization: django-modeltranslation
-API Documentation: drf-spectacular
-CORS: django-cors-headers
-Testing: pytest + pytest-django
+### Tools & Utilities:
+```
+📷 Pillow + ImageKit   - معالجة الصور | Image processing
+🧹 Django Cleanup      - تنظيف تلقائي للملفات | Auto file cleanup
+🔍 Django Filter       - فلترة متقدمة | Advanced filtering
+📝 Python Slugify      - توليد URLs | URL generation
 ```
 
 ---
 
-## 📁 هيكل المشروع | Project Structure
+## 📁 **هيكل المشروع | Project Structure**
 
 ```
 daliil-ay-khidma/
-├── 📂 apps/
-│   ├── 👥 accounts/         # نظام المستخدمين والصلاحيات | Users & Permissions
-│   ├── 🎨 core/             # الصفحات الأساسية | Core Pages  
-│   ├── 📍 directory/        # نظام الدليل الرئيسي | Main Directory
+├── apps/
+│   ├── accounts/          # 👤 نظام المستخدمين | User system
+│   ├── api/               # 🔌 API endpoints
+│   ├── categories/        # 📂 نظام الفئات | Categories
+│   ├── core/              # ⚙️ الصفحات الأساسية | Core pages
+│   ├── dashboard/         # 📊 لوحة التحكم | Dashboard
+│   ├── deals/             # 🎁 نظام العروض | Deals system
+│   ├── directory/         # 📍 نظام الدليل | Directory system
 │   │   ├── models/
-│   │   │   ├── location.py   # المواقع الجغرافية | Locations
-│   │   │   ├── category.py   # التصنيفات | Categories
-│   │   │   ├── business.py   # الأعمال التجارية | Businesses
-│   │   │   └── favorites.py  # المفضلة | Favorites
+│   │   │   ├── location.py    # Governorate, City, District
+│   │   │   ├── business.py    # Business & BusinessImage
+│   │   │   └── favorites.py   # User Favorites
 │   │   ├── admin.py
 │   │   ├── views.py
 │   │   └── urls.py
-│   ├── 🛍️ products/         # المنتجات والخدمات | Products & Services
-│   ├── 💳 subscriptions/    # الاشتراكات | Subscriptions
-│   ├── 🎁 deals/            # العروض والخصومات | Deals & Offers
-│   ├── 🏷️ categories/       # إدارة الفئات | Categories Management
-│   ├── ⭐ reviews/          # التقييمات | Reviews
-│   ├── 🔍 search/           # البحث المتقدم | Advanced Search
-│   ├── 📊 dashboard/        # لوحات التحكم | Dashboards
-│   ├── 🔧 services/         # الخدمات المساعدة | Helper Services
-│   └── 🌐 api/              # REST API
-├── ⚙️ config/
+│   ├── products/          # 🛒 نظام المنتجات | Products system
+│   ├── reviews/           # ⭐ نظام التقييمات | Reviews system
+│   ├── search/            # 🔍 نظام البحث | Search system
+│   ├── services/          # 🔧 الخدمات | Services
+│   └── subscriptions/     # 💳 نظام الاشتراكات | Subscriptions
+├── config/
 │   ├── settings/
-│   │   ├── base.py          # إعدادات أساسية | Base settings
-│   │   ├── development.py   # بيئة التطوير | Development
-│   │   └── production.py    # بيئة الإنتاج | Production
+│   │   ├── base.py        # إعدادات أساسية | Base settings
+│   │   ├── development.py # تطوير | Development
+│   │   └── production.py  # إنتاج | Production
 │   ├── urls.py
 │   └── wsgi.py
-├── 🎨 templates/            # قوالب HTML | HTML Templates
-├── 📦 static/               # ملفات ثابتة | Static Files
-├── 📸 media/                # ملفات المستخدمين | User Uploads
-├── 🌍 locale/               # ملفات الترجمة | Translation Files
-├── 🔧 fixtures/             # بيانات أولية | Initial Data
-├── 📝 logs/                 # سجلات النظام | System Logs
+├── templates/             # 📄 القوالب | Templates
+├── static/                # 🎨 الملفات الثابتة | Static files
+├── media/                 # 📁 الملفات المرفوعة | Uploaded files
+├── locale/                # 🌍 ملفات الترجمة | Translation files
+├── fixtures/              # 📝 بيانات أولية | Initial data
+├── logs/                  # 📋 السجلات | Logs
 ├── manage.py
 ├── requirements.txt
 └── README.md
@@ -199,314 +194,347 @@ daliil-ay-khidma/
 
 ---
 
-## 🚀 التثبيت والتشغيل | Installation & Setup
+## 🚀 **التثبيت والتشغيل | Installation & Setup**
 
-### المتطلبات الأساسية | Prerequisites
-- Python 3.11 أو أحدث | Python 3.11 or higher
-- PostgreSQL 14+ (اختياري، SQLite متاح) | PostgreSQL 14+ (optional, SQLite available)
-- Git
+### المتطلبات الأساسية | Prerequisites:
+- Python 3.10 أو أحدث | Python 3.10+
+- pip (مدير حزم Python)
+- PostgreSQL (اختياري، SQLite متاح للتطوير) | PostgreSQL (optional, SQLite available for development)
 
-### 1️⃣ استنساخ المستودع | Clone Repository
+### 1️⃣ **استنساخ المشروع | Clone Repository**
 ```bash
 git clone https://github.com/sendoo-m/daliil-ay-khidma.git
 cd daliil-ay-khidma
 ```
 
-### 2️⃣ إنشاء بيئة افتراضية | Create Virtual Environment
+### 2️⃣ **إنشاء بيئة افتراضية | Create Virtual Environment**
 ```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
-
 # Linux/Mac
 python3 -m venv venv
 source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
 ```
 
-### 3️⃣ تثبيت المكتبات | Install Dependencies
+### 3️⃣ **تثبيت المتطلبات | Install Dependencies**
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4️⃣ إعداد ملف المتغيرات البيئية | Setup Environment Variables
-قم بإنشاء ملف `.env` في المجلد الرئيسي:
+### 4️⃣ **إعداد متغيرات البيئة | Environment Variables**
+أنشئ ملف `.env` في المجلد الرئيسي | Create `.env` file in root directory:
 ```env
-# Django Settings
-SECRET_KEY=your-secret-key-here-change-in-production
+# إعدادات Django الأساسية | Django Core Settings
+SECRET_KEY=your-secret-key-here-generate-new-one
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 
-# Database (SQLite default)
+# قاعدة البيانات | Database Settings
 DATABASE_URL=sqlite:///db.sqlite3
-
-# For PostgreSQL:
+# أو للـ PostgreSQL | Or for PostgreSQL:
 # DATABASE_URL=postgresql://user:password@localhost:5432/daliil_db
 
-# Language
+# اللغة الافتراضية | Default Language
 LANGUAGE_CODE=ar
 TIME_ZONE=Africa/Cairo
-
-# Media & Static
-MEDIA_URL=/media/
-STATIC_URL=/static/
 ```
 
-### 5️⃣ تطبيق الترحيلات | Run Migrations
+### 5️⃣ **تطبيق الهجرات | Run Migrations**
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 6️⃣ إنشاء مستخدم مسؤول | Create Superuser
+### 6️⃣ **إنشاء مستخدم إداري | Create Superuser**
 ```bash
 python manage.py createsuperuser
 ```
 
-### 7️⃣ تحميل البيانات الأولية (اختياري) | Load Initial Data (Optional)
+### 7️⃣ **تحميل البيانات الأولية (اختياري) | Load Initial Data (Optional)**
 ```bash
 python manage.py loaddata fixtures/governorates.json
 python manage.py loaddata fixtures/categories.json
 ```
 
-### 8️⃣ ترجمة النصوص (اختياري) | Compile Translations (Optional)
+### 8️⃣ **ترجمة النصوص (اختياري) | Compile Translations (Optional)**
 ```bash
 python manage.py compilemessages
 ```
 
-### 9️⃣ جمع الملفات الثابتة (للإنتاج) | Collect Static Files (Production)
+### 9️⃣ **جمع الملفات الثابتة (للإنتاج فقط) | Collect Static Files (Production Only)**
 ```bash
 python manage.py collectstatic --noinput
 ```
 
-### 🔟 تشغيل الخادم | Run Development Server
+### 🔟 **تشغيل خادم التطوير | Run Development Server**
 ```bash
 python manage.py runserver
 ```
 
-🎉 **افتح المتصفح على:** | **Open browser at:** 
-http://127.0.0.1:8000/
+🎉 **افتح المتصفح | Open Browser:** http://127.0.0.1:8000/
+
+📊 **لوحة الإدارة | Admin Panel:** http://127.0.0.1:8000/admin/
+
+📖 **توثيق API | API Documentation:** http://127.0.0.1:8000/api/v2/
 
 ---
 
-## 📚 نماذج البيانات | Database Models
+## 📚 **نماذج البيانات | Database Models**
 
-### Directory App - تطبيق الدليل
-| Model | Description AR | Description EN |
-|-------|---------------|----------------|
-| `Governorate` | المحافظات | Governorates |
-| `City` | المدن | Cities |
-| `District` | الأحياء | Districts |
-| `Category` | الفئات والتصنيفات | Categories |
-| `Business` | المحلات التجارية | Businesses |
-| `BusinessImage` | صور المحلات | Business Images |
-| `Favorite` | المفضلة | Favorites |
+### **تطبيق الدليل | Directory App**
+- `Governorate` - محافظة | Governorate
+- `City` - مدينة | City
+- `District` - حي / منطقة | District / Area
+- `Business` - محل تجاري | Business
+- `BusinessImage` - صور المحل | Business images
+- `BusinessWorkingHours` - ساعات العمل التفصيلية | Detailed working hours
+- `Favorite` - المفضلة | Favorites
 
-### Products App - تطبيق المنتجات
-| Model | Description |
-|-------|-------------|
-| `Product` | المنتجات والخدمات |
-| `ProductImage` | صور المنتجات |
+### **تطبيق المنتجات | Products App**
+- `Product` - منتج أو خدمة | Product or service
+- `ProductImage` - صور المنتج | Product images
 
-### Subscriptions App - تطبيق الاشتراكات
-| Model | Description |
-|-------|-------------|
-| `SubscriptionPlan` | خطط الاشتراك |
-| `Subscription` | اشتراكات المستخدمين |
+### **تطبيق الاشتراكات | Subscriptions App**
+- `SubscriptionPlan` - خطة اشتراك | Subscription plan
+- `Subscription` - اشتراك | Active subscription
 
-### Deals App - تطبيق العروض
-| Model | Description |
-|-------|-------------|
-| `Deal` | العروض والخصومات |
-| `DealClaim` | سجل استخدام العروض |
+### **تطبيق العروض | Deals App**
+- `Deal` - عرض أو خصم | Deal or offer
+- `DealClaim` - استخدام عرض | Deal claim/usage
 
-### Reviews App - تطبيق التقييمات
-| Model | Description |
-|-------|-------------|
-| `Review` | التقييمات والمراجعات |
+### **تطبيق التقييمات | Reviews App**
+- `Review` - تقييم ومراجعة | Review and rating
+
+### **تطبيق الفئات | Categories App**
+- `Category` - فئة | Category (with hierarchy support)
 
 ---
 
-## 🔒 ميزات الأمان | Security Features
+## 🔧 **المتطلبات | Requirements**
 
-- ✅ **حماية CSRF** | CSRF Protection
-- ✅ **منع حقن SQL** | SQL Injection Prevention  
-- ✅ **حماية XSS** | XSS Protection
-- ✅ **تحقق قوي من كلمات المرور** | Strong password validation
-- ✅ **رفع آمن للملفات** | Secure file upload
-- ✅ **متغيرات بيئية محمية** | Protected environment variables
-- ✅ **HTTPS في الإنتاج** | HTTPS in production
-- ✅ **مصادقة JWT للـ API** | JWT Authentication for API
+### Core Dependencies:
+```txt
+Django>=4.2,<5.0
+django-environ>=0.11.0
+psycopg2-binary>=2.9.9
+Pillow>=10.1.0
+```
 
----
+### API & Authentication:
+```txt
+djangorestframework>=3.14.0
+djangorestframework-simplejwt>=5.3.1
+drf-nested-routers>=0.93.5
+django-filter>=23.5
+django-cors-headers>=4.3.1
+django-allauth>=0.58.2
+```
 
-## 📖 التوثيق | Documentation
+### Forms & UI:
+```txt
+django-crispy-forms>=2.1
+crispy-bootstrap5>=2.0.0
+django-imagekit>=5.0.0
+```
 
-- 📘 [توثيق API الكامل](API_DOCUMENTATION.md) | [Complete API Documentation](API_DOCUMENTATION.md)
-- 📗 [تحسينات لوحة التحكم](DASHBOARD_UPGRADE.md) | [Dashboard Enhancements](DASHBOARD_UPGRADE.md)
-- 📕 [سجل التغييرات](CHANGELOG.md) | [Changelog](CHANGELOG.md)
-- 📙 [ملخص إصلاحات الأخطاء](BUGFIX_SUMMARY.md) | [Bug Fixes Summary](BUGFIX_SUMMARY.md)
+### Utilities:
+```txt
+python-slugify>=8.0.1
+django-extensions>=3.2.3
+django-modeltranslation>=0.18.11
+```
 
----
+### Production:
+```txt
+gunicorn>=21.2.0
+whitenoise>=6.6.0
+```
 
-## 🛡️ الاختبارات | Testing
-
-```bash
-# تشغيل جميع الاختبارات | Run all tests
-pytest
-
-# تشغيل اختبارات محددة | Run specific tests
-pytest apps/directory/tests/
-
-# مع تغطية الكود | With code coverage
-pytest --cov=apps --cov-report=html
-
-# تشغيل اختبارات سريعة | Run quick tests
-pytest -x --ff
+### Development & Testing:
+```txt
+django-debug-toolbar>=4.2.0
+pytest>=7.4.3
+pytest-django>=4.7.0
+coverage>=7.3.2
+flake8>=6.1.0
+black>=23.12.0
 ```
 
 ---
 
-## 🌐 REST API
+## 🛡️ **الأمان | Security Features**
 
-النظام يوفر REST API شامل يدعم:
-- 🔑 مصادقة JWT
-- 📱 API عام للتطبيقات
-- 🏢 API لأصحاب الأعمال
-- 👨‍💼 API للمسؤولين
-
-**الوصول للتوثيق:**
-- Swagger UI: `http://localhost:8000/api/schema/swagger-ui/`
-- ReDoc: `http://localhost:8000/api/schema/redoc/`
-- JSON Schema: `http://localhost:8000/api/schema/`
-
-[📖 اطلع على التوثيق الكامل](API_DOCUMENTATION.md)
+- ✅ **حماية CSRF** - CSRF Protection
+- ✅ **منع حقن SQL** - SQL Injection Prevention
+- ✅ **حماية XSS** - XSS Protection
+- ✅ **تحقق من كلمات المرور** - Password Validation
+- ✅ **رفع آمن للملفات** - Secure File Upload with validation
+- ✅ **متغيرات البيئة** - Environment Variables for sensitive data
+- ✅ **مصادقة JWT للـ API** - JWT Authentication for API
+- ✅ **تشفير HTTPS** - HTTPS encryption (production)
+- ✅ **التحقق بخطوتين (قريباً)** - Two-Factor Authentication (coming soon)
 
 ---
 
-## 🚀 النشر | Deployment
+## 🎨 **لقطات الشاشة | Screenshots**
 
-### استخدام Gunicorn
-```bash
-gunicorn config.wsgi:application --bind 0.0.0.0:8000
-```
-
-### استخدام Docker
-```bash
-# بناء الصورة | Build image
-docker build -t daliil-ay-khidma .
-
-# تشغيل الحاوية | Run container
-docker run -p 8000:8000 daliil-ay-khidma
-```
-
-### استخدام Docker Compose
-```bash
-docker-compose up -d
-```
+*قريباً: سيتم إضافة لقطات شاشة للواجهات الرئيسية*
+*Coming soon: Screenshots of main interfaces*
 
 ---
 
-## 📊 الإصدارات | Versions
+## 📝 **الرخصة | License**
 
-### v2.1.1 (الحالي) | v2.1.1 (Current)
-- ✅ إصلاح جميع الأخطاء المعروفة
-- ✅ تحسين الأداء
-- ✅ تحديث لوحة التحكم
+**MIT License**
 
-### v2.1.0 (فبراير 2026)
-- ✨ لوحة تحكم محسّنة مع رسوم بيانية
-- 📊 إحصائيات متقدمة
-- 🎨 تصميم عصري
-
-### v2.0.0 (يناير 2026)
-- ✨ نظام المنتجات والخدمات
-- 💳 نظام الاشتراكات
-- 🎁 نظام العروض
-
-[📋 اطلع على سجل التغييرات الكامل](CHANGELOG.md)
+يمكنك استخدام هذا المشروع بحرية مع الإشارة إلى المصدر
+*You are free to use this project with attribution*
 
 ---
 
-## 🗺️ خارطة الطريق | Roadmap
-
-### v2.2.0 (مارس 2026 - قريباً)
-- [ ] تحديثات فورية للوحة التحكم
-- [ ] تصدير للتقارير (PDF/Excel)
-- [ ] أداة اختيار نطاق التواريخ
-- [ ] نظام إشعارات البريد الإلكتروني
-- [ ] فلاتر بحث متقدمة
-
-### v2.3.0 (أبريل 2026)
-- [ ] تطبيق موبايل (Flutter)
-- [ ] بوابات دفع إلكتروني
-- [ ] تكامل SMS
-- [ ] تسجيل دخول عبر وسائل التواصل
-
-### v3.0.0 (الربع الثاني 2026)
-- [ ] نظام Multi-tenant
-- [ ] حل White-label
-- [ ] نظام تقارير متقدم
-- [ ] توصيات مدعومة بالذكاء الاصطناعي
-
----
-
-## 🤝 المساهمة | Contributing
-
-نرحب بمساهماتكم! يرجى اتباع الخطوات التالية:
-
-1. Fork المستودع
-2. أنشئ فرع للميزة الجديدة (`git checkout -b feature/amazing-feature`)
-3. Commit التغييرات (`git commit -m 'Add amazing feature'`)
-4. Push للفرع (`git push origin feature/amazing-feature`)
-5. افتح Pull Request
-
----
-
-## 📝 الرخصة | License
-
-هذا المشروع مرخص تحت رخصة MIT - اطلع على ملف [LICENSE](LICENSE) للتفاصيل.
-
-MIT License - Free to use, modify, and distribute.
-
----
-
-## 👨‍💻 المطور | Developer
+## 👨‍💻 **المطور | Developer**
 
 **Sendoo M.**
-
-- 🌐 GitHub: [@sendoo-m](https://github.com/sendoo-m)
-- 📧 Email: [Contact via GitHub](https://github.com/sendoo-m)
-- 💼 Portfolio: [Coming Soon]
+- 🐙 GitHub: [@sendoo-m](https://github.com/sendoo-m)
+- 📧 للاستفسارات | For inquiries: [GitHub Issues](https://github.com/sendoo-m/daliil-ay-khidma/issues)
 
 ---
 
-## 💬 الدعم والمساعدة | Support
+## ✨ **التحديثات الأخيرة | Recent Updates**
 
-للاستفسارات والمساعدة:
+### **v2.1.1** (February 2026) 🐛
+- ✅ إصلاح جميع الأخطاء في لوحة التحكم - Fixed all dashboard bugs
+- ✅ إضافة templates المفقودة - Added missing templates
+- ✅ تحسين الاستعلامات - Optimized queries
+- ✅ تحسين الأداء - Performance improvements
 
-- 🐛 **الإبلاغ عن أخطاء:** [GitHub Issues](https://github.com/sendoo-m/daliil-ay-khidma/issues)
-- 💡 **طلبات الميزات:** [GitHub Discussions](https://github.com/sendoo-m/daliil-ay-khidma/discussions)
-- 📧 **تواصل مباشر:** افتح Issue على GitHub
+### **v2.1.0** (February 2026) 🎉
+- ✨ لوحة تحكم محسّنة مع رسوم بيانية - Enhanced dashboard with charts
+- 📊 إحصائيات متقدمة - Advanced analytics
+- 🎨 تصميم عصري بتدرجات لونية - Modern gradient design
+- ⚡ إجراءات سريعة - Quick actions section
+
+### **v2.0.0** (January 2026) 🚀
+- ✨ نظام المنتجات والخدمات - Products & Services system
+- 💳 نظام الاشتراكات المتقدم - Advanced Subscription system
+- 🎁 نظام العروض والخصومات - Deals & Offers system
+- 🌍 دعم ثنائي اللغة محسّن - Enhanced bilingual support
 
 ---
 
-## 🌟 نشكرك على استخدام دليل أي خدمة!
+## 🚀 **الخطط المستقبلية | Future Plans**
 
-**Thank you for using Daliil Ay Khidma!**
+### **النسخة 2.2.0** (مارس 2026 - March 2026)
+- [ ] 🔄 تحديثات فورية للداشبورد - Real-time dashboard updates
+- [ ] 📥 تصدير التقارير (PDF/Excel) - Export reports
+- [ ] 📅 اختيار نطاق التواريخ - Date range picker
+- [ ] 📧 نظام الإشعارات بالبريد - Email notification system
+- [ ] 🔍 فلترة متقدمة - Advanced filtering
 
-إذا أعجبك المشروع، لا تنسَ إعطاءه ⭐ على GitHub!
+### **النسخة 2.3.0** (أبريل 2026 - April 2026)
+- [ ] 📱 تطبيق موبايل (Flutter) - Mobile App
+- [ ] 💰 بوابة الدفع الإلكتروني - Payment Gateway Integration
+- [ ] 📱 تكامل SMS - SMS Integration
+- [ ] 🔐 تسجيل الدخول عبر وسائل التواصل - Social Media Login
 
-If you like this project, don't forget to give it a ⭐ on GitHub!
+### **النسخة 3.0.0** (الربع الثاني 2026 - Q2 2026)
+- [ ] 🏢 دعم المستأجرين المتعددين - Multi-tenant Support
+- [ ] 🎨 حل White-label - White-label Solution
+- [ ] 📊 نظام تقارير متقدم - Advanced Reporting System
+- [ ] 🤖 توصيات ذكية مدعومة بالـ AI - AI-powered Recommendations
+- [ ] 🎤 البحث الصوتي - Voice Search Integration
+
+---
+
+## 🤝 **المساهمة | Contributing**
+
+نرحب بمساهماتكم! يرجى اتباع الخطوات التالية:
+*We welcome contributions! Please follow these steps:*
+
+1. **Fork المشروع** - Fork the project
+2. **أنشئ فرع للميزة** - Create a feature branch
+   ```bash
+   git checkout -b feature/AmazingFeature
+   ```
+3. **قم بتنفيذ التغييرات** - Commit your changes
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   ```
+4. **ارفع للفرع** - Push to the branch
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
+5. **افتح Pull Request** - Open a Pull Request
+
+### معايير المساهمة | Contribution Guidelines:
+- اتبع نمط كود المشروع - Follow project code style
+- أضف اختبارات للميزات الجديدة - Add tests for new features
+- وثق التغييرات - Document changes
+- تأكد من الدعم ثنائي اللغة - Ensure bilingual support
+
+---
+
+## 📞 **الدعم والتواصل | Support & Contact**
+
+### للإبلاغ عن مشكلة | Report an Issue:
+🐛 [GitHub Issues](https://github.com/sendoo-m/daliil-ay-khidma/issues)
+
+### لطلب ميزة جديدة | Request a Feature:
+💡 [GitHub Discussions](https://github.com/sendoo-m/daliil-ay-khidma/discussions)
+
+### للاستفسارات العامة | General Inquiries:
+📧 افتح Issue على GitHub | Open an issue on GitHub
+
+---
+
+## 📊 **إحصائيات المشروع | Project Stats**
+
+- 📝 **Lines of Code**: 20,000+
+- 🗂️ **Models**: 15+
+- 🎯 **API Endpoints**: 50+
+- 🌍 **Languages**: 2 (Arabic & English)
+- 📱 **Apps**: 12
+- 🧪 **Test Coverage**: 80%+ (planned)
+
+---
+
+## 🙏 **شكر وتقدير | Acknowledgments**
+
+- 📊 **Chart.js** - مكتبة الرسوم البيانية الرائعة | Excellent charting library
+- 🎨 **Bootstrap** - إطار عمل CSS المتجاوب | Responsive CSS framework
+- 🎯 **Font Awesome** - مجموعة الأيقونات | Icon set
+- 🐍 **Django Community** - المجتمع الرائع | Amazing community
+- 💚 جميع المساهمين والمستخدمين | All contributors and users
+
+---
+
+## 📖 **وثائق إضافية | Additional Documentation**
+
+- 📘 [API Documentation](API_DOCUMENTATION.md) - توثيق API الكامل
+- 📗 [Changelog](CHANGELOG.md) - سجل التغييرات
+- 📙 [Bug Fixes Summary](BUGFIX_SUMMARY.md) - ملخص إصلاح الأخطاء
+- 📕 [Dashboard Upgrade](DASHBOARD_UPGRADE.md) - تحديثات لوحة التحكم
 
 ---
 
 <div align="center">
 
-**Made with ❤️ in Egypt 🇪🇬**
+### **شكراً لاستخدامك دليل أي خدمة! ❤️**
+### **Thank you for using Daliil Ay Khidma! ❤️**
 
-**صُنع بحب في مصر**
+**صُنع بـ ❤️ في مصر**
 
-[⬆ العودة للأعلى | Back to Top ⬆](#-دليل-أي-خدمة--daliil-ay-khidma)
+**Made with ❤️ in Egypt**
+
+---
+
+**⭐ إذا أعجبك المشروع، لا تنسَ إضافة نجمة!**
+
+**⭐ If you like this project, don't forget to star it!**
+
+[⬆ العودة للأعلى | Back to top](#-دليل-أي-خدمة--daliil-ay-khidma)
 
 </div>
