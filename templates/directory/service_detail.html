@@ -47,13 +47,23 @@
     font-size: 1.5rem;
 }
 
-/* Map - Simple like Map View */
 #serviceMap {
     height: 400px;
     width: 100%;
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     z-index: 1;
+}
+
+.map-placeholder {
+    height: 400px;
+    background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(59,130,246,0.1));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
 }
 
 .contact-item {
@@ -166,7 +176,6 @@ input:checked ~ .star-label {
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
 <div class="service-hero">
     <div class="container">
         <div class="row align-items-center">
@@ -205,7 +214,6 @@ input:checked ~ .star-label {
 </div>
 
 <div class="container">
-    <!-- Stats -->
     <div class="row g-4 mb-4">
         <div class="col-md-4 col-6">
             <div class="stat-box">
@@ -231,9 +239,7 @@ input:checked ~ .star-label {
     </div>
     
     <div class="row g-4">
-        <!-- Main Content -->
         <div class="col-lg-8">
-            <!-- About -->
             {% if business.description_ar %}
             <div class="info-card">
                 <h5>
@@ -244,7 +250,6 @@ input:checked ~ .star-label {
             </div>
             {% endif %}
             
-            <!-- Reviews -->
             <div class="info-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -310,10 +315,8 @@ input:checked ~ .star-label {
             </div>
         </div>
         
-        <!-- Sidebar -->
         <div class="col-lg-4">
             <div class="sticky-sidebar">
-                <!-- Quick Actions -->
                 <div class="info-card">
                     <h5>
                         <i class="fas fa-bolt"></i>
@@ -344,7 +347,6 @@ input:checked ~ .star-label {
                     </div>
                 </div>
                 
-                <!-- Contact Info -->
                 <div class="info-card">
                     <h5>
                         <i class="fas fa-address-card"></i>
@@ -380,28 +382,35 @@ input:checked ~ .star-label {
                     {% endif %}
                 </div>
                 
-                <!-- Map -->
-                {% if business.latitude and business.longitude %}
                 <div class="info-card">
                     <h5>
                         <i class="fas fa-map-marked-alt"></i>
                         الموقع على الخريطة
                     </h5>
-                    <div id="serviceMap"></div>
-                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ business.latitude }},{{ business.longitude }}" 
-                       target="_blank" 
-                       class="btn action-btn btn-directions w-100 mt-3">
-                        <i class="fas fa-directions me-2"></i>
-                        احصل على الاتجاهات
-                    </a>
+                    
+                    {% if business.latitude and business.longitude %}
+                        <div id="serviceMap"></div>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination={{ business.latitude }},{{ business.longitude }}" 
+                           target="_blank" 
+                           class="btn action-btn btn-directions w-100 mt-3">
+                            <i class="fas fa-directions me-2"></i>
+                            احصل على الاتجاهات
+                        </a>
+                    {% else %}
+                        <div class="map-placeholder">
+                            <div>
+                                <i class="fas fa-map-marked-alt fa-3x mb-3" style="color: rgba(6,182,212,0.3);"></i>
+                                <h6 class="text-muted">الموقع غير متوفر</h6>
+                                <p class="small text-muted mb-0">لم يتم إضافة الإحداثيات بعد</p>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Review Modal -->
 {% if user.is_authenticated %}
 <div class="modal fade" id="reviewModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -452,71 +461,93 @@ input:checked ~ .star-label {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
 console.log('🏛️ Starting service map...');
+console.log('Coordinates:', {{ business.latitude }}, {{ business.longitude }});
 
-try {
-    // Initialize map - SIMPLE like Map View!
-    const serviceMap = L.map('serviceMap').setView([{{ business.latitude }}, {{ business.longitude }}], 15);
-    console.log('✅ Service map initialized');
-    
-    // Add tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap',
-        maxZoom: 19
-    }).addTo(serviceMap);
-    console.log('✅ Tiles added');
-    
-    // Custom icon for public services
-    const publicIcon = L.divIcon({
-        className: 'custom-marker',
-        html: '<div style="font-size: 3rem; color: #06b6d4; text-align: center;">🏛️</div>',
-        iconSize: [50, 50],
-        iconAnchor: [25, 50],
-        popupAnchor: [0, -50]
-    });
-    
-    // Add marker
-    const marker = L.marker([{{ business.latitude }}, {{ business.longitude }}], {
-        icon: publicIcon
-    }).addTo(serviceMap);
-    console.log('✅ Marker added');
-    
-    // Popup content
-    const popupContent = `
-        <div style="text-align: right; direction: rtl; font-family: Cairo, sans-serif; min-width: 250px;">
-            <h6 class="fw-bold mb-2" style="color: #06b6d4; font-size: 1.1rem;">
-                🏛️ {{ business.name_ar }}
-            </h6>
-            <p class="small mb-3" style="color: #64748b; line-height: 1.6;">
-                <i class="fas fa-map-marker-alt me-1"></i>
-                {{ business.address_ar|truncatewords:12|default:"موقع الخدمة" }}
-            </p>
-            <a href="https://www.google.com/maps/dir/?api=1&destination={{ business.latitude }},{{ business.longitude }}" 
-               target="_blank" 
-               style="display: inline-block; background: linear-gradient(135deg, #06b6d4, #3b82f6); 
-                      color: white; padding: 0.65rem 1.25rem; border-radius: 50px; 
-                      text-decoration: none; font-weight: 800; font-size: 0.9rem;">
-                <i class="fas fa-directions me-1"></i>
-                احصل على الاتجاهات
-            </a>
+const lat = parseFloat('{{ business.latitude }}');
+const lng = parseFloat('{{ business.longitude }}');
+
+console.log('Parsed lat:', lat, 'lng:', lng);
+
+if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+    console.error('❌ Invalid coordinates!', {lat, lng});
+    document.getElementById('serviceMap').innerHTML = `
+        <div class="map-placeholder">
+            <div>
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #f59e0b;"></i>
+                <h6 class="text-muted">خطأ في الإحداثيات</h6>
+                <p class="small text-muted mb-0">الإحداثيات غير صحيحة</p>
+            </div>
         </div>
     `;
-    
-    marker.bindPopup(popupContent, { maxWidth: 320 });
-    console.log('✅ Popup added');
-    
-    // When map is ready
-    serviceMap.whenReady(function() {
-        console.log('✅ Service map is ready!');
-        setTimeout(function() {
-            serviceMap.invalidateSize();
-            console.log('✅ Map resized');
-        }, 250);
-    });
-    
-    console.log('🎉 Service map loaded successfully!');
-    
-} catch (error) {
-    console.error('❌ Error loading service map:', error);
+} else {
+    try {
+        const serviceMap = L.map('serviceMap').setView([lat, lng], 15);
+        console.log('✅ Service map initialized');
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap',
+            maxZoom: 19
+        }).addTo(serviceMap);
+        console.log('✅ Tiles added');
+        
+        const publicIcon = L.divIcon({
+            className: 'custom-marker',
+            html: '<div style="font-size: 3rem; color: #06b6d4; text-align: center;">🏛️</div>',
+            iconSize: [50, 50],
+            iconAnchor: [25, 50],
+            popupAnchor: [0, -50]
+        });
+        
+        const marker = L.marker([lat, lng], {
+            icon: publicIcon
+        }).addTo(serviceMap);
+        console.log('✅ Marker added');
+        
+        const popupContent = `
+            <div style="text-align: right; direction: rtl; font-family: Cairo, sans-serif; min-width: 250px;">
+                <h6 class="fw-bold mb-2" style="color: #06b6d4; font-size: 1.1rem;">
+                    🏛️ {{ business.name_ar }}
+                </h6>
+                <p class="small mb-3" style="color: #64748b; line-height: 1.6;">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {{ business.address_ar|truncatewords:12|default:"موقع الخدمة" }}
+                </p>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" 
+                   target="_blank" 
+                   style="display: inline-block; background: linear-gradient(135deg, #06b6d4, #3b82f6); 
+                          color: white; padding: 0.65rem 1.25rem; border-radius: 50px; 
+                          text-decoration: none; font-weight: 800; font-size: 0.9rem;">
+                    <i class="fas fa-directions me-1"></i>
+                    احصل على الاتجاهات
+                </a>
+            </div>
+        `;
+        
+        marker.bindPopup(popupContent, { maxWidth: 320 });
+        console.log('✅ Popup added');
+        
+        serviceMap.whenReady(function() {
+            console.log('✅ Service map is ready!');
+            setTimeout(function() {
+                serviceMap.invalidateSize();
+                console.log('✅ Map resized');
+            }, 250);
+        });
+        
+        console.log('🎉 Service map loaded successfully!');
+        
+    } catch (error) {
+        console.error('❌ Error loading service map:', error);
+        document.getElementById('serviceMap').innerHTML = `
+            <div class="map-placeholder">
+                <div>
+                    <i class="fas fa-exclamation-circle fa-3x mb-3" style="color: #ef4444;"></i>
+                    <h6 class="text-muted">فشل تحميل الخريطة</h6>
+                    <p class="small text-muted mb-0">${error.message}</p>
+                </div>
+            </div>
+        `;
+    }
 }
 </script>
 {% endif %}
