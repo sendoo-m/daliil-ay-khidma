@@ -128,13 +128,24 @@
     color: white;
 }
 
-/* Map - Simple like Map View */
+/* Map */
 #businessMap {
     height: 350px;
     width: 100%;
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     z-index: 1;
+}
+
+.map-placeholder {
+    height: 350px;
+    background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
 }
 
 .action-btn {
@@ -178,7 +189,6 @@
     margin-bottom: 0.5rem;
 }
 
-/* Reviews */
 .review-card {
     background: white;
     border-radius: 15px;
@@ -507,21 +517,30 @@ input:checked ~ .star-label {
                 </div>
                 
                 <!-- Map -->
-                {% if business.latitude and business.longitude %}
                 <div class="info-card">
                     <h5>
                         <i class="fas fa-map-marked-alt"></i>
                         الموقع على الخريطة
                     </h5>
-                    <div id="businessMap"></div>
-                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ business.latitude }},{{ business.longitude }}" 
-                       target="_blank" 
-                       class="btn action-btn btn-directions w-100 mt-3">
-                        <i class="fas fa-directions me-2"></i>
-                        احصل على الاتجاهات
-                    </a>
+                    
+                    {% if business.latitude and business.longitude %}
+                        <div id="businessMap"></div>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination={{ business.latitude }},{{ business.longitude }}" 
+                           target="_blank" 
+                           class="btn action-btn btn-directions w-100 mt-3">
+                            <i class="fas fa-directions me-2"></i>
+                            احصل على الاتجاهات
+                        </a>
+                    {% else %}
+                        <div class="map-placeholder">
+                            <div>
+                                <i class="fas fa-map-marked-alt fa-3x mb-3" style="color: rgba(102,126,234,0.3);"></i>
+                                <h6 class="text-muted">الموقع غير متوفر</h6>
+                                <p class="small text-muted mb-0">لم يتم إضافة الإحداثيات بعد</p>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -578,69 +597,92 @@ input:checked ~ .star-label {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
 console.log('🗺️ Starting business map...');
+console.log('Coordinates:', {{ business.latitude }}, {{ business.longitude }});
 
-try {
-    // Initialize map - SIMPLE like Map View!
-    const businessMap = L.map('businessMap').setView([{{ business.latitude }}, {{ business.longitude }}], 15);
-    console.log('✅ Map initialized');
-    
-    // Add tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap',
-        maxZoom: 19
-    }).addTo(businessMap);
-    console.log('✅ Tiles added');
-    
-    // Custom icon
-    const customIcon = L.divIcon({
-        className: 'custom-marker',
-        html: '<div style="font-size: 2.5rem; color: #667eea; text-align: center;">📍</div>',
-        iconSize: [40, 40],
-        iconAnchor: [20, 40],
-        popupAnchor: [0, -40]
-    });
-    
-    // Add marker
-    const marker = L.marker([{{ business.latitude }}, {{ business.longitude }}], {
-        icon: customIcon
-    }).addTo(businessMap);
-    console.log('✅ Marker added');
-    
-    // Popup content
-    const popupContent = `
-        <div style="text-align: right; direction: rtl; font-family: Cairo, sans-serif; min-width: 220px;">
-            <h6 class="fw-bold mb-2" style="color: #667eea;">🏪 {{ business.name_ar }}</h6>
-            <p class="small mb-2" style="color: #64748b;">
-                <i class="fas fa-map-marker-alt me-1"></i>
-                {{ business.address_ar|truncatewords:15|default:"موقع المحل" }}
-            </p>
-            <a href="https://www.google.com/maps/dir/?api=1&destination={{ business.latitude }},{{ business.longitude }}" 
-               target="_blank" 
-               style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); 
-                      color: white; padding: 0.5rem 1rem; border-radius: 50px; 
-                      text-decoration: none; font-weight: 700; font-size: 0.85rem;">
-                <i class="fas fa-directions me-1"></i>
-                احصل على الاتجاهات
-            </a>
+// Validate coordinates
+const lat = parseFloat('{{ business.latitude }}');
+const lng = parseFloat('{{ business.longitude }}');
+
+console.log('Parsed lat:', lat, 'lng:', lng);
+
+if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+    console.error('❌ Invalid coordinates!', {lat, lng});
+    document.getElementById('businessMap').innerHTML = `
+        <div class="map-placeholder">
+            <div>
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #f59e0b;"></i>
+                <h6 class="text-muted">خطأ في الإحداثيات</h6>
+                <p class="small text-muted mb-0">الإحداثيات غير صحيحة</p>
+            </div>
         </div>
     `;
-    
-    marker.bindPopup(popupContent, { maxWidth: 300 });
-    console.log('✅ Popup added');
-    
-    // When map is ready
-    businessMap.whenReady(function() {
-        console.log('✅ Map is ready!');
-        setTimeout(function() {
-            businessMap.invalidateSize();
-            console.log('✅ Map resized');
-        }, 250);
-    });
-    
-    console.log('🎉 Business map loaded successfully!');
-    
-} catch (error) {
-    console.error('❌ Error loading map:', error);
+} else {
+    try {
+        const businessMap = L.map('businessMap').setView([lat, lng], 15);
+        console.log('✅ Map initialized');
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap',
+            maxZoom: 19
+        }).addTo(businessMap);
+        console.log('✅ Tiles added');
+        
+        const customIcon = L.divIcon({
+            className: 'custom-marker',
+            html: '<div style="font-size: 2.5rem; color: #667eea; text-align: center;">📍</div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40],
+            popupAnchor: [0, -40]
+        });
+        
+        const marker = L.marker([lat, lng], {
+            icon: customIcon
+        }).addTo(businessMap);
+        console.log('✅ Marker added');
+        
+        const popupContent = `
+            <div style="text-align: right; direction: rtl; font-family: Cairo, sans-serif; min-width: 220px;">
+                <h6 class="fw-bold mb-2" style="color: #667eea;">🏪 {{ business.name_ar }}</h6>
+                <p class="small mb-2" style="color: #64748b;">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {{ business.address_ar|truncatewords:15|default:"موقع المحل" }}
+                </p>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" 
+                   target="_blank" 
+                   style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); 
+                          color: white; padding: 0.5rem 1rem; border-radius: 50px; 
+                          text-decoration: none; font-weight: 700; font-size: 0.85rem;">
+                    <i class="fas fa-directions me-1"></i>
+                    احصل على الاتجاهات
+                </a>
+            </div>
+        `;
+        
+        marker.bindPopup(popupContent, { maxWidth: 300 });
+        console.log('✅ Popup added');
+        
+        businessMap.whenReady(function() {
+            console.log('✅ Map is ready!');
+            setTimeout(function() {
+                businessMap.invalidateSize();
+                console.log('✅ Map resized');
+            }, 250);
+        });
+        
+        console.log('🎉 Business map loaded successfully!');
+        
+    } catch (error) {
+        console.error('❌ Error loading map:', error);
+        document.getElementById('businessMap').innerHTML = `
+            <div class="map-placeholder">
+                <div>
+                    <i class="fas fa-exclamation-circle fa-3x mb-3" style="color: #ef4444;"></i>
+                    <h6 class="text-muted">فشل تحميل الخريطة</h6>
+                    <p class="small text-muted mb-0">${error.message}</p>
+                </div>
+            </div>
+        `;
+    }
 }
 </script>
 {% endif %}
