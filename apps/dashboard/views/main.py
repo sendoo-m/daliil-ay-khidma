@@ -23,14 +23,15 @@ def index(request):
     Main dashboard index - redirects based on user role
     """
     if request.user.is_staff or request.user.is_superuser:
-        return redirect('dashboard:admin_index')
+        # Admin user - redirect to admin dashboard
+        return redirect('dashboard:admin_dashboard:home')
     else:
         # Regular user - business owner
         businesses = Business.objects.filter(owner=request.user)
         
         if businesses.exists():
             # Has businesses - show owner dashboard
-            return redirect('dashboard:owner_index')
+            return redirect('dashboard:owner:dashboard')
         else:
             # No businesses yet - encourage to create one
             messages.info(request, 'مرحباً! يمكنك إضافة محلك الأول من هنا.')
