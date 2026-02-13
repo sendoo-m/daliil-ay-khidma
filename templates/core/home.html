@@ -13,14 +13,8 @@
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulse {
@@ -52,10 +46,7 @@
     animation: pulse 10s ease-in-out infinite;
 }
 
-.hero-content {
-    position: relative;
-    z-index: 2;
-}
+.hero-content { position: relative; z-index: 2; }
 
 .hero-title {
     font-size: clamp(2rem, 5vw, 3.5rem);
@@ -93,10 +84,7 @@
     border-radius: 50px;
 }
 
-.search-box input:focus {
-    outline: none;
-    box-shadow: none;
-}
+.search-box input:focus { outline: none; box-shadow: none; }
 
 .search-box .btn {
     border-radius: 50px;
@@ -162,9 +150,7 @@
     transition: all 0.3s ease;
 }
 
-.stat-card:hover .stat-icon {
-    transform: scale(1.1) rotate(5deg);
-}
+.stat-card:hover .stat-icon { transform: scale(1.1) rotate(5deg); }
 
 .stat-icon.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
 .stat-icon.success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff; }
@@ -181,16 +167,10 @@
     background-clip: text;
 }
 
-.stat-label {
-    color: #6c757d;
-    font-size: 1rem;
-    font-weight: 500;
-}
+.stat-label { color: #6c757d; font-size: 1rem; font-weight: 500; }
 
 /* ============= SECTION HEADERS ============= */
-.section-header {
-    margin-bottom: 50px;
-}
+.section-header { margin-bottom: 50px; }
 
 .section-title {
     font-size: clamp(1.75rem, 4vw, 2.5rem);
@@ -205,10 +185,7 @@
     background-clip: text;
 }
 
-.section-subtitle {
-    color: #6c757d;
-    font-size: 1.1rem;
-}
+.section-subtitle { color: #6c757d; font-size: 1.1rem; }
 
 /* ============= CATEGORY CARDS ============= */
 .category-card {
@@ -239,9 +216,7 @@
     transition: all 0.3s ease;
 }
 
-.category-card:hover .category-icon {
-    transform: scale(1.2);
-}
+.category-card:hover .category-icon { transform: scale(1.2); }
 
 .category-title {
     font-size: 1.1rem;
@@ -250,10 +225,7 @@
     color: #2d3748;
 }
 
-.category-count {
-    color: #718096;
-    font-size: 0.9rem;
-}
+.category-count { color: #718096; font-size: 0.9rem; }
 
 /* ============= BUSINESS CARDS ============= */
 .business-card {
@@ -284,16 +256,11 @@
     transition: transform 0.5s ease;
 }
 
-.business-card:hover .business-image img {
-    transform: scale(1.1);
-}
+.business-card:hover .business-image img { transform: scale(1.1); }
 
-.verified-badge {
+.verified-badge, .new-badge, .trending-badge {
     position: absolute;
     top: 15px;
-    right: 15px;
-    background: #fff;
-    color: #10b981;
     padding: 8px 15px;
     border-radius: 50px;
     font-size: 0.85rem;
@@ -301,35 +268,11 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-.new-badge {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: #f59e0b;
-    color: #fff;
-    padding: 8px 15px;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
+.verified-badge { right: 15px; background: #fff; color: #10b981; }
+.new-badge { left: 15px; background: #f59e0b; color: #fff; }
+.trending-badge { left: 15px; background: #ef4444; color: #fff; }
 
-.trending-badge {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: #ef4444;
-    color: #fff;
-    padding: 8px 15px;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-.business-content {
-    padding: 25px;
-}
+.business-content { padding: 25px; }
 
 .business-title {
     font-size: 1.2rem;
@@ -408,10 +351,7 @@
     margin-bottom: 5px;
 }
 
-.governorate-count {
-    color: #718096;
-    font-size: 0.9rem;
-}
+.governorate-count { color: #718096; font-size: 0.9rem; }
 
 /* ============= DEALS SECTION ============= */
 .deals-section {
@@ -458,13 +398,9 @@
     transition: transform 0.5s ease;
 }
 
-.deal-card:hover .deal-image img {
-    transform: scale(1.1) rotate(-2deg);
-}
+.deal-card:hover .deal-image img { transform: scale(1.1) rotate(-2deg); }
 
-.deal-content {
-    padding: 25px;
-}
+.deal-content { padding: 25px; }
 
 .deal-title {
     font-size: 1.2rem;
@@ -516,10 +452,7 @@
         radial-gradient(circle at 80% 80%, rgba(118,75,162,0.3) 0%, transparent 50%);
 }
 
-.cta-content {
-    position: relative;
-    z-index: 2;
-}
+.cta-content { position: relative; z-index: 2; }
 
 .cta-title {
     font-size: clamp(1.75rem, 4vw, 2.5rem);
@@ -567,20 +500,8 @@
     <div class="container">
         <div class="row align-items-center g-5">
             <div class="col-lg-6 hero-content">
-                <h1 class="hero-title">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                        اكتشف أفضل المحلات والخدمات بسهولة
-                    {% else %}
-                        Discover the Best Businesses with Ease
-                    {% endif %}
-                </h1>
-                <p class="hero-subtitle">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                        دليلك الذكي الشامل لآلاف المحلات التجارية والعروض المميزة في مدينتك
-                    {% else %}
-                        Your smart comprehensive directory for thousands of businesses and exclusive offers in your city
-                    {% endif %}
-                </p>
+                <h1 class="hero-title">{% trans "Discover the Best Businesses with Ease" %}</h1>
+                <p class="hero-subtitle">{% trans "Your smart comprehensive directory for thousands of businesses and exclusive offers in your city" %}</p>
                 
                 <form method="get" action="{% url 'directory:business_search' %}">
                     <div class="search-box">
@@ -624,16 +545,13 @@
                         <path d="M250 180 L250 220 M230 200 L270 200" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
                         <defs>
                             <linearGradient id="paint0_linear" x1="100" y1="50" x2="400" y2="350">
-                                <stop stop-color="#667eea"/>
-                                <stop offset="1" stop-color="#764ba2"/>
+                                <stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/>
                             </linearGradient>
                             <linearGradient id="paint1_linear" x1="130" y1="80" x2="370" y2="320">
-                                <stop stop-color="#f093fb"/>
-                                <stop offset="1" stop-color="#f5576c"/>
+                                <stop stop-color="#f093fb"/><stop offset="1" stop-color="#f5576c"/>
                             </linearGradient>
                             <linearGradient id="paint2_linear" x1="210" y1="160" x2="290" y2="240">
-                                <stop stop-color="#4facfe"/>
-                                <stop offset="1" stop-color="#00f2fe"/>
+                                <stop stop-color="#4facfe"/><stop offset="1" stop-color="#00f2fe"/>
                             </linearGradient>
                         </defs>
                     </svg>
@@ -686,9 +604,7 @@
 <section class="py-5 bg-light">
     <div class="container">
         <div class="section-header text-center">
-            <h2 class="section-title">
-                <i class="fas fa-th-large me-2"></i>{% trans "Browse by Category" %}
-            </h2>
+            <h2 class="section-title"><i class="fas fa-th-large me-2"></i>{% trans "Browse by Category" %}</h2>
             <p class="section-subtitle">{% trans "Explore businesses in different categories" %}</p>
         </div>
         
@@ -697,7 +613,13 @@
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                 <a href="{% url 'categories:category_detail' category.slug %}" class="text-decoration-none">
                     <div class="category-card">
-                        <div class="category-icon"><i class="{{ category.icon|default:'fas fa-store' }}"></i></div>
+                        <div class="category-icon">
+                            {% if category.icon and category.icon != '' %}
+                                <i class="{{ category.icon }}"></i>
+                            {% else %}
+                                <i class="fas fa-store"></i>
+                            {% endif %}
+                        </div>
                         <div class="category-title">
                             {% if LANGUAGE_CODE == 'ar' %}{{ category.name_ar }}{% else %}{{ category.name_en }}{% endif %}
                         </div>
@@ -723,9 +645,7 @@
 <section class="py-5">
     <div class="container">
         <div class="section-header text-center">
-            <h2 class="section-title">
-                <i class="fas fa-star me-2"></i>{% trans "Featured Businesses" %}
-            </h2>
+            <h2 class="section-title"><i class="fas fa-star me-2"></i>{% trans "Featured Businesses" %}</h2>
             <p class="section-subtitle">{% trans "Handpicked top-rated and verified businesses" %}</p>
         </div>
         
@@ -899,9 +819,7 @@
 <section class="py-5 bg-light">
     <div class="container">
         <div class="section-header text-center">
-            <h2 class="section-title">
-                <i class="fas fa-map-marked-alt me-2"></i>{% trans "Browse by Location" %}
-            </h2>
+            <h2 class="section-title"><i class="fas fa-map-marked-alt me-2"></i>{% trans "Browse by Location" %}</h2>
             <p class="section-subtitle">{% trans "Find businesses in your governorate" %}</p>
         </div>
         
@@ -911,16 +829,12 @@
                 <a href="#" class="text-decoration-none">
                     <div class="governorate-card">
                         <div class="d-flex align-items-center">
-                            <div class="governorate-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
+                            <div class="governorate-icon"><i class="fas fa-map-marker-alt"></i></div>
                             <div class="flex-grow-1 ms-3">
                                 <div class="governorate-name">
                                     {% if LANGUAGE_CODE == 'ar' %}{{ governorate.name_ar }}{% else %}{{ governorate.name_en }}{% endif %}
                                 </div>
-                                <div class="governorate-count">
-                                    {{ governorate.cities.count }} {% trans "cities" %}
-                                </div>
+                                <div class="governorate-count">{{ governorate.cities.count }} {% trans "cities" %}</div>
                             </div>
                             <i class="fas fa-chevron-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} text-muted fs-4"></i>
                         </div>
@@ -956,9 +870,7 @@
                         {% endif %}
                     </div>
                     {% if deal.image %}
-                    <div class="deal-image">
-                        <img src="{{ deal.image.url }}" alt="{{ deal.title }}">
-                    </div>
+                    <div class="deal-image"><img src="{{ deal.image.url }}" alt="{{ deal.title }}"></div>
                     {% endif %}
                     <div class="deal-content">
                         <h5 class="deal-title">
