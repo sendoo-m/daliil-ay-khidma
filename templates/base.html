@@ -5,30 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="{% block meta_description %}دليل شامل للمحلات والخدمات في مصر{% endblock %}">
-    <meta name="keywords" content="{% block meta_keywords %}دليل، محلات، خدمات، عروض، الإسماعيلية، بورسعيد، السويس{% endblock %}">
+    <meta name="description" content="{% block meta_description %}دليل شامل للمحلات والخدمات في مدينتك{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}دليل، محلات، خدمات، عروض، أعمال، مطاعم، مقاهي{% endblock %}">
     <meta name="author" content="دليل أي خدمة">
     
-    <!-- Open Graph Meta Tags -->
+    <!-- Open Graph -->
     <meta property="og:title" content="{% block og_title %}دليل أي خدمة{% endblock %}">
     <meta property="og:description" content="{% block og_description %}دليل شامل للمحلات والخدمات{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{% static 'images/logo.png' %}{% endblock %}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="دليل أي خدمة">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{% block twitter_title %}دليل أي خدمة{% endblock %}">
-    <meta name="twitter:description" content="{% block twitter_description %}دليل شامل للمحلات والخدمات{% endblock %}">
     
     <title>{% block title %}دليل أي خدمة - دليلك لأفضل الخدمات{% endblock %}</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
-    <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
     
-    <!-- Bootstrap 5 RTL CSS -->
+    <!-- Bootstrap 5 RTL -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" 
           integrity="sha384-dpuaG1suU0eT09tx5plTaGMLBsfDLzUCCUXOY2j/LSvXYuG6Bqs43ALlhIqAJVRb" crossorigin="anonymous">
     
@@ -42,76 +35,39 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Custom CSS -->
     <style>
-        /* =========================
-           المتغيرات العامة
-           ========================= */
         :root {
-            --primary-color: #667eea;
+            --primary: #667eea;
             --primary-dark: #5568d3;
-            --secondary-color: #764ba2;
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --info-color: #3b82f6;
-            --dark-color: #1e293b;
-            --light-color: #f8fafc;
-            --gray-color: #64748b;
-            
-            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
-            --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.2);
-            
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
-            --radius-full: 9999px;
-            
-            --transition-fast: 0.2s ease;
-            --transition-normal: 0.3s ease;
-            --transition-slow: 0.5s ease;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
         }
         
-        /* =========================
-           الإعدادات الأساسية
-           ========================= */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #f8fafc;
-            color: var(--dark-color);
+            background: #f8fafc;
+            color: var(--dark);
             line-height: 1.8;
             overflow-x: hidden;
         }
         
-        /* =========================
-           شريط التنقل (Navbar)
-           ========================= */
+        /* Navbar */
         .main-navbar {
-            background: var(--gradient-primary);
-            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            transition: all var(--transition-normal);
-        }
-        
-        .main-navbar.scrolled {
-            padding: 0.5rem 0;
-            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
         }
         
         .navbar-brand {
@@ -121,122 +77,73 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            transition: transform var(--transition-normal);
+            transition: transform 0.3s ease;
         }
         
-        .navbar-brand:hover {
-            transform: scale(1.05);
-        }
-        
-        .navbar-brand i {
-            font-size: 2rem;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-        }
+        .navbar-brand:hover { transform: scale(1.05); }
+        .navbar-brand i { font-size: 2rem; }
         
         .nav-link {
-            color: rgba(255, 255, 255, 0.95) !important;
+            color: rgba(255,255,255,0.95) !important;
             font-weight: 600;
             font-size: 1.05rem;
             margin: 0 0.5rem;
             padding: 0.6rem 1.2rem !important;
-            border-radius: var(--radius-full);
-            transition: all var(--transition-normal);
-            position: relative;
-            overflow: hidden;
+            border-radius: 50px;
+            transition: all 0.3s ease;
         }
         
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 0;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: width var(--transition-normal);
-            z-index: -1;
-        }
-        
-        .nav-link:hover::before,
-        .nav-link.active::before {
-            width: 100%;
-        }
-        
-        .nav-link:hover,
-        .nav-link.active {
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.2);
             color: white !important;
             transform: translateY(-2px);
         }
         
         .btn-navbar {
             background: white;
-            color: var(--primary-color);
+            color: var(--primary);
             border: none;
             padding: 0.7rem 1.5rem;
-            border-radius: var(--radius-full);
+            border-radius: 50px;
             font-weight: 700;
-            font-size: 1rem;
-            transition: all var(--transition-normal);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255,255,255,0.3);
         }
         
         .btn-navbar:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.4);
-            color: var(--primary-color);
+            box-shadow: 0 8px 20px rgba(255,255,255,0.4);
         }
         
-        /* Dropdown Menu */
+        /* Dropdown */
         .dropdown-menu {
-            border-radius: var(--radius-md);
+            border-radius: 12px;
             border: none;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
             padding: 0.75rem;
             margin-top: 0.5rem;
         }
         
         .dropdown-item {
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             padding: 0.75rem 1rem;
             font-weight: 600;
-            color: var(--dark-color);
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
             margin-bottom: 0.25rem;
         }
         
         .dropdown-item:hover {
-            background: var(--gradient-primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white !important;
             transform: translateX(-5px);
         }
         
-        .dropdown-item.active {
-            background: var(--gradient-primary);
-            color: white;
-        }
+        .dropdown-item i { margin-left: 8px; }
         
-        .dropdown-item i {
-            margin-left: 8px;
-            font-size: 1.1rem;
-        }
+        /* Main Content */
+        main { min-height: calc(100vh - 400px); }
         
-        /* =========================
-           المحتوى الرئيسي
-           ========================= */
-        main {
-            min-height: calc(100vh - 400px);
-            padding-top: 2rem;
-            padding-bottom: 4rem;
-        }
-        
-        /* Container */
-        .container {
-            max-width: 1200px;
-        }
-        
-        /* =========================
-           الرسائل (Messages)
-           ========================= */
+        /* Messages */
         .messages-container {
             position: fixed;
             top: 80px;
@@ -248,56 +155,32 @@
         }
         
         .alert {
-            border-radius: var(--radius-md);
+            border-radius: 12px;
             border: none;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
             padding: 1.25rem 1.5rem;
             margin-bottom: 1rem;
-            animation: slideDown 0.4s ease-out;
+            animation: slideDown 0.4s ease;
             backdrop-filter: blur(10px);
         }
         
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .alert-success {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
-            color: white;
-        }
+        .alert-success { background: linear-gradient(135deg, rgba(16,185,129,0.95), rgba(5,150,105,0.95)); color: #fff; }
+        .alert-danger { background: linear-gradient(135deg, rgba(239,68,68,0.95), rgba(220,38,38,0.95)); color: #fff; }
+        .alert-warning { background: linear-gradient(135deg, rgba(245,158,11,0.95), rgba(217,119,6,0.95)); color: #fff; }
+        .alert-info { background: linear-gradient(135deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95)); color: #fff; }
         
-        .alert-danger {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
-            color: white;
-        }
-        
-        .alert-warning {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
-            color: white;
-        }
-        
-        .alert-info {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%);
-            color: white;
-        }
-        
-        /* =========================
-           التذييل (Footer)
-           ========================= */
+        /* Footer */
         .main-footer {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             color: white;
             padding: 4rem 0 1.5rem;
             margin-top: 5rem;
             position: relative;
-            overflow: hidden;
         }
         
         .main-footer::before {
@@ -307,11 +190,10 @@
             right: 0;
             width: 100%;
             height: 4px;
-            background: var(--gradient-primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         }
         
         .footer-section h5 {
-            color: white;
             font-weight: 800;
             font-size: 1.3rem;
             margin-bottom: 1.5rem;
@@ -326,7 +208,7 @@
             right: 0;
             width: 60px;
             height: 3px;
-            background: var(--gradient-primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             border-radius: 2px;
         }
         
@@ -335,15 +217,13 @@
             padding: 0;
         }
         
-        .footer-links li {
-            margin-bottom: 0.75rem;
-        }
+        .footer-links li { margin-bottom: 0.75rem; }
         
         .footer-links a {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255,255,255,0.8);
             text-decoration: none;
             font-weight: 500;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -356,7 +236,7 @@
         
         .footer-links a i {
             font-size: 0.9rem;
-            color: var(--primary-color);
+            color: var(--primary);
         }
         
         /* Social Links */
@@ -367,60 +247,41 @@
         }
         
         .social-links a {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             width: 48px;
             height: 48px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.1);
             border-radius: 50%;
             color: white;
             font-size: 1.2rem;
-            transition: all var(--transition-normal);
-            text-decoration: none;
+            transition: all 0.3s ease;
         }
         
         .social-links a:hover {
-            background: var(--gradient-primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             transform: translateY(-5px) rotate(360deg);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
         }
         
-        /* Footer Bottom */
         .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255,255,255,0.1);
             margin-top: 3rem;
             padding-top: 2rem;
-            text-align: center;
         }
         
-        .footer-bottom p {
-            margin: 0;
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 500;
-        }
+        .footer-bottom p { margin: 0; color: rgba(255,255,255,0.7); }
+        .footer-bottom a { color: white; text-decoration: none; }
         
-        .footer-bottom a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 700;
-            transition: color var(--transition-fast);
-        }
-        
-        .footer-bottom a:hover {
-            color: white;
-        }
-        
-        /* =========================
-           زر العودة للأعلى
-           ========================= */
+        /* Scroll to Top */
         .scroll-top-btn {
             position: fixed;
             bottom: 30px;
             left: 30px;
             width: 55px;
             height: 55px;
-            background: var(--gradient-primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             border: none;
             border-radius: 50%;
@@ -429,119 +290,70 @@
             justify-content: center;
             font-size: 1.3rem;
             cursor: pointer;
-            box-shadow: var(--shadow-lg);
-            transition: all var(--transition-normal);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
             z-index: 999;
             opacity: 0;
         }
         
-        .scroll-top-btn.show {
-            display: flex;
-            opacity: 1;
-            animation: fadeIn 0.3s ease-out;
-        }
+        .scroll-top-btn.show { display: flex; opacity: 1; }
         
         .scroll-top-btn:hover {
             transform: translateY(-8px) scale(1.1);
-            box-shadow: var(--shadow-xl);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
         }
         
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* =========================
-           الأزرار (Buttons)
-           ========================= */
+        /* Buttons */
         .btn {
             font-weight: 600;
             padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-md);
-            transition: all var(--transition-normal);
-            border: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
         
         .btn-primary {
-            background: var(--gradient-primary);
-            color: white;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
         }
         
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            color: white;
+            box-shadow: 0 4px 16px rgba(102,126,234,0.4);
         }
         
-        /* =========================
-           البطاقات (Cards)
-           ========================= */
+        /* Cards */
         .card {
             border: none;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-normal);
-            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
         }
         
         .card:hover {
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
             transform: translateY(-5px);
         }
         
-        /* =========================
-           تحسينات الاستجابة
-           ========================= */
+        /* Responsive */
         @media (max-width: 991px) {
-            .navbar-brand {
-                font-size: 1.4rem;
-            }
-            
-            .nav-link {
-                margin: 0.25rem 0;
-            }
-            
-            .main-footer {
-                text-align: center;
-            }
-            
-            .footer-section h5::after {
-                right: 50%;
-                transform: translateX(50%);
-            }
-            
-            .social-links {
-                justify-content: center;
-            }
+            .navbar-brand { font-size: 1.4rem; }
+            .nav-link { margin: 0.25rem 0; }
+            .main-footer { text-align: center; }
+            .footer-section h5::after { right: 50%; transform: translateX(50%); }
+            .social-links { justify-content: center; }
         }
         
         @media (max-width: 576px) {
-            .messages-container {
-                width: 95%;
-            }
-            
-            .scroll-top-btn {
-                width: 45px;
-                height: 45px;
-                bottom: 20px;
-                left: 20px;
-            }
+            .messages-container { width: 95%; }
+            .scroll-top-btn { width: 45px; height: 45px; bottom: 20px; left: 20px; }
         }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
     {% include 'includes/navbar.html' %}
 
-    <!-- Messages -->
     {% if messages %}
     <div class="messages-container">
         {% for message in messages %}
@@ -558,66 +370,46 @@
                 {% endif %}
             </strong>
             {{ message }}
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <!-- Main Content -->
     <main class="{% block main_class %}{% endblock %}">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
     {% include 'includes/footer.html' %}
 
-    <!-- Scroll to Top Button -->
     <button class="scroll-top-btn" id="scrollTopBtn" aria-label="العودة للأعلى">
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
             integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" 
             crossorigin="anonymous"></script>
     
-    <!-- Custom JavaScript -->
     <script>
-        // Navbar scroll effect
+        // Navbar scroll
         const navbar = document.querySelector('.main-navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
+            navbar.classList.toggle('scrolled', window.scrollY > 100);
         });
         
-        // Scroll to top button
-        const scrollTopBtn = document.getElementById('scrollTopBtn');
-        
+        // Scroll to top
+        const scrollBtn = document.getElementById('scrollTopBtn');
         window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                scrollTopBtn.classList.add('show');
-            } else {
-                scrollTopBtn.classList.remove('show');
-            }
+            scrollBtn.classList.toggle('show', window.pageYOffset > 300);
         });
         
-        scrollTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+        scrollBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
         
-        // Auto-dismiss alerts after 5 seconds
+        // Auto-dismiss alerts
         document.querySelectorAll('.alert').forEach(alert => {
-            setTimeout(() => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }, 5000);
+            setTimeout(() => new bootstrap.Alert(alert).close(), 5000);
         });
     </script>
     
