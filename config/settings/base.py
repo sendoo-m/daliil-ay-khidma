@@ -164,11 +164,6 @@ LANGUAGES = [
     ('en', 'English'),
 ]
 
-# Language directories
-LOCALE_PATHS = [
-    BASE_DIR / 'locale',
-]
-
 # Language Cookie
 LANGUAGE_COOKIE_NAME = 'django_language'
 LANGUAGE_COOKIE_AGE = 365 * 24 * 60 * 60  # 1 year
