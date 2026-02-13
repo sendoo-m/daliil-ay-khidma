@@ -75,6 +75,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'apps.core.middleware.AdminEnglishMiddleware',  # Force admin to English
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -156,11 +157,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # ========================================
 # INTERNATIONALIZATION
 # ========================================
-LANGUAGE_CODE = 'ar'  # اللغة الافتراضية
+LANGUAGE_CODE = 'ar'  # اللغة الافتراضية للموقع
 
 LANGUAGES = [
     ('ar', 'العربية'),
     ('en', 'English'),
+]
+
+# Language directories
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
 ]
 
 # Language Cookie
@@ -213,8 +219,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'dashboard:home'  # ← Fixed from 'dashboard:dashboard'
-LOGOUT_REDIRECT_URL = 'accounts:login'  # ← Fixed from 'core:home'
+LOGIN_REDIRECT_URL = 'dashboard:home'
+LOGOUT_REDIRECT_URL = 'accounts:login'
 
 
 # ========================================
