@@ -20,6 +20,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
 django.setup()
 
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from apps.directory.models import Business, Governorate, City, District
 from apps.categories.models import Category
 from apps.products.models import Product
@@ -27,6 +28,31 @@ from apps.deals.models import Deal
 from apps.reviews.models import Review, ReviewReply
 
 User = get_user_model()
+
+
+def get_or_create_governorate(name_ar, name_en):
+    """Helper to safely get or create governorate"""
+    # Try to find by Arabic name first
+    gov = Governorate.objects.filter(name_ar=name_ar).first()
+    if gov:
+        return gov
+    
+    # Try to find by English name
+    gov = Governorate.objects.filter(name_en=name_en).first()
+    if gov:
+        return gov
+    
+    # Create new one
+    try:
+        gov = Governorate.objects.create(name_ar=name_ar, name_en=name_en)
+        print(f"  - تم إنشاء محافظة: {name_ar}")
+        return gov
+    except IntegrityError:
+        # Race condition - try to get again
+        gov = Governorate.objects.filter(name_ar=name_ar).first()
+        if not gov:
+            gov = Governorate.objects.filter(name_en=name_en).first()
+        return gov
 
 
 def create_users():
@@ -102,17 +128,14 @@ def create_locations():
     all_districts = []
     
     # ========== 1. محافظة الإسماعيلية ==========
-    ismailia_gov = Governorate.objects.filter(name_ar='الإسماعيلية').first()
-    if not ismailia_gov:
-        ismailia_gov = Governorate.objects.create(name_ar='الإسماعيلية', name_en='Ismailia')
-        print("  - تم إنشاء محافظة الإسماعيلية")
+    ismailia_gov = get_or_create_governorate('الإسماعيلية', 'Ismailia')
     
     ismailia_districts_data = [
         {'city': 'الإسماعيلية', 'city_en': 'Ismailia', 'districts': [
             {'name_ar': 'حي السلام', 'name_en': 'Al Salam'},
             {'name_ar': 'حي الشيخ زايد', 'name_en': 'Sheikh Zayed'},
             {'name_ar': 'حي الضواحي', 'name_en': 'Al Dawahy'},
-            {'name_ar': 'حي المستقبل', 'name_en': 'Al Mostakbal'},
+            {'name_ar': 'المستقبل', 'name_en': 'Al Mostakbal'},
             {'name_ar': 'عرب المعادي', 'name_en': 'Arab Al Maadi'},
         ]},
         {'city': 'فايد', 'city_en': 'Fayed', 'districts': [
@@ -136,10 +159,7 @@ def create_locations():
             all_districts.append(district)
     
     # ========== 2. محافظة بورسعيد ==========
-    portsaid_gov = Governorate.objects.filter(name_ar='بورسعيد').first()
-    if not portsaid_gov:
-        portsaid_gov = Governorate.objects.create(name_ar='بورسعيد', name_en='Port Said')
-        print("  - تم إنشاء محافظة بورسعيد")
+    portsaid_gov = get_or_create_governorate('بورسعيد', 'Port Said')
     
     portsaid_districts_data = [
         {'city': 'بورسعيد', 'city_en': 'Port Said', 'districts': [
@@ -163,10 +183,7 @@ def create_locations():
             all_districts.append(district)
     
     # ========== 3. محافظة السويس ==========
-    suez_gov = Governorate.objects.filter(name_ar='السويس').first()
-    if not suez_gov:
-        suez_gov = Governorate.objects.create(name_ar='السويس', name_en='Suez')
-        print("  - تم إنشاء محافظة السويس")
+    suez_gov = get_or_create_governorate('السويس', 'Suez')
     
     suez_districts_data = [
         {'city': 'السويس', 'city_en': 'Suez', 'districts': [
@@ -190,10 +207,7 @@ def create_locations():
             all_districts.append(district)
     
     # ========== 4. محافظة الشرقية (العاشر من رمضان) ==========
-    sharqia_gov = Governorate.objects.filter(name_ar='الشرقية').first()
-    if not sharqia_gov:
-        sharqia_gov = Governorate.objects.create(name_ar='الشرقية', name_en='Sharqia')
-        print("  - تم إنشاء محافظة الشرقية")
+    sharqia_gov = get_or_create_governorate('الشرقية', 'Sharqia')
     
     sharqia_districts_data = [
         {'city': 'العاشر من رمضان', 'city_en': '10th of Ramadan', 'districts': [
@@ -216,10 +230,7 @@ def create_locations():
             all_districts.append(district)
     
     # ========== 5. محافظة القاهرة ==========
-    cairo_gov = Governorate.objects.filter(name_ar='القاهرة').first()
-    if not cairo_gov:
-        cairo_gov = Governorate.objects.create(name_ar='القاهرة', name_en='Cairo')
-        print("  - تم إنشاء محافظة القاهرة")
+    cairo_gov = get_or_create_governorate('القاهرة', 'Cairo')
     
     cairo_districts_data = [
         {'city': 'القاهرة', 'city_en': 'Cairo', 'districts': [
@@ -242,10 +253,7 @@ def create_locations():
             all_districts.append(district)
     
     # ========== 6. محافظة الإسكندرية ==========
-    alex_gov = Governorate.objects.filter(name_ar='الإسكندرية').first()
-    if not alex_gov:
-        alex_gov = Governorate.objects.create(name_ar='الإسكندرية', name_en='Alexandria')
-        print("  - تم إنشاء محافظة الإسكندرية")
+    alex_gov = get_or_create_governorate('الإسكندرية', 'Alexandria')
     
     alex_districts_data = [
         {'city': 'الإسكندرية', 'city_en': 'Alexandria', 'districts': [
