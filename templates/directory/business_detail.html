@@ -41,6 +41,7 @@
 
 .stat-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
 .stat-card i {
@@ -48,6 +49,7 @@
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .stat-card .number {
@@ -55,6 +57,13 @@
     font-weight: 900;
     color: #1e293b;
     display: block;
+    margin: 0.5rem 0;
+}
+
+.stat-card .stat-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 600;
 }
 
 .info-card {
@@ -128,7 +137,6 @@
     color: white;
 }
 
-/* Map */
 #businessMap {
     height: 350px;
     width: 100%;
@@ -275,28 +283,28 @@ input:checked ~ .star-label {
             <div class="stat-card">
                 <i class="fas fa-eye"></i>
                 <span class="number">{{ business.view_count|default:0 }}</span>
-                <span class="small text-muted">مشاهدة</span>
+                <span class="stat-label">مشاهدة</span>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="stat-card">
                 <i class="fas fa-star"></i>
                 <span class="number">{{ average_rating|floatformat:1|default:"0.0" }}</span>
-                <span class="small text-muted">التقييم</span>
+                <span class="stat-label">التقييم</span>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="stat-card">
                 <i class="fas fa-box"></i>
                 <span class="number">{{ products.count|default:0 }}</span>
-                <span class="small text-muted">منتج</span>
+                <span class="stat-label">منتج</span>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="stat-card">
                 <i class="fas fa-comment"></i>
                 <span class="number">{{ total_reviews|default:0 }}</span>
-                <span class="small text-muted">تقييم</span>
+                <span class="stat-label">تقييم</span>
             </div>
         </div>
     </div>
@@ -599,7 +607,6 @@ input:checked ~ .star-label {
 console.log('🗺️ Starting business map...');
 console.log('Coordinates:', {{ business.latitude }}, {{ business.longitude }});
 
-// Validate coordinates
 const lat = parseFloat('{{ business.latitude }}');
 const lng = parseFloat('{{ business.longitude }}');
 
