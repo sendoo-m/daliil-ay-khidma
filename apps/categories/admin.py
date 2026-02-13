@@ -31,6 +31,8 @@ class CategoryAdmin(admin.ModelAdmin):
         'status_badge',
         'created_at',
     ]
+    # خلي الرابط الأساسي هو اسم التصنيف بدل الأيقونة
+    list_display_links = ['name_display']
     
     # ========================================
     # LIST FILTERS
