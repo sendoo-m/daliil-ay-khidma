@@ -3,20 +3,30 @@ Dashboard Forms
 ===============
 Forms for admin and owner dashboards
 """
-
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from apps.accounts.models import User
 from apps.directory.models import Business
-from apps.directory.models.location import Governorate, District
+from apps.directory.models.location import Governorate, District, City
 from apps.products.models import Product
 from apps.deals.models import Deal
 from apps.categories.models import Category
 
-
 # ========================================
 # USER FORMS
 # ========================================
+
+class UserProfileForm(forms.ModelForm):
+    """Form for users to update their own profile"""
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'الاسم الأول'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم العائلة'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'البريد الإلكتروني'}),
+        }
+
 class AdminUserCreateForm(UserCreationForm):
     """Form for creating users by admin"""
     
@@ -28,8 +38,7 @@ class AdminUserCreateForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'is_staff', 'is_active')
-
+        fields = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
 
 class AdminUserEditForm(forms.ModelForm):
     """Form for editing users by admin"""
@@ -44,20 +53,27 @@ class AdminUserEditForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-
 # ========================================
 # BUSINESS FORMS
 # ========================================
+
 class BusinessForm(forms.ModelForm):
-    """Form for creating/editing businesses"""
+    """Form for creating/editing businesses with cascading locations"""
     
-    # Add custom governorate field for better UX (NOT saved to DB)
     governorate = forms.ModelChoiceField(
         queryset=Governorate.objects.filter(is_active=True).order_by('order', 'name_ar'),
         required=False,
         label='المحافظة',
         widget=forms.Select(attrs={'class': 'form-select select2-dropdown'}),
-        help_text='اختر المحافظة أولاً'
+        help_text='اختر المحافظة'
+    )
+    
+    city = forms.ModelChoiceField(
+        queryset=City.objects.none(),
+        required=False,
+        label='المدينة',
+        widget=forms.Select(attrs={'class': 'form-select select2-dropdown'}),
+        help_text='اختر المدينة'
     )
     
     class Meta:
@@ -93,33 +109,51 @@ class BusinessForm(forms.ModelForm):
             'address_en': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Detailed address'}),
             'latitude': forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
             'longitude': forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
-            'working_hours_ar': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'مثال: 9 صباحاً - 10 مساءً'}),
-            'working_hours_en': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Example: 9 AM - 10 PM'}),
-            'facebook': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://facebook.com/...'}),
-            'instagram': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://instagram.com/...'}),
-            'twitter': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://twitter.com/...'}),
-            'tiktok': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://tiktok.com/@...'}),
-            'location_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Google Maps Link'}),
+            'working_hours_ar': forms.TextInput(attrs={'class': 'form-control'}),
+            'working_hours_en': forms.TextInput(attrs={'class': 'form-control'}),
+            'facebook': forms.URLInput(attrs={'class': 'form-control'}),
+            'instagram': forms.URLInput(attrs={'class': 'form-control'}),
+            'twitter': forms.URLInput(attrs={'class': 'form-control'}),
+            'tiktok': forms.URLInput(attrs={'class': 'form-control'}),
+            'location_url': forms.URLInput(attrs={'class': 'form-control'}),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # If editing existing business, set the governorate
+        
+        # Handle initial values and querysets for cascading fields
         if self.instance.pk and self.instance.district:
-            self.fields['governorate'].initial = self.instance.district.city.governorate
-    
-    def save(self, commit=True):
-        # Don't save governorate (it's just a helper field)
-        # The district field already contains all location data
-        instance = super().save(commit=False)
-        if commit:
-            instance.save()
-        return instance
-
+            district = self.instance.district
+            city = district.city
+            gov = city.governorate
+            
+            self.fields['governorate'].initial = gov
+            self.fields['city'].initial = city
+            
+            # Update querysets based on selection
+            self.fields['city'].queryset = City.objects.filter(governorate=gov, is_active=True).order_by('name_ar')
+            self.fields['district'].queryset = District.objects.filter(city=city, is_active=True).order_by('name_ar')
+        
+        # If form is bound (POST), update querysets from data
+        if self.is_bound:
+            if self.data.get('governorate'):
+                try:
+                    gov_id = int(self.data.get('governorate'))
+                    self.fields['city'].queryset = City.objects.filter(governorate_id=gov_id, is_active=True).order_by('name_ar')
+                except (ValueError, TypeError):
+                    pass
+            
+            if self.data.get('city'):
+                try:
+                    city_id = int(self.data.get('city'))
+                    self.fields['district'].queryset = District.objects.filter(city_id=city_id, is_active=True).order_by('name_ar')
+                except (ValueError, TypeError):
+                    pass
 
 # ========================================
 # PRODUCT FORMS
 # ========================================
+
 class ProductForm(forms.ModelForm):
     """Form for creating/editing products"""
     
@@ -142,10 +176,10 @@ class ProductForm(forms.ModelForm):
             'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
 
-
 # ========================================
 # CATEGORY FORMS
 # ========================================
+
 class CategoryForm(forms.ModelForm):
     """Form for creating/editing categories"""
     
@@ -171,10 +205,10 @@ class CategoryForm(forms.ModelForm):
             'meta_keywords_ar': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-
 # ========================================
 # DEAL FORMS
 # ========================================
+
 class DealForm(forms.ModelForm):
     """Form for creating/editing deals"""
     
