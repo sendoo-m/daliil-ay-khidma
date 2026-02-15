@@ -291,7 +291,313 @@
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-location-arrow"></i></span>
                                 {{ form.longitude }}
-                            </div>
+                            </div>ctrl+a Backspace{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<style>
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        margin-bottom: 15px;
+    }
+    .map-instructions {
+        background: #e3f2fd;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    .leaflet-container {
+        font-family: inherit;
+        z-index: 1;
+    }
+    .input-group-text {
+        min-width: 45px;
+        justify-content: center;
+    }
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: #fff !important;
+    }
+    .card-header h5 {
+        color: #fff !important;
+    }
+    /* Select2 Styles */
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">
+        <i class="fas {% if business %}fa-edit{% else %}fa-plus{% endif %}"></i> {{ title }}
+    </h1>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-lg-8">
+            
+            <!-- Basic Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> المعلومات الأساسية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.business_type.label_tag }}
+                        {{ form.business_type }}
+                        {% if form.business_type.errors %}
+                            <div class="text-danger small">{{ form.business_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.name_ar.label_tag }}
+                            {{ form.name_ar }}
+                            {% if form.name_ar.errors %}
+                                <div class="text-danger small">{{ form.name_ar.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.name_en.label_tag }}
+                            {{ form.name_en }}
+                            {% if form.name_en.errors %}
+                                <div class="text-danger small">{{ form.name_en.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-layer-group text-success me-1"></i>
+                            التصنيف
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="text-danger small">{{ form.category.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> العنوان والموقع</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Governorate -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">المحافظة <span class="text-danger">*</span></label>
+                            {{ form.governorate }}
+                        </div>
+                        
+                        <!-- City -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">المدينة <span class="text-danger">*</span></label>
+                            {{ form.city }}
+                        </div>
+
+                        <!-- District -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">الحي <span class="text-danger">*</span></label>
+                            {{ form.district }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.address_ar.label_tag }}
+                            {{ form.address_ar }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.address_en.label_tag }}
+                            {{ form.address_en }}
+                        </div>
+                    </div>
+
+                    <div id="map"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.latitude.label_tag }}
+                            {{ form.latitude }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.longitude.label_tag }}
+                            {{ form.longitude }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-align-left"></i> الوصف</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.description_ar.label_tag }}
+                        {{ form.description_ar }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description_en.label_tag }}
+                        {{ form.description_en }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-save"></i> حفظ التغييرات</h5>
+                </div>
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-save"></i> حفظ المحل
+                    </button>
+                    <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-outline-secondary w-100">
+                        إلغاء
+                    </a>
+                </div>
+            </div>
+
+            <!-- Other fields like contact, images, etc. omitted for brevity in this replacement but should be kept if needed.
+                 Wait, I should not omit them if I am doing a full replace.
+                 Let's include them.
+            -->
+            <!-- Social & Contact -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-phone"></i> الاتصال</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">{{ form.phone.label_tag }}{{ form.phone }}</div>
+                    <div class="mb-2">{{ form.whatsapp.label_tag }}{{ form.whatsapp }}</div>
+                    <div class="mb-2">{{ form.email.label_tag }}{{ form.email }}</div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-image"></i> الصور</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">{{ form.logo.label_tag }}{{ form.logo }}</div>
+                    <div class="mb-2">{{ form.cover_image.label_tag }}{{ form.cover_image }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize Select2
+    $('.select2').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        dir: 'rtl'
+    });
+
+    // Cascading: Governorate -> City
+    $('#id_governorate').on('change', function() {
+        const govId = $(this).val();
+        const citySelect = $('#id_city');
+        const districtSelect = $('#id_district');
+        
+        citySelect.empty().append('<option value="">-- اختر المدينة --</option>');
+        districtSelect.empty().append('<option value="">-- اختر الحي --</option>');
+        
+        if (govId) {
+            $.ajax({
+                url: '{% url "dashboard:ajax_get_cities" %}',
+                data: { 'governorate_id': govId },
+                success: function(data) {
+                    $.each(data.results, function(i, item) {
+                        citySelect.append($('<option>', { value: item.id, text: item.text }));
+                    });
+                }
+            });
+        }
+    });
+
+    // Cascading: City -> District
+    $('#id_city').on('change', function() {
+        const cityId = $(this).val();
+        const districtSelect = $('#id_district');
+        
+        districtSelect.empty().append('<option value="">-- اختر الحي --</option>');
+        
+        if (cityId) {
+            $.ajax({
+                url: '{% url "dashboard:ajax_get_districts_by_city" %}',
+                data: { 'city_id': cityId },
+                success: function(data) {
+                    $.each(data.results, function(i, item) {
+                        districtSelect.append($('<option>', { value: item.id, text: item.text }));
+                    });
+                }
+            });
+        }
+    });
+
+    // Map logic
+    initMap();
+});
+
+let map, marker;
+function initMap() {
+    const lat = parseFloat($('#id_latitude').val()) || 30.0444;
+    const lng = parseFloat($('#id_longitude').val()) || 31.2357;
+    
+    map = L.map('map').setView([lat, lng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+    
+    marker.on('dragend', function() {
+        const pos = marker.getLatLng();
+        $('#id_latitude').val(pos.lat.toFixed(6));
+        $('#id_longitude').val(pos.lng.toFixed(6));
+    });
+    
+    map.on('click', function(e) {
+        marker.setLatLng(e.latlng);
+        $('#id_latitude').val(e.latlng.lat.toFixed(6));
+        $('#id_longitude').val(e.latlng.lng.toFixed(6));
+    });
+}
+</script>
+{% endblock %}
+
                             <small class="form-text text-muted">سيتم تعبئته تلقائياً من الخريطة</small>
                         </div>
                     </div>
