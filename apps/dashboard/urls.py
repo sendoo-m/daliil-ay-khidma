@@ -1,9 +1,9 @@
-"""
+"""Add missing deal URL patterns to fix NoReverseMatch
 Dashboard URLs
 """
 from django.urls import path, include
 from apps.dashboard.views import main as main_views
-from apps.dashboard.views import business, product, deal, review
+from aFixed NoReverseMatch error in dashboard templates by adding 'deal_list' and other missing deal URL patterns.pps.dashboard.views import business, product, deal, review
 
 app_name = 'dashboard'
 
