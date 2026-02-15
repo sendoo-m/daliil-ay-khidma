@@ -1,6 +1,6 @@
-\"\"\"
+"""
 Dashboard URLs
-\"\"\"
+"""
 from django.urls import path, include
 from apps.dashboard.views import main as main_views
 from apps.dashboard.views import business, product, deal, review
