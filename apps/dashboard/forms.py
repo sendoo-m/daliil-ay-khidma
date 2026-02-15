@@ -64,7 +64,7 @@ class BusinessForm(forms.ModelForm):
         queryset=Governorate.objects.filter(is_active=True).order_by('order', 'name_ar'),
         required=False,
         label='المحافظة',
-        widget=forms.Select(attrs={'class': 'form-select select2-dropdown', 'id': 'id_governorate'}),
+        widget=forms.Select(attrs={'class': 'form-select select2', 'id': 'id_governorate'}),
         help_text='اختر المحافظة'
     )
     
@@ -72,7 +72,7 @@ class BusinessForm(forms.ModelForm):
         queryset=City.objects.none(),
         required=False,
         label='المدينة',
-        widget=forms.Select(attrs={'class': 'form-select select2-dropdown', 'id': 'id_city'}),
+        widget=forms.Select(attrs={'class': 'form-select select2', 'id': 'id_city'}),
         help_text='اختر المدينة'
     )
     
@@ -98,9 +98,9 @@ class BusinessForm(forms.ModelForm):
             'name_ar': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المحل'}),
             'description_en': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'description_ar': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'category': forms.Select(attrs={'class': 'form-select select2-dropdown'}),
+            'category': forms.Select(attrs={'class': 'form-select select2'}),
             'business_type': forms.Select(attrs={'class': 'form-select'}),
-            'district': forms.Select(attrs={'class': 'form-select select2-dropdown', 'id': 'id_district'}),
+            'district': forms.Select(attrs={'class': 'form-select select2', 'id': 'id_district'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'whatsapp': forms.TextInput(attrs={'class': 'form-control'}),
