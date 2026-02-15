@@ -14,7 +14,6 @@ from apps.products.models import Product
 from apps.deals.models import Deal
 from apps.reviews.models import Review
 from apps.accounts.models import User
-from apps.dashboard.forms import UserProfileForm
 
 @login_required
 def index(request):
