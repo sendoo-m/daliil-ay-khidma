@@ -64,7 +64,7 @@ class BusinessForm(forms.ModelForm):
         queryset=Governorate.objects.filter(is_active=True).order_by('order', 'name_ar'),
         required=False,
         label='المحافظة',
-        widget=forms.Select(attrs={'class': 'form-select select2-dropdown'}),
+        widget=forms.Select(attrs={'class': 'form-select select2-dropdown', 'id': 'id_governorate'}),
         help_text='اختر المحافظة'
     )
     
@@ -72,7 +72,7 @@ class BusinessForm(forms.ModelForm):
         queryset=City.objects.none(),
         required=False,
         label='المدينة',
-        widget=forms.Select(attrs={'class': 'form-select select2-dropdown'}),
+        widget=forms.Select(attrs={'class': 'form-select select2-dropdown', 'id': 'id_city'}),
         help_text='اختر المدينة'
     )
     
@@ -100,7 +100,7 @@ class BusinessForm(forms.ModelForm):
             'description_ar': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'category': forms.Select(attrs={'class': 'form-select select2-dropdown'}),
             'business_type': forms.Select(attrs={'class': 'form-select'}),
-            'district': forms.Select(attrs={'class': 'form-select select2-dropdown'}),
+            'district': forms.Select(attrs={'class': 'form-select select2-dropdown', 'id': 'id_district'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'whatsapp': forms.TextInput(attrs={'class': 'form-control'}),
@@ -123,16 +123,19 @@ class BusinessForm(forms.ModelForm):
         
         # Handle initial values and querysets for cascading fields
         if self.instance.pk and self.instance.district:
-            district = self.instance.district
-            city = district.city
-            gov = city.governorate
-            
-            self.fields['governorate'].initial = gov
-            self.fields['city'].initial = city
-            
-            # Update querysets based on selection
-            self.fields['city'].queryset = City.objects.filter(governorate=gov, is_active=True).order_by('name_ar')
-            self.fields['district'].queryset = District.objects.filter(city=city, is_active=True).order_by('name_ar')
+            try:
+                district = self.instance.district
+                city = district.city
+                gov = city.governorate
+                
+                self.fields['governorate'].initial = gov
+                self.fields['city'].initial = city
+                
+                # Update querysets based on selection
+                self.fields['city'].queryset = City.objects.filter(governorate=gov, is_active=True).order_by('name_ar')
+                self.fields['district'].queryset = District.objects.filter(city=city, is_active=True).order_by('name_ar')
+            except AttributeError:
+                pass
         
         # If form is bound (POST), update querysets from data
         if self.is_bound:
