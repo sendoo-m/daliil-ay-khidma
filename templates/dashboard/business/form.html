@@ -54,7 +54,7 @@
 .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
     height: 36px;
 }
-.select2-dropdown {
+.select2 {
     border: 1px solid #dee2e6;
     border-radius: 0.375rem;
 }
@@ -225,6 +225,20 @@
                             {% endif %}
                             <small class="form-text text-muted">اختر المحافظة أولاً</small>
                         </div>
+
+                                            
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-map text-info me-1"></i>
+                            المدينة
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.city }}
+                        {% if form.city.errors %}
+                            <div class="text-danger small">{{ form.city.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">سيتم تحديثها حسب المحافظة</small>
+                    </div>
                         
                         <div class="col-md-6 mb-3">
                             <label class="form-label">
@@ -241,7 +255,7 @@
                     </div>
                     
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             {{ form.address_ar.label_tag }}
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
@@ -443,7 +457,7 @@
 // Initialize Select2 for all dropdowns
 $(document).ready(function() {
     // Initialize all select2 dropdowns
-    $('.select2-dropdown').select2({
+    $('.select2').select2({
         theme: 'bootstrap-5',
         language: 'ar',
         dir: 'rtl',
