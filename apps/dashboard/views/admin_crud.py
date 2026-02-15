@@ -52,14 +52,46 @@ class BusinessForm(django_forms.ModelForm):
     """Form for creating/editing businesses"""
     class Meta:
         model = Business
-        exclude = ('owner', 'created_at', 'updated_at', 'slug', 'views_count', 'clicks_count')
+        exclude = (
+            'owner', 
+            'created_at', 
+            'updated_at', 
+            'slug', 
+            'view_count',  # ✅ Fixed: was 'views_count'
+            'click_count',  # ✅ Fixed: was 'clicks_count'
+            'average_rating',  # Auto-calculated
+            'total_reviews',  # Auto-calculated
+            'verified_at'  # Auto-set
+        )
         widgets = {
-            'name_en': django_forms.TextInput(attrs={'class': 'form-control'}),
-            'name_ar': django_forms.TextInput(attrs={'class': 'form-control'}),
-            'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'name_en': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Business Name in English'}),
+            'name_ar': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المحل بالعربية'}),
+            'description_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description in English'}),
+            'description_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'الوصف بالعربية'}),
+            'address_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Address in English'}),
+            'address_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'العنوان بالعربية'}),
             'category': django_forms.Select(attrs={'class': 'form-select'}),
+            'district': django_forms.Select(attrs={'class': 'form-select'}),
             'business_type': django_forms.Select(attrs={'class': 'form-select'}),
+            'phone': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': '01234567890'}),
+            'whatsapp': django_forms.TextInput(attrs={'class': 'form-control', 'placeholder': '01234567890'}),
+            'email': django_forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email@example.com'}),
+            'website': django_forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com'}),
+            'facebook': django_forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://facebook.com/...'}),
+            'instagram': django_forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://instagram.com/...'}),
+            'twitter': django_forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://twitter.com/...'}),
+            'tiktok': django_forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://tiktok.com/@...'}),
+            'location_url': django_forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Google Maps URL'}),
+            'latitude': django_forms.NumberInput(attrs={'class': 'form-control', 'step': '0.000001', 'placeholder': '30.0444'}),
+            'longitude': django_forms.NumberInput(attrs={'class': 'form-control', 'step': '0.000001', 'placeholder': '31.2357'}),
+            'working_hours_en': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Sat-Thu: 9 AM - 10 PM'}),
+            'working_hours_ar': django_forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'السبت-الخميس: 9 ص-10 م'}),
+            'logo': django_forms.FileInput(attrs={'class': 'form-control'}),
+            'cover_image': django_forms.FileInput(attrs={'class': 'form-control'}),
+            'is_active': django_forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_verified': django_forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_featured': django_forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_promoted': django_forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 
@@ -122,8 +154,9 @@ def admin_user_create(request):
             messages.success(request, f'تم إضافة المستخدم {user.username} بنجاح')
             return redirect('admin_dashboard:user_detail', user_id=user.id)
         else:
-            for error in form.errors.values():
-                messages.error(request, error)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = AdminUserCreateForm()
     
@@ -141,6 +174,10 @@ def admin_user_edit_view(request, user_id):
             form.save()
             messages.success(request, 'تم تحديث بيانات المستخدم بنجاح')
             return redirect('admin_dashboard:user_detail', user_id=user_id)
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = AdminUserEditForm(instance=user)
     
@@ -160,18 +197,28 @@ def admin_business_create(request):
     if request.method == 'POST':
         form = BusinessForm(request.POST, request.FILES)
         if form.is_valid():
-            business = form.save(commit=False)
-            business.owner = request.user
-            business.save()
-            messages.success(request, f'تم إضافة المحل {business.name_ar} بنجاح')
-            return redirect('admin_dashboard:business_detail', business_id=business.id)
+            try:
+                business = form.save(commit=False)
+                # Set owner to current admin user
+                business.owner = request.user
+                business.save()
+                messages.success(request, f'✅ تم إضافة المحل "{business.name_ar}" بنجاح!')
+                return redirect('admin_dashboard:business_detail', business_id=business.id)
+            except Exception as e:
+                messages.error(request, f'❌ حدث خطأ أثناء حفظ المحل: {str(e)}')
         else:
-            for error in form.errors.values():
-                messages.error(request, error)
+            # Show detailed errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'خطأ في {field}: {error}')
     else:
         form = BusinessForm()
     
-    return render(request, 'dashboard/admin/business_form.html', {'form': form, 'action': 'إضافة'})
+    return render(request, 'dashboard/admin/business_form.html', {
+        'form': form, 
+        'action': 'إضافة',
+        'title': 'إضافة محل جديد'
+    })
 
 
 @staff_member_required
@@ -182,16 +229,24 @@ def admin_business_edit_view(request, business_id):
     if request.method == 'POST':
         form = BusinessForm(request.POST, request.FILES, instance=business)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'تم تحديث بيانات المحل بنجاح')
-            return redirect('admin_dashboard:business_detail', business_id=business_id)
+            try:
+                form.save()
+                messages.success(request, f'✅ تم تحديث بيانات المحل "{business.name_ar}" بنجاح!')
+                return redirect('admin_dashboard:business_detail', business_id=business_id)
+            except Exception as e:
+                messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'خطأ في {field}: {error}')
     else:
         form = BusinessForm(instance=business)
     
     return render(request, 'dashboard/admin/business_form.html', {
         'form': form,
         'business': business,
-        'action': 'تعديل'
+        'action': 'تعديل',
+        'title': f'تعديل محل: {business.name_ar}'
     })
 
 
@@ -208,12 +263,26 @@ def admin_product_create(request, business_id=None):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            product = form.save(commit=False)
-            if business:
-                product.business = business
-            product.save()
-            messages.success(request, f'تم إضافة المنتج {product.name_ar} بنجاح')
-            return redirect('admin_dashboard:product_detail', product_id=product.id)
+            try:
+                product = form.save(commit=False)
+                if business:
+                    product.business = business
+                elif not product.business:
+                    messages.error(request, '❌ يجب تحديد المحل التابع له المنتج')
+                    return render(request, 'dashboard/admin/product_form.html', {
+                        'form': form,
+                        'business': business,
+                        'action': 'إضافة'
+                    })
+                product.save()
+                messages.success(request, f'✅ تم إضافة المنتج "{product.name_ar}" بنجاح!')
+                return redirect('admin_dashboard:product_detail', product_id=product.id)
+            except Exception as e:
+                messages.error(request, f'❌ حدث خطأ أثناء حفظ المنتج: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'خطأ في {field}: {error}')
     else:
         form = ProductForm()
     
@@ -232,9 +301,16 @@ def admin_product_edit_view(request, product_id):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'تم تحديث بيانات المنتج بنجاح')
-            return redirect('admin_dashboard:product_detail', product_id=product_id)
+            try:
+                form.save()
+                messages.success(request, f'✅ تم تحديث بيانات المنتج "{product.name_ar}" بنجاح!')
+                return redirect('admin_dashboard:product_detail', product_id=product_id)
+            except Exception as e:
+                messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'خطأ في {field}: {error}')
     else:
         form = ProductForm(instance=product)
     
@@ -254,9 +330,16 @@ def admin_category_create_view(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST, request.FILES)
         if form.is_valid():
-            category = form.save()
-            messages.success(request, f'تم إضافة التصنيف {category.name_ar} بنجاح')
-            return redirect('admin_dashboard:categories_list')
+            try:
+                category = form.save()
+                messages.success(request, f'✅ تم إضافة التصنيف "{category.name_ar}" بنجاح!')
+                return redirect('admin_dashboard:categories_list')
+            except Exception as e:
+                messages.error(request, f'❌ حدث خطأ أثناء حفظ التصنيف: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'خطأ في {field}: {error}')
     else:
         form = CategoryForm()
     
@@ -271,9 +354,16 @@ def admin_category_edit_view(request, category_id):
     if request.method == 'POST':
         form = CategoryForm(request.POST, request.FILES, instance=category)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'تم تحديث بيانات التصنيف بنجاح')
-            return redirect('admin_dashboard:categories_list')
+            try:
+                form.save()
+                messages.success(request, f'✅ تم تحديث بيانات التصنيف "{category.name_ar}" بنجاح!')
+                return redirect('admin_dashboard:categories_list')
+            except Exception as e:
+                messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'خطأ في {field}: {error}')
     else:
         form = CategoryForm(instance=category)
     
@@ -297,12 +387,26 @@ def admin_deal_create(request, business_id=None):
     if request.method == 'POST':
         form = DealForm(request.POST, request.FILES)
         if form.is_valid():
-            deal = form.save(commit=False)
-            if business:
-                deal.business = business
-            deal.save()
-            messages.success(request, f'تم إضافة العرض {deal.title_ar} بنجاح')
-            return redirect('admin_dashboard:deal_detail', deal_id=deal.id)
+            try:
+                deal = form.save(commit=False)
+                if business:
+                    deal.business = business
+                elif not deal.business:
+                    messages.error(request, '❌ يجب تحديد المحل التابع له العرض')
+                    return render(request, 'dashboard/admin/deal_form.html', {
+                        'form': form,
+                        'business': business,
+                        'action': 'إضافة'
+                    })
+                deal.save()
+                messages.success(request, f'✅ تم إضافة العرض "{deal.title_ar}" بنجاح!')
+                return redirect('admin_dashboard:deal_detail', deal_id=deal.id)
+            except Exception as e:
+                messages.error(request, f'❌ حدث خطأ أثناء حفظ العرض: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'خطأ في {field}: {error}')
     else:
         form = DealForm()
     
@@ -321,14 +425,21 @@ def admin_deal_edit_view(request, deal_id):
     if request.method == 'POST':
         form = DealForm(request.POST, request.FILES, instance=deal)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'تم تحديث بيانات العرض بنجاح')
-            return redirect('admin_dashboard:deal_detail', deal_id=deal_id)
+            try:
+                form.save()
+                messages.success(request, f'✅ تم تحديث بيانات العرض "{deal.title_ar}" بنجاح!')
+                return redirect('admin_dashboard:deal_detail', deal_id=deal_id)
+            except Exception as e:
+                messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'خطأ في {field}: {error}')
     else:
         form = DealForm(instance=deal)
     
     return render(request, 'dashboard/admin/deal_form.html', {
-        'form': form,
+        'form': deal,
         'deal': deal,
         'action': 'تعديل'
     })
