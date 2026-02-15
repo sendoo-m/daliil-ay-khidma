@@ -14,6 +14,7 @@ from apps.products.models import Product
 from apps.deals.models import Deal
 from apps.reviews.models import Review
 from apps.accounts.models import User
+from apps.dashboard.forms import UserProfileForm
 
 @login_required
 def index(request):
@@ -91,20 +92,20 @@ def profile(request):
 @login_required
 def settings(request):
     """
-    User settings page
+    User settings page with profile update form
     """
     if request.method == 'POST':
-        user = request.user
-        user.first_name = request.POST.get('first_name', '')
-        user.last_name = request.POST.get('last_name', '')
-        user.email = request.POST.get('email', '')
-        user.save()
-        
-        messages.success(request, 'تم تحديث الإعدادات بنجاح!')
-        return redirect('dashboard:settings')
+        form = UserProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'تم تحديث الإعدادات بنجاح!')
+            return redirect('dashboard:settings')
+    else:
+        form = UserProfileForm(instance=request.user)
     
     context = {
         'user': request.user,
+        'form': form,
     }
     return render(request, 'dashboard/settings.html', context)
 
