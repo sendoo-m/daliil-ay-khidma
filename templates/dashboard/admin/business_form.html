@@ -196,7 +196,7 @@
                 <div class="card-body">
                     <!-- المحافظة والحي -->
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="4 mb-3">
                             <label class="form-label">
                                 <i class="fas fa-city text-primary me-1"></i>
                                 المحافظة
@@ -208,8 +208,21 @@
                             {% endif %}
                             <small class="form-text text-muted">اختر المحافظة أولاً</small>
                         </div>
+
+                                            <div class="col-md-4 mb-3">
+                                                                        <label class="form-label">
+                                                                                                        <i class="fas fa-map text-info me-1"></i>
+                                                                                                        المدينة
+                                                                                                        <span class="text-danger">*</span>
+                                                                                                    </label>
+                                                                        {{ form.city }}
+                                                                        {% if form.city.errors %}
+                                                                            <div class="text-danger small">{{ form.city.errors }}</div>
+                                                                        {% endif %}
+                                                                        <small class="form-text text-muted">سيتم تحديثها حسب المحافظة</small>
+                                                                    </div>
                         
-                        <div class="col-md-6 mb-3">
+                        <div class="4 mb-3">
                             <label class="form-label">
                                 <i class="fas fa-map-pin text-success me-1"></i>
                                 الحي
