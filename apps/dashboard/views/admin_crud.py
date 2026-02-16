@@ -4,6 +4,7 @@ Admin CRUD Views
 Create, Read, Update, Delete operations for admin
 """
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.db import transaction
@@ -327,3 +328,36 @@ def admin_deal_edit_view(request, deal_id):
         'deal': deal,
         'action': 'تعديل'
     })
+
+
+# ==========================================
+# AJAX Views
+# ==========================================
+
+def ajax_get_districts(request):
+    """
+    AJAX endpoint to get districts based on governorate
+    Used in business forms for cascading dropdowns
+    """
+    governorate_id = request.GET.get('governorate_id')
+    results = []
+    
+    if governorate_id:
+        try:
+            # Get all districts for cities in the selected governorate
+            districts = District.objects.filter(
+                city__governorate_id=governorate_id,
+                is_active=True
+            ).select_related('city').order_by('city__name_ar', 'name_ar')
+            
+            results = [
+                {
+                    'id': district.id,
+                    'text': f"{district.name_ar} - {district.city.name_ar}"
+                }
+                for district in districts
+            ]
+        except Exception as e:
+            pass
+    
+    return JsonResponse({'results': results})
