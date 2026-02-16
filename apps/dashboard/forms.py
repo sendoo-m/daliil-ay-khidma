@@ -83,7 +83,7 @@ class BusinessForm(forms.ModelForm):
             'description_en', 'description_ar',
             'category',
             'business_type',
-            'district',
+'governorate', 'city',             'district',
             'email', 'phone', 'whatsapp', 'website',
             'address_ar', 'address_en',
             'logo', 'cover_image',
@@ -116,6 +116,9 @@ class BusinessForm(forms.ModelForm):
             'twitter': forms.URLInput(attrs={'class': 'form-control'}),
             'tiktok': forms.URLInput(attrs={'class': 'form-control'}),
             'location_url': forms.URLInput(attrs={'class': 'form-control'}),
+                        'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+                        'is_verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+                        'is_featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
