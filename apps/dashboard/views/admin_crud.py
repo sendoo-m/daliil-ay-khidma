@@ -327,3 +327,25 @@ def admin_deal_edit_view(request, deal_id):
         'deal': deal,
         'action': 'تعديل'
     })
+
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from apps.directory.models import District  # عدل المسار حسب موديلك
+
+@login_required
+def ajax_get_districts(request):
+    governorate_id = request.GET.get('governorate_id')
+    results = []
+
+    if governorate_id:
+        districts = District.objects.filter(city__governorate_id=governorate_id).order_by('name_ar')
+        results = [
+            {
+                "id": d.id,
+                "text": d.name_ar,  # أو name_en حسب ما تعرضه
+            }
+            for d in districts
+        ]
+
+    return JsonResponse({"results": results})

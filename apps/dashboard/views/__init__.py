@@ -52,4 +52,5 @@ __all__ = [
     'deal_delete',
     'review_list',
     'review_reply',
+    'UserProfileForm',
 ]

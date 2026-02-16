@@ -8,6 +8,7 @@ from .product import ProductForm as ProductFormOld
 from .deal import DealForm as DealFormOld
 from .review import ReviewReplyForm
 
+
 # Import from forms.py (new CRUD forms)
 try:
     import sys
