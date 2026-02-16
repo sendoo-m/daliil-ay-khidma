@@ -70,4 +70,7 @@ urlpatterns = [
     # System Settings
     path('settings/', admin_views.admin_settings, name='settings'),
     path('settings/cache/clear/', admin_views.admin_clear_cache, name='clear_cache'),
+
+        # AJAX Endpoints
+    path('ajax/districts/', admin_crud.ajax_get_districts, name='ajax_get_districts'),
 ]
