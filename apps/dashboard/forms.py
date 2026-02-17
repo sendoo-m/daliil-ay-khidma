@@ -61,7 +61,7 @@ class BusinessForm(forms.ModelForm):
     """Form for creating/editing businesses with cascading locations"""
     
     governorate = forms.ModelChoiceField(
-        queryset=Governorate.objects.filter(is_active=True).order_by('order', 'name_ar'),
+        queryset=Governorate.objects.filter(is_active=True).order_by(''name_ar'),
         required=False,
         label='المحافظة',
         widget=forms.Select(attrs={'class': 'form-select select2', 'id': 'id_governorate'}),
