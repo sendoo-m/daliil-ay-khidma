@@ -73,4 +73,21 @@ urlpatterns = [
 
         # AJAX Endpoints
     path('ajax/districts/', admin_crud.ajax_get_districts, name='ajax_get_districts'),
+
+    # Location Management
+    path('locations/governorates/', admin_crud.admin_governorates_list, name='governorates_list'),
+    path('locations/governorates/create/', admin_crud.admin_governorate_create, name='governorate_create'),
+    path('locations/governorates/<int:gov_id>/edit/', admin_crud.admin_governorate_edit, name='governorate_edit'),
+    path('locations/governorates/<int:gov_id>/delete/', admin_crud.admin_governorate_delete, name='governorate_delete'),
+
+    path('locations/cities/', admin_crud.admin_cities_list, name='cities_list'),
+    path('locations/cities/create/', admin_crud.admin_city_create, name='city_create'),
+    path('locations/cities/<int:city_id>/edit/', admin_crud.admin_city_edit, name='city_edit'),
+    path('locations/cities/<int:city_id>/delete/', admin_crud.admin_city_delete, name='city_delete'),
+
+    path('locations/districts/', admin_crud.admin_districts_list, name='districts_list'),
+    path('locations/districts/create/', admin_crud.admin_district_create, name='district_create'),
+    path('locations/districts/<int:district_id>/edit/', admin_crud.admin_district_edit, name='district_edit'),
+    path('locations/districts/<int:district_id>/delete/', admin_crud.admin_district_delete, name='district_delete'),
+
 ]

@@ -35,31 +35,24 @@ def index(request):
             messages.info(request, 'مرحباً! يمكنك إضافة محلك الأول من هنا.')
             return redirect('dashboard:business_create')
 
-@require_http_methods(["GET"])
-def get_cities_by_governorate(request):
-    """
-    AJAX endpoint: Get cities filtered by governorate
-    """
-    governorate_id = request.GET.get('governorate_id')
-    if not governorate_id:
-        return JsonResponse({'results': []})
-    
-    cities = City.objects.filter(governorate_id=governorate_id, is_active=True).order_by('name_ar')
-    results = [{'id': city.id, 'text': city.name_ar} for city in cities]
-    return JsonResponse({'results': results})
+from django.http import JsonResponse
+from apps.directory.models.location import City, District
 
 @require_http_methods(["GET"])
+def get_cities_by_governorate(request):
+    gov_id = request.GET.get('governorate_id')
+    cities = City.objects.filter(
+        governorate_id=gov_id, is_active=True
+    ).order_by('name_ar').values('id', 'name_ar')
+    return JsonResponse({'cities': list(cities)})
+
 def get_districts_by_city(request):
-    """
-    AJAX endpoint: Get districts filtered by city
-    """
     city_id = request.GET.get('city_id')
-    if not city_id:
-        return JsonResponse({'results': []})
-    
-    districts = District.objects.filter(city_id=city_id, is_active=True).order_by('name_ar')
-    results = [{'id': district.id, 'text': district.name_ar} for district in districts]
-    return JsonResponse({'results': results})
+    districts = District.objects.filter(
+        city_id=city_id, is_active=True
+    ).order_by('name_ar').values('id', 'name_ar')
+    return JsonResponse({'districts': list(districts)})
+
 
 @require_http_methods(["GET"])
 def get_districts_by_governorate(request):

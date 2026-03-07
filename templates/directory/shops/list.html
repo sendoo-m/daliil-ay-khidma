@@ -1,0 +1,517 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}المحلات التجارية - دليل أي خدمة{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== Hero ===== */
+    .shops-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 4rem 0 3rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    .shops-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px; height: 400px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+    .shops-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -5%;
+        width: 300px; height: 300px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+    .hero-search {
+        background: white;
+        border-radius: 50px;
+        padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        max-width: 580px;
+        margin: 1.5rem auto 0;
+    }
+    .hero-search input {
+        border: none;
+        outline: none;
+        flex: 1;
+        font-size: 1rem;
+        background: transparent;
+        font-family: 'Cairo', sans-serif;
+    }
+    .hero-search button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 40px;
+        color: white;
+        padding: 0.6rem 1.8rem;
+        font-weight: 700;
+        font-family: 'Cairo', sans-serif;
+    }
+
+    /* ===== Filters Bar ===== */
+    .filters-bar {
+        background: white;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    .filter-select {
+        border: 1.5px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 0.45rem 0.9rem;
+        font-family: 'Cairo', sans-serif;
+        font-size: 0.88rem;
+        color: #444;
+        background: #fafafa;
+        transition: border-color 0.2s;
+        min-width: 140px;
+    }
+    .filter-select:focus { border-color: #667eea; outline: none; }
+
+    /* ===== View Toggle ===== */
+    .view-toggle .btn {
+        border-radius: 8px;
+        padding: 0.4rem 0.75rem;
+        border: 1.5px solid #dee2e6;
+        color: #6c757d;
+    }
+    .view-toggle .btn.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-color: transparent;
+        color: white;
+    }
+
+    /* ===== Shop Card (Grid) ===== */
+    .shop-card {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        transition: all 0.3s ease;
+        background: white;
+        height: 100%;
+    }
+    .shop-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 35px rgba(102,126,234,0.18);
+    }
+    .shop-card-img {
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+    }
+    .shop-card-img img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s;
+    }
+    .shop-card:hover .shop-card-img img { transform: scale(1.06); }
+    .shop-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        font-size: 0.72rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+    }
+    .badge-featured { background: linear-gradient(135deg,#f39c12,#e67e22); color:white; }
+    .badge-verified { background: linear-gradient(135deg,#2ecc71,#27ae60); color:white; }
+    .shop-logo {
+        width: 56px; height: 56px;
+        border-radius: 12px;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        object-fit: cover;
+        position: absolute;
+        bottom: -28px;
+        right: 16px;
+    }
+    .shop-card-body {
+        padding: 2rem 1.2rem 1.2rem;
+    }
+    .shop-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.3rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .shop-category {
+        font-size: 0.78rem;
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .shop-location {
+        font-size: 0.8rem;
+        color: #888;
+        margin-bottom: 0.6rem;
+    }
+    .shop-rating { font-size: 0.82rem; color: #f39c12; }
+    .shop-rating span { color: #666; }
+    .shop-card-footer {
+        padding: 0.8rem 1.2rem;
+        border-top: 1px solid #f5f5f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* ===== Shop Card (List) ===== */
+    .shop-list-card {
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        overflow: hidden;
+        transition: all 0.3s;
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    .shop-list-card:hover {
+        box-shadow: 0 8px 25px rgba(102,126,234,0.15);
+        transform: translateX(-4px);
+    }
+    .shop-list-img {
+        width: 200px;
+        min-width: 200px;
+        overflow: hidden;
+    }
+    .shop-list-img img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+    }
+    .shop-list-body { padding: 1.2rem; flex: 1; }
+    .shop-list-actions { padding: 1.2rem; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem; min-width: 120px; }
+
+    /* ===== Empty State ===== */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #aaa;
+    }
+    .empty-state i { font-size: 4rem; margin-bottom: 1rem; color: #dee2e6; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ===== Hero ===== -->
+<section class="shops-hero">
+    <div class="container text-center position-relative" style="z-index:1;">
+        <div class="mb-3">
+            <span style="background:rgba(255,255,255,0.15); padding:6px 20px; border-radius:20px; font-size:0.85rem;">
+                🏪 المحلات التجارية
+            </span>
+        </div>
+        <h1 class="fw-bold fs-2 mb-2">اكتشف أفضل المحلات التجارية</h1>
+        <p class="opacity-75 mb-0">{{ total_count|default:0 }} محل متاح في منطقتك</p>
+
+        <form method="get" action="">
+            <div class="hero-search">
+                <i class="fas fa-search text-muted"></i>
+                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="ابحث عن محل...">
+                <button type="submit">بحث</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+
+<!-- ===== Filters Bar ===== -->
+<div class="filters-bar">
+    <div class="container">
+        <form method="get" id="filterForm">
+            {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+            <div class="d-flex flex-wrap align-items-center gap-2">
+
+                <!-- التصنيف -->
+                <select name="category" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="">🗂 كل التصنيفات</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>
+                        {{ cat.name_ar }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <!-- المحافظة -->
+                <select name="governorate" class="filter-select" id="govFilter" onchange="loadCities(this.value)">
+                    <option value="">📍 كل المحافظات</option>
+                    {% for gov in governorates %}
+                    <option value="{{ gov.slug }}" {% if request.GET.governorate == gov.slug %}selected{% endif %}>
+                        {{ gov.name_ar }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <!-- المدينة -->
+                <select name="city" class="filter-select" id="cityFilter" onchange="document.getElementById('filterForm').submit()">
+                    <option value="">🏙 كل المدن</option>
+                    {% for city in cities %}
+                    <option value="{{ city.slug }}" {% if request.GET.city == city.slug %}selected{% endif %}>
+                        {{ city.name_ar }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <!-- الترتيب -->
+                <select name="sort" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="-created_at" {% if request.GET.sort == '-created_at' %}selected{% endif %}>🕒 الأحدث</option>
+                    <option value="-view_count"  {% if request.GET.sort == '-view_count'  %}selected{% endif %}>🔥 الأكثر زيارة</option>
+                    <option value="-average_rating" {% if request.GET.sort == '-average_rating' %}selected{% endif %}>⭐ الأعلى تقييماً</option>
+                </select>
+
+                <!-- عدد النتائج -->
+                <span class="text-muted small ms-auto">
+                    <strong>{{ total_count|default:0 }}</strong> نتيجة
+                </span>
+
+                <!-- View Toggle -->
+                <div class="view-toggle d-flex gap-1">
+                    <button type="button" class="btn btn-sm active" id="gridViewBtn" onclick="setView('grid')">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm" id="listViewBtn" onclick="setView('list')">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- ===== Results ===== -->
+<section class="py-4" style="background:#f8f9ff; min-height:60vh;">
+    <div class="container">
+
+        {% if page_obj.object_list %}
+
+        <!-- Grid View -->
+        <div id="gridView" class="row g-4">
+            {% for business in page_obj %}
+            <div class="col-sm-6 col-lg-4">
+                <div class="shop-card">
+                    <div class="shop-card-img">
+                        {% if business.cover_image %}
+                            <img src="{{ business.cover_image.url }}" alt="{{ business.name_ar }}">
+                        {% else %}
+                            <img src="{% static 'images/shop-placeholder.jpg' %}" alt="{{ business.name_ar }}">
+                        {% endif %}
+
+                        {% if business.is_featured %}
+                            <span class="shop-badge badge-featured"><i class="fas fa-star me-1"></i>مميز</span>
+                        {% elif business.is_verified %}
+                            <span class="shop-badge badge-verified"><i class="fas fa-check me-1"></i>موثق</span>
+                        {% endif %}
+
+                        {% if business.logo %}
+                            <img src="{{ business.logo.url }}" alt="logo" class="shop-logo">
+                        {% endif %}
+                    </div>
+
+                    <div class="shop-card-body">
+                        <div class="shop-category">
+                            {% if business.category.icon %}<i class="{{ business.category.icon }} me-1"></i>{% endif %}
+                            {{ business.category.name_ar }}
+                        </div>
+                        <div class="shop-name">{{ business.name_ar }}</div>
+                        <div class="shop-location">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ business.district.name_ar }}،
+                            {{ business.district.city.name_ar }}
+                        </div>
+                        {% if business.average_rating > 0 %}
+                        <div class="shop-rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= business.rating_stars_full %}
+                                    <i class="fas fa-star"></i>
+                                {% elif forloop.counter == business.rating_stars_full|add:1 and business.rating_stars_half %}
+                                    <i class="fas fa-star-half-alt"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span>({{ business.total_reviews }})</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="shop-card-footer">
+                        <small class="text-muted">
+                            <i class="fas fa-eye me-1"></i>{{ business.view_count }}
+                        </small>
+                        <a href="{% url 'directory:shop_detail' business.slug %}"
+                           class="btn btn-sm btn-primary rounded-pill px-3"
+                           style="background:linear-gradient(135deg,#667eea,#764ba2); border:none;">
+                            عرض التفاصيل
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- List View -->
+        <div id="listView" style="display:none;">
+            {% for business in page_obj %}
+            <div class="shop-list-card">
+                <div class="shop-list-img">
+                    {% if business.cover_image %}
+                        <img src="{{ business.cover_image.url }}" alt="{{ business.name_ar }}">
+                    {% else %}
+                        <img src="{% static 'images/shop-placeholder.jpg' %}" alt="">
+                    {% endif %}
+                </div>
+                <div class="shop-list-body">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        {% if business.logo %}
+                            <img src="{{ business.logo.url }}" width="36" height="36"
+                                 class="rounded-2 border" style="object-fit:cover;">
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold fs-6">{{ business.name_ar }}</div>
+                            <div class="text-primary small">{{ business.category.name_ar }}</div>
+                        </div>
+                        {% if business.is_verified %}
+                        <span class="badge bg-success ms-auto"><i class="fas fa-check me-1"></i>موثق</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-muted small mb-2" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+                        {{ business.description_ar }}
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 text-muted small">
+                        <span><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ business.district.city.name_ar }}</span>
+                        <span><i class="fas fa-eye me-1"></i>{{ business.view_count }} زيارة</span>
+                        {% if business.average_rating > 0 %}
+                        <span><i class="fas fa-star text-warning me-1"></i>{{ business.average_rating }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="shop-list-actions">
+                    <a href="{% url 'directory:shop_detail' business.slug %}"
+                       class="btn btn-primary btn-sm text-center"
+                       style="background:linear-gradient(135deg,#667eea,#764ba2); border:none; border-radius:10px;">
+                        التفاصيل
+                    </a>
+                    {% if business.phone %}
+                    <a href="tel:{{ business.phone }}" class="btn btn-outline-success btn-sm text-center" style="border-radius:10px;">
+                        <i class="fas fa-phone me-1"></i>اتصال
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav class="mt-5 d-flex justify-content-center">
+            <ul class="pagination gap-1">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-3" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link rounded-3"
+                              style="background:linear-gradient(135deg,#667eea,#764ba2); border:none;">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link rounded-3" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-3" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-store-slash"></i>
+            <h5 class="text-muted">لا توجد محلات مطابقة</h5>
+            <p class="small text-muted">جرب تغيير الفلاتر أو البحث بكلمة أخرى</p>
+            <a href="{% url 'directory:shops_list' %}" class="btn btn-outline-primary rounded-pill mt-2">
+                عرض كل المحلات
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+// ===== View Toggle =====
+function setView(type) {
+    if (type === 'grid') {
+        document.getElementById('gridView').style.display = 'flex';
+        document.getElementById('listView').style.display = 'none';
+        document.getElementById('gridViewBtn').classList.add('active');
+        document.getElementById('listViewBtn').classList.remove('active');
+        localStorage.setItem('shopView', 'grid');
+    } else {
+        document.getElementById('gridView').style.display = 'none';
+        document.getElementById('listView').style.display = 'block';
+        document.getElementById('gridViewBtn').classList.remove('active');
+        document.getElementById('listViewBtn').classList.add('active');
+        localStorage.setItem('shopView', 'list');
+    }
+}
+
+// استرجاع التفضيل المحفوظ
+const savedView = localStorage.getItem('shopView');
+if (savedView === 'list') setView('list');
+
+// ===== Cascading Cities =====
+function loadCities(govSlug) {
+    const citySelect = document.getElementById('cityFilter');
+    citySelect.innerHTML = '<option value="">🏙 كل المدن</option>';
+    if (!govSlug) { document.getElementById('filterForm').submit(); return; }
+
+    fetch(`/dashboard/ajax/get-cities/?governorate_slug=${govSlug}`)
+        .then(r => r.json())
+        .then(data => {
+            data.cities.forEach(c => {
+                citySelect.innerHTML += `<option value="${c.slug}">${c.name_ar}</option>`;
+            });
+            document.getElementById('filterForm').submit();
+        });
+}
+</script>
+{% endblock %}

@@ -1,371 +1,558 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static i18n %}
 
-{% block title %}جميع العروض - دليل أي خدمة{% endblock %}
+{% block title %}
+    {% if LANGUAGE_CODE == 'ar' %}جميع العروض والخصومات - دليل أي خدمة
+    {% else %}All Deals & Offers - Daliil Ay Khidma{% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <style>
+:root {
+    --deal-1: #f5576c;
+    --deal-2: #f093fb;
+    --primary: #667eea;
+    --secondary: #764ba2;
+    --dark: #1e293b;
+    --muted: #64748b;
+    --light-bg: #f8fafc;
+}
+
+/* HEADER */
 .deals-header {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    padding: 4rem 0;
-    margin-bottom: 4rem;
-    border-radius: 0 0 40px 40px;
+    background: linear-gradient(135deg, var(--deal-2), var(--deal-1));
+    padding: 3.5rem 0 5rem;
     color: white;
     position: relative;
     overflow: hidden;
 }
-
 .deals-header::before {
-    content: '🎉';
+    content: '🔥';
     position: absolute;
-    font-size: 10rem;
-    opacity: 0.1;
-    top: 50%;
-    right: 5%;
+    font-size: 18rem;
+    opacity: 0.07;
+    top: 50%; right: 3%;
     transform: translateY(-50%) rotate(-15deg);
+    line-height: 1;
+}
+.deals-header h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; }
+.deals-header p  { font-size: 1rem; opacity: 0.88; margin: 0; }
+
+/* STATS PILLS */
+.header-stats {
+    display: flex; flex-wrap: wrap; gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+.hstat {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white; padding: 0.45rem 1.1rem;
+    border-radius: 50px; font-weight: 700; font-size: 0.88rem;
 }
 
+/* FILTER CARD */
+.filter-card {
+    background: white; border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    position: sticky; top: 90px;
+    border: 1px solid rgba(0,0,0,0.04);
+}
+.filter-header {
+    background: linear-gradient(135deg, var(--deal-2), var(--deal-1));
+    color: white; padding: 1.25rem 1.5rem;
+    font-size: 0.95rem; font-weight: 800;
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.filter-body { padding: 1.25rem; }
+.filter-label {
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 0.4rem; display: block;
+}
+.filter-control {
+    border-radius: 10px; border: 1.5px solid #e2e8f0;
+    font-size: 0.88rem; padding: 0.5rem 0.875rem;
+    width: 100%; transition: border-color 0.2s;
+    background: white; color: var(--dark);
+}
+.filter-control:focus {
+    outline: none;
+    border-color: var(--deal-1);
+    box-shadow: 0 0 0 3px rgba(245,87,108,0.1);
+}
+.btn-filter {
+    width: 100%; padding: 0.75rem;
+    background: linear-gradient(135deg, var(--deal-2), var(--deal-1));
+    color: white; border: none; border-radius: 12px;
+    font-weight: 700; font-size: 0.92rem;
+    cursor: pointer; transition: all 0.3s;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.btn-filter:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,87,108,0.4); }
+.btn-reset {
+    width: 100%; padding: 0.65rem;
+    background: var(--light-bg); color: var(--muted);
+    border: 1.5px solid #e2e8f0; border-radius: 12px;
+    font-weight: 700; font-size: 0.88rem;
+    text-decoration: none; text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    transition: 0.2s; margin-top: 0.5rem;
+}
+.btn-reset:hover { border-color: var(--deal-1); color: var(--deal-1); }
+
+/* RESULTS BAR */
+.results-bar {
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap;
+    gap: 0.75rem; margin-bottom: 1.5rem;
+    background: white; padding: 0.875rem 1.25rem;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.04);
+}
+.results-count {
+    font-weight: 700; font-size: 0.9rem; color: var(--dark);
+}
+.results-count span {
+    background: linear-gradient(135deg, var(--deal-2), var(--deal-1));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; font-size: 1.1rem;
+}
+
+/* DEAL CARD */
 .deal-card {
-    border: none;
-    border-radius: 20px;
-    overflow: hidden;
-    transition: all 0.4s ease;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    height: 100%;
-    position: relative;
-    background: white;
+    background: white; border-radius: 20px;
+    overflow: hidden; border: 1px solid #e2e8f0;
+    transition: all 0.35s ease;
+    height: 100%; display: flex; flex-direction: column;
 }
-
 .deal-card:hover {
-    transform: translateY(-15px) scale(1.02);
-    box-shadow: 0 20px 50px rgba(245,87,108,0.3);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 45px rgba(245,87,108,0.18);
+    border-color: rgba(245,87,108,0.3);
 }
 
-.deal-image {
-    height: 250px;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    position: relative;
-    overflow: hidden;
+/* DEAL IMAGE */
+.deal-img {
+    height: 200px;
+    background: linear-gradient(135deg, var(--deal-2), var(--deal-1));
+    position: relative; overflow: hidden; flex-shrink: 0;
 }
-
-.deal-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.deal-img img {
+    width: 100%; height: 100%; object-fit: cover;
     transition: transform 0.5s ease;
 }
-
-.deal-card:hover .deal-image img {
-    transform: scale(1.15);
+.deal-card:hover .deal-img img { transform: scale(1.1); }
+.deal-img .no-img {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; opacity: 0.4;
 }
 
-.discount-badge {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 50px;
-    font-weight: 800;
-    font-size: 1.5rem;
-    box-shadow: 0 8px 25px rgba(239,68,68,0.4);
+/* BADGES ON IMAGE */
+.disc-badge {
+    position: absolute; top: 12px;
+    {% if LANGUAGE_CODE == 'ar' %}left: 12px;{% else %}right: 12px;{% endif %}
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white; padding: 0.5rem 0.875rem;
+    border-radius: 50px; font-weight: 900; font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(239,68,68,0.45);
     animation: pulse 2s infinite;
+    line-height: 1; text-align: center;
 }
+.disc-badge small { display: block; font-size: 0.65rem; font-weight: 600; opacity: 0.9; }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.07); }
 }
 
-.deal-type-badge {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: white;
-    color: #f5576c;
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+.type-badge {
+    position: absolute; top: 12px;
+    {% if LANGUAGE_CODE == 'ar' %}right: 12px;{% else %}left: 12px;{% endif %}
+    background: white; color: var(--deal-1);
+    padding: 0.35rem 0.875rem; border-radius: 50px;
+    font-weight: 700; font-size: 0.78rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    display: flex; align-items: center; gap: 0.35rem;
 }
 
+.featured-ribbon {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: white; text-align: center;
+    padding: 0.3rem; font-size: 0.75rem; font-weight: 700;
+}
+
+/* DEAL BODY */
+.deal-body {
+    padding: 1.25rem; flex: 1;
+    display: flex; flex-direction: column;
+}
+.deal-title {
+    font-size: 0.98rem; font-weight: 800;
+    color: var(--dark); margin-bottom: 0.4rem; line-height: 1.35;
+}
+.deal-business {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.82rem; color: var(--muted);
+    margin-bottom: 0.6rem; text-decoration: none;
+    transition: color 0.2s;
+}
+.deal-business:hover { color: var(--deal-1); }
+.deal-business i { color: var(--deal-1); font-size: 0.75rem; }
+
+.deal-desc {
+    font-size: 0.83rem; color: #64748b;
+    line-height: 1.65; margin-bottom: 0.875rem;
+    flex: 1;
+}
+
+/* PRICE ROW */
+.price-row {
+    display: flex; align-items: baseline; gap: 0.5rem;
+    margin-bottom: 0.875rem; flex-wrap: wrap;
+}
+.price-final   { font-size: 1.3rem; font-weight: 900; color: #10b981; }
+.price-original { font-size: 0.88rem; color: var(--muted); text-decoration: line-through; }
+.price-curr    { font-size: 0.78rem; color: var(--muted); }
+
+/* TIMER */
 .deal-timer {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 0.75rem 1.25rem;
-    border-radius: 50px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    margin-top: 1rem;
-    box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white; padding: 0.4rem 0.875rem;
+    border-radius: 50px; font-size: 0.78rem; font-weight: 700;
+    margin-bottom: 0.875rem;
 }
 
-.deal-timer i {
-    animation: tick 1s infinite;
+/* CTA BTN */
+.deal-cta {
+    display: block; text-align: center;
+    background: linear-gradient(135deg, var(--deal-2), var(--deal-1));
+    color: white; padding: 0.7rem;
+    border-radius: 12px; font-weight: 700; font-size: 0.88rem;
+    text-decoration: none; transition: all 0.3s;
+    margin-top: auto;
 }
+.deal-cta:hover { color: white; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(245,87,108,0.4); }
 
-@keyframes tick {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(10deg); }
-}
-
-.filter-card {
-    border-radius: 20px;
-    border: none;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    position: sticky;
-    top: 100px;
-}
-
-.filter-header {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-    padding: 1.5rem;
-    border-radius: 20px 20px 0 0;
-}
-
-.btn-apply-filter {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    border: none;
-    color: white;
-    font-weight: 700;
-    padding: 0.85rem;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.btn-apply-filter:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(245,87,108,0.4);
-    color: white;
-}
-
+/* EMPTY STATE */
 .empty-state {
-    text-align: center;
-    padding: 5rem 2rem;
+    text-align: center; padding: 5rem 1.5rem;
+    background: white; border-radius: 20px;
+    border: 2px dashed #e2e8f0;
 }
-
-.empty-state i {
-    font-size: 6rem;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 2rem;
+.empty-state .empty-icon {
+    font-size: 5rem; margin-bottom: 1rem; display: block;
+    background: linear-gradient(135deg, var(--deal-2), var(--deal-1));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
+.empty-state h4 { color: var(--dark); font-weight: 800; margin-bottom: 0.5rem; }
+.empty-state p  { color: var(--muted); font-size: 0.9rem; }
 
-.pagination .page-link {
-    border-radius: 12px;
-    margin: 0 5px;
-    border: none;
-    color: #f5576c;
-    font-weight: 600;
+/* PAGINATION */
+.pag-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 12px;
+    font-weight: 700; font-size: 0.88rem; text-decoration: none;
+    border: 1.5px solid #e2e8f0; color: var(--dark);
+    transition: all 0.2s; background: white;
 }
+.pag-btn:hover   { border-color: var(--deal-1); color: var(--deal-1); }
+.pag-btn.active  {
+    background: linear-gradient(135deg, var(--deal-2), var(--deal-1));
+    color: white; border-color: transparent;
+}
+.pag-btn.disabled { opacity: 0.4; pointer-events: none; }
 
-.pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    border: none;
+@media (max-width: 768px) {
+    .deals-header h1 { font-size: 1.8rem; }
+    .deals-header { padding: 2.5rem 0 4rem; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
+
+{# HEADER #}
 <div class="deals-header">
-    <div class="container text-center">
-        <h1 class="display-3 fw-bold mb-3">
-            <i class="fas fa-tags me-3"></i>
-            جميع العروض والخصومات
+    <div class="container">
+        <h1>
+            <i class="fas fa-tags me-2"></i>
+            {% if LANGUAGE_CODE == 'ar' %}جميع العروض والخصومات{% else %}All Deals & Offers{% endif %}
         </h1>
-        <p class="lead">استكشف أفضل العروض الحصرية ووفّر مع كل عملية شراء!</p>
+        <p>{% if LANGUAGE_CODE == 'ar' %}استكشف أفضل العروض الحصرية ووفّر مع كل عملية شراء{% else %}Explore the best exclusive deals and save on every purchase{% endif %}</p>
+        <div class="header-stats">
+            <div class="hstat">
+                <i class="fas fa-fire"></i>
+                <span>{{ stats.active_deals }}</span>
+                {% if LANGUAGE_CODE == 'ar' %}عرض نشط{% else %}Active Deals{% endif %}
+            </div>
+            {% if stats.featured_deals %}
+            <div class="hstat">
+                <i class="fas fa-star"></i>
+                <span>{{ stats.featured_deals }}</span>
+                {% if LANGUAGE_CODE == 'ar' %}عرض مميز{% else %}Featured{% endif %}
+            </div>
+            {% endif %}
+            {% if stats.ending_soon %}
+            <div class="hstat">
+                <i class="fas fa-clock"></i>
+                <span>{{ stats.ending_soon }}</span>
+                {% if LANGUAGE_CODE == 'ar' %}تنتهي قريباً{% else %}Ending Soon{% endif %}
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
-<div class="container mb-5">
-    <div class="row g-4">
-        <!-- Filters -->
-        <div class="col-lg-3">
-            <div class="filter-card">
-                <div class="filter-header">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-sliders-h me-2"></i>
-                        فلترة العروض
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <form method="get">
-                        <!-- Search -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">البحث</label>
-                            <input type="text" class="form-control" name="q" value="{{ request.GET.q }}" placeholder="ابحث عن عرض...">
-                        </div>
-                        
-                        <!-- Category -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">الفئة</label>
-                            <select class="form-select" name="category">
-                                <option value="">جميع الفئات</option>
-                                {% for cat in categories %}
-                                <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name_ar }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <!-- Deal Type -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">نوع العرض</label>
-                            <select class="form-select" name="type">
-                                <option value="">جميع الأنواع</option>
-                                <option value="percentage" {% if request.GET.type == 'percentage' %}selected{% endif %}>خصم نسبة مئوية</option>
-                                <option value="fixed" {% if request.GET.type == 'fixed' %}selected{% endif %}>خصم مبلغ ثابت</option>
-                                <option value="buy_x_get_y" {% if request.GET.type == 'buy_x_get_y' %}selected{% endif %}>اشتري X واحصل على Y</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Status -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">الحالة</label>
-                            <select class="form-select" name="status">
-                                <option value="">جميع العروض</option>
-                                <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>سارية</option>
-                                <option value="upcoming" {% if request.GET.status == 'upcoming' %}selected{% endif %}>قادمة</option>
-                            </select>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-apply-filter">
-                                <i class="fas fa-check me-2"></i>
-                                تطبيق
+{# MAIN #}
+<div style="background:var(--light-bg);padding:2rem 0 4rem;margin-top:-2rem;">
+    <div class="container">
+        <div class="row g-4">
+
+            {# FILTER SIDEBAR #}
+            <div class="col-lg-3">
+                <div class="filter-card">
+                    <div class="filter-header">
+                        <i class="fas fa-sliders-h"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}فلترة العروض{% else %}Filter Deals{% endif %}
+                    </div>
+                    <div class="filter-body">
+                        <form method="get">
+                            <div class="mb-3">
+                                <label class="filter-label">
+                                    <i class="fas fa-search me-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}البحث{% else %}Search{% endif %}
+                                </label>
+                                <input type="text" name="q" class="filter-control"
+                                       value="{{ search_query|default:'' }}"
+                                       placeholder="{% if LANGUAGE_CODE == 'ar' %}ابحث عن عرض...{% else %}Search deals...{% endif %}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="filter-label">
+                                    <i class="fas fa-th-large me-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}الفئة{% else %}Category{% endif %}
+                                </label>
+                                <select name="category" class="filter-control">
+                                    <option value="">{% if LANGUAGE_CODE == 'ar' %}جميع الفئات{% else %}All Categories{% endif %}</option>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.slug }}"
+                                        {% if request.GET.category == cat.slug %}selected{% endif %}>
+                                        {% if LANGUAGE_CODE == 'ar' %}{{ cat.name_ar }}{% else %}{{ cat.name_en }}{% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="filter-label">
+                                    <i class="fas fa-tag me-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}نوع العرض{% else %}Deal Type{% endif %}
+                                </label>
+                                <select name="type" class="filter-control">
+                                    <option value="">{% if LANGUAGE_CODE == 'ar' %}جميع الأنواع{% else %}All Types{% endif %}</option>
+                                    <option value="percentage" {% if deal_type == 'percentage' %}selected{% endif %}>
+                                        {% if LANGUAGE_CODE == 'ar' %}خصم نسبة مئوية{% else %}Percentage Discount{% endif %}
+                                    </option>
+                                    <option value="fixed" {% if deal_type == 'fixed' %}selected{% endif %}>
+                                        {% if LANGUAGE_CODE == 'ar' %}خصم مبلغ ثابت{% else %}Fixed Amount{% endif %}
+                                    </option>
+                                    <option value="bogo" {% if deal_type == 'bogo' %}selected{% endif %}>
+                                        {% if LANGUAGE_CODE == 'ar' %}اشتري واحد واحصل على آخر{% else %}Buy One Get One{% endif %}
+                                    </option>
+                                    <option value="bundle" {% if deal_type == 'bundle' %}selected{% endif %}>
+                                        {% if LANGUAGE_CODE == 'ar' %}عرض مجمع{% else %}Bundle Deal{% endif %}
+                                    </option>
+                                    <option value="special" {% if deal_type == 'special' %}selected{% endif %}>
+                                        {% if LANGUAGE_CODE == 'ar' %}عرض خاص{% else %}Special Offer{% endif %}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn-filter">
+                                <i class="fas fa-check"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}تطبيق الفلتر{% else %}Apply Filter{% endif %}
                             </button>
-                            <a href="{% url 'deals:deal_list' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-redo me-2"></i>
-                                إعادة تعيين
+                            <a href="{% url 'deals:deal_list' %}" class="btn-reset">
+                                <i class="fas fa-redo"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
                             </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Deals List -->
-        <div class="col-lg-9">
-            {% if deals %}
-            <div class="row g-4">
-                {% for deal in deals %}
-                <div class="col-lg-4 col-md-6">
-                    <div class="deal-card">
-                        <!-- Image -->
-                        <div class="deal-image">
-                            {% if deal.image %}
-                            <img src="{{ deal.image.url }}" alt="{{ deal.title_ar }}">
-                            {% else %}
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <i class="fas fa-gift fa-4x text-white opacity-50"></i>
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Discount Badge -->
-                            {% if deal.discount_percentage %}
-                            <div class="discount-badge">
-                                {{ deal.discount_percentage }}%
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Type Badge -->
-                            <div class="deal-type-badge">
-                                {% if deal.deal_type == 'percentage' %}
-                                <i class="fas fa-percent me-1"></i>خصم
-                                {% elif deal.deal_type == 'fixed' %}
-                                <i class="fas fa-money-bill me-1"></i>ثابت
-                                {% else %}
-                                <i class="fas fa-gift me-1"></i>عرض
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <!-- Content -->
-                        <div class="card-body p-4">
-                            <h5 class="card-title fw-bold mb-3">{{ deal.title_ar }}</h5>
-                            
-                            <p class="text-muted small mb-3">
-                                <i class="fas fa-store me-2" style="color: #f5576c;"></i>
-                                {{ deal.business.name_ar }}
-                            </p>
-                            
-                            {% if deal.description_ar %}
-                            <p class="card-text text-muted small mb-3">
-                                {{ deal.description_ar|truncatewords:15 }}
-                            </p>
-                            {% endif %}
-                            
-                            <!-- Timer -->
-                            {% if deal.end_date %}
-                            <div class="deal-timer">
-                                <i class="fas fa-clock"></i>
-                                <span>ينتهي في {{ deal.end_date|date:"Y/m/d" }}</span>
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Footer -->
-                            <div class="d-grid mt-4">
-                                <a href="{% url 'deals:deal_detail' deal.slug %}" class="btn btn-primary">
-                                    <i class="fas fa-eye me-2"></i>
-                                    عرض التفاصيل
-                                </a>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-            
-            <!-- Pagination -->
-            {% if deals.has_other_pages %}
-            <nav class="mt-5">
-                <ul class="pagination justify-content-center">
-                    {% if deals.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ deals.previous_page_number }}">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
+
+            {# DEALS GRID #}
+            <div class="col-lg-9">
+
+                {# RESULTS BAR #}
+                <div class="results-bar">
+                    <div class="results-count">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            عرض <span>{{ total_count }}</span> نتيجة
+                        {% else %}
+                            Showing <span>{{ total_count }}</span> deal{{ total_count|pluralize }}
+                        {% endif %}
+                        {% if search_query %}
+                        <span style="color:var(--muted);font-weight:500;font-size:0.85rem;">
+                            — "{{ search_query }}"
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% if search_query or deal_type or request.GET.category %}
+                    <a href="{% url 'deals:deal_list' %}"
+                       style="font-size:0.82rem;color:var(--deal-1);text-decoration:none;font-weight:700;">
+                        <i class="fas fa-times me-1"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}مسح الفلاتر{% else %}Clear filters{% endif %}
+                    </a>
                     {% endif %}
-                    
-                    {% for num in deals.paginator.page_range %}
-                    {% if deals.number == num %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                    {% elif num > deals.number|add:'-3' and num < deals.number|add:'3' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                    {% endif %}
+                </div>
+
+                {% if deals %}
+                <div class="row g-3">
+                    {% for deal in deals %}
+                    <div class="col-xl-4 col-md-6">
+                        <div class="deal-card">
+
+                            {# IMAGE #}
+                            <div class="deal-img">
+                                {% if deal.image %}
+                                    <img src="{{ deal.image.url }}"
+                                         alt="{% if LANGUAGE_CODE == 'ar' %}{{ deal.title_ar }}{% else %}{{ deal.title_en }}{% endif %}">
+                                {% else %}
+                                    <div class="no-img">🎁</div>
+                                {% endif %}
+
+                                {% if deal.discount_percentage %}
+                                <div class="disc-badge">
+                                    -{{ deal.discount_percentage }}%
+                                    <small>{% if LANGUAGE_CODE == 'ar' %}خصم{% else %}OFF{% endif %}</small>
+                                </div>
+                                {% endif %}
+
+                                <div class="type-badge">
+                                    {% if deal.deal_type == 'percentage' %}<i class="fas fa-percent"></i>{% if LANGUAGE_CODE == 'ar' %}خصم{% else %}Discount{% endif %}
+                                    {% elif deal.deal_type == 'fixed' %}<i class="fas fa-money-bill-wave"></i>{% if LANGUAGE_CODE == 'ar' %}ثابت{% else %}Fixed{% endif %}
+                                    {% elif deal.deal_type == 'bogo' %}<i class="fas fa-gift"></i>{% if LANGUAGE_CODE == 'ar' %}BOGO{% else %}BOGO{% endif %}
+                                    {% elif deal.deal_type == 'bundle' %}<i class="fas fa-box"></i>{% if LANGUAGE_CODE == 'ar' %}مجمع{% else %}Bundle{% endif %}
+                                    {% else %}<i class="fas fa-star"></i>{% if LANGUAGE_CODE == 'ar' %}خاص{% else %}Special{% endif %}{% endif %}
+                                </div>
+
+                                {% if deal.is_featured %}
+                                <div class="featured-ribbon">
+                                    ⭐ {% if LANGUAGE_CODE == 'ar' %}عرض مميز{% else %}Featured Deal{% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            {# BODY #}
+                            <div class="deal-body">
+                                <h5 class="deal-title">
+                                    {% if LANGUAGE_CODE == 'ar' %}{{ deal.title_ar }}
+                                    {% else %}{{ deal.title_en }}{% endif %}
+                                </h5>
+
+                                <a href="{% url 'directory:business_detail' deal.business.slug %}"
+                                   class="deal-business">
+                                    <i class="fas fa-store"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}{{ deal.business.name_ar }}
+                                    {% else %}{{ deal.business.name_en }}{% endif %}
+                                </a>
+
+                                {% if deal.description_ar or deal.description_en %}
+                                <p class="deal-desc">
+                                    {% if LANGUAGE_CODE == 'ar' %}{{ deal.description_ar|truncatewords:18 }}
+                                    {% else %}{{ deal.description_en|truncatewords:18 }}{% endif %}
+                                </p>
+                                {% endif %}
+
+                                {% if deal.final_price %}
+                                <div class="price-row">
+                                    <span class="price-final">{{ deal.final_price }}</span>
+                                    <span class="price-curr">{% if LANGUAGE_CODE == 'ar' %}جنيه{% else %}EGP{% endif %}</span>
+                                    {% if deal.original_price %}
+                                    <span class="price-original">{{ deal.original_price }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <div class="deal-timer">
+                                    <i class="fas fa-clock"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}ينتهي في{% else %}Ends{% endif %}
+                                    {{ deal.end_date|date:"d M Y" }}
+                                </div>
+
+                                <a href="{% url 'deals:deal_detail' deal.slug %}" class="deal-cta">
+                                    <i class="fas fa-eye me-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}عرض التفاصيل{% else %}View Details{% endif %}
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
                     {% endfor %}
-                    
-                    {% if deals.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ deals.next_page_number }}">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
+                </div>
+
+                {# PAGINATION #}
+                {% if deals.has_other_pages %}
+                <div class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
+                    {% if deals.has_previous %}
+                    <a href="?page={{ deals.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if deal_type %}&type={{ deal_type }}{% endif %}"
+                       class="pag-btn">
+                        <i class="fas fa-chevron-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}"></i>
+                    </a>
+                    {% else %}
+                    <span class="pag-btn disabled">
+                        <i class="fas fa-chevron-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}"></i>
+                    </span>
                     {% endif %}
-                </ul>
-            </nav>
-            {% endif %}
-            
-            {% else %}
-            <!-- Empty State -->
-            <div class="empty-state">
-                <i class="fas fa-gift"></i>
-                <h3 class="text-muted mb-3">لا توجد عروض حالياً</h3>
-                <p class="text-muted mb-4">عد قريباً للحصول على عروض حصرية!</p>
-                <a href="{% url 'deals:deal_list' %}" class="btn btn-lg" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; font-weight: 700;">
-                    <i class="fas fa-redo me-2"></i>
-                    إعادة تعيين
-                </a>
+
+                    {% for num in deals.paginator.page_range %}
+                        {% if deals.number == num %}
+                        <span class="pag-btn active">{{ num }}</span>
+                        {% elif num > deals.number|add:'-3' and num < deals.number|add:'3' %}
+                        <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if deal_type %}&type={{ deal_type }}{% endif %}"
+                           class="pag-btn">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if deals.has_next %}
+                    <a href="?page={{ deals.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if deal_type %}&type={{ deal_type }}{% endif %}"
+                       class="pag-btn">
+                        <i class="fas fa-chevron-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %}"></i>
+                    </a>
+                    {% else %}
+                    <span class="pag-btn disabled">
+                        <i class="fas fa-chevron-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %}"></i>
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% else %}
+                {# EMPTY STATE #}
+                <div class="empty-state">
+                    <i class="fas fa-gift empty-icon"></i>
+                    <h4>{% if LANGUAGE_CODE == 'ar' %}لا توجد عروض حالياً{% else %}No deals found{% endif %}</h4>
+                    <p>{% if LANGUAGE_CODE == 'ar' %}جرّب تغيير الفلاتر أو عد قريباً للحصول على عروض حصرية!{% else %}Try changing the filters or check back soon for exclusive deals!{% endif %}</p>
+                    <a href="{% url 'deals:deal_list' %}"
+                       style="display:inline-flex;align-items:center;gap:0.5rem;margin-top:1rem;background:linear-gradient(135deg,var(--deal-2),var(--deal-1));color:white;padding:0.75rem 1.75rem;border-radius:50px;font-weight:700;text-decoration:none;">
+                        <i class="fas fa-redo"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
+                    </a>
+                </div>
+                {% endif %}
+
             </div>
-            {% endif %}
         </div>
     </div>
 </div>
+
 {% endblock %}

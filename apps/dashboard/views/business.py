@@ -56,50 +56,127 @@ def business_list(request):
     
     return render(request, 'dashboard/business/list.html', context)
 
+from apps.dashboard.forms.business_create import BusinessCreateForm, BusinessImageFormSet
+from apps.directory.models.location import Governorate
+
 
 @login_required
-def business_create(request):
-    """إضافة محل جديد"""
+def business_create(request, business_type='shop'):
+    """إنشاء محل جديد - shop أو craft"""
+
+    # التحقق من النوع
+    if business_type not in ['shop', 'craft']:
+        return redirect('dashboard:business_list')
+
+    # العناوين حسب النوع
+    titles = {
+        'shop':  {'ar': 'إضافة محل تجاري جديد',    'icon': '🏪'},
+        'craft': {'ar': 'إضافة حرفة / مهنة حرة',   'icon': '🔧'},
+    }
+
     if request.method == 'POST':
-        form = BusinessForm(request.POST, request.FILES)
-        if form.is_valid():
-            business = form.save(commit=False)
-            business.owner = request.user
+        form     = BusinessCreateForm(request.POST, request.FILES,
+                                      business_type=business_type, user=request.user)
+        formset  = BusinessImageFormSet(request.POST, request.FILES)
+
+        if form.is_valid() and formset.is_valid():
+            business              = form.save(commit=False)
+            business.owner        = request.user
+            business.business_type = business_type
             business.save()
-            messages.success(request, 'تم إضافة المحل بنجاح!')
+
+            # حفظ الصور
+            formset.instance = business
+            formset.save()
+
+            messages.success(request, f'✅ تم إضافة "{business.name_ar}" بنجاح!')
             return redirect('dashboard:business_detail', slug=business.slug)
     else:
-        form = BusinessForm()
-    
-    context = {
-        'form': form,
-        'title': 'إضانفة محل جديد',
-    }
-    
-    return render(request, 'dashboard/business/form.html', context)
+        form    = BusinessCreateForm(business_type=business_type, user=request.user)
+        formset = BusinessImageFormSet()
+
+    return render(request, 'dashboard/business/form.html', {
+        'form':          form,
+        'formset':       formset,
+        'business_type': business_type,
+        'title':         titles[business_type],
+        'governorates':  Governorate.objects.filter(is_active=True).order_by('name_ar'),
+        'action':        'create',
+    })
 
 
 @login_required
 def business_update(request, slug):
     """تعديل محل"""
     business = get_object_or_404(Business, slug=slug, owner=request.user)
-    
+
     if request.method == 'POST':
-        form = BusinessForm(request.POST, request.FILES, instance=business)
-        if form.is_valid():
+        form    = BusinessCreateForm(request.POST, request.FILES,
+                                     instance=business, user=request.user)
+        formset = BusinessImageFormSet(request.POST, request.FILES, instance=business)
+
+        if form.is_valid() and formset.is_valid():
             form.save()
-            messages.success(request, 'تم تحديث المحل بنجاح!')
+            formset.save()
+            messages.success(request, f'✅ تم تحديث "{business.name_ar}" بنجاح!')
             return redirect('dashboard:business_detail', slug=business.slug)
     else:
-        form = BusinessForm(instance=business)
+        form    = BusinessCreateForm(instance=business, user=request.user)
+        formset = BusinessImageFormSet(instance=business)
+
+    return render(request, 'dashboard/business/form.html', {
+        'form':          form,
+        'formset':       formset,
+        'business':      business,
+        'business_type': business.business_type,
+        'title':         {'ar': f'تعديل: {business.name_ar}', 'icon': '✏️'},
+        'governorates':  Governorate.objects.filter(is_active=True).order_by('name_ar'),
+        'action':        'update',
+    })
+
+# @login_required
+# def business_create(request):
+#     """إضافة محل جديد"""
+#     if request.method == 'POST':
+#         form = BusinessForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             business = form.save(commit=False)
+#             business.owner = request.user
+#             business.save()
+#             messages.success(request, 'تم إضافة المحل بنجاح!')
+#             return redirect('dashboard:business_detail', slug=business.slug)
+#     else:
+#         form = BusinessForm()
     
-    context = {
-        'form': form,
-        'business': business,
-        'title': f'تعديل {business.name_ar}',
-    }
+#     context = {
+#         'form': form,
+#         'title': 'إضانفة محل جديد',
+#     }
     
-    return render(request, 'dashboard/business/form.html', context)
+#     return render(request, 'dashboard/business/form.html', context)
+
+
+# @login_required
+# def business_update(request, slug):
+#     """تعديل محل"""
+#     business = get_object_or_404(Business, slug=slug, owner=request.user)
+    
+#     if request.method == 'POST':
+#         form = BusinessForm(request.POST, request.FILES, instance=business)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'تم تحديث المحل بنجاح!')
+#             return redirect('dashboard:business_detail', slug=business.slug)
+#     else:
+#         form = BusinessForm(instance=business)
+    
+#     context = {
+#         'form': form,
+#         'business': business,
+#         'title': f'تعديل {business.name_ar}',
+#     }
+    
+#     return render(request, 'dashboard/business/form.html', context)
 
 
 @login_required

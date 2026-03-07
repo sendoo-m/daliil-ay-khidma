@@ -22,11 +22,8 @@ from apps.directory.models import Business
 # ========================================
 
 def deal_list(request):
-    """
-    قائمة جميع العروض النشطة
-    """
     now = timezone.now()
-    
+
     deals = Deal.objects.filter(
         is_active=True,
         start_date__lte=now,
@@ -39,21 +36,20 @@ def deal_list(request):
         'business__district__city',
         'business__district__city__governorate'
     )
-    
+
     # Filters
     deal_type = request.GET.get('type')
     if deal_type in ['percentage', 'fixed', 'bogo', 'bundle', 'special']:
         deals = deals.filter(deal_type=deal_type)
-    
+
     business_id = request.GET.get('business')
     if business_id:
         deals = deals.filter(business_id=business_id)
-    
-    category_id = request.GET.get('category')
-    if category_id:
-        deals = deals.filter(business__category_id=category_id)
-    
-    # Search
+
+    category_slug = request.GET.get('category')
+    if category_slug:
+        deals = deals.filter(business__category__slug=category_slug)
+
     search_query = request.GET.get('q')
     if search_query:
         deals = deals.filter(
@@ -62,30 +58,37 @@ def deal_list(request):
             Q(description_en__icontains=search_query) |
             Q(description_ar__icontains=search_query)
         )
-    
-    # Featured first, then by creation date
+
     deals = deals.order_by('-is_featured', 'order', '-created_at')
-    
-    # Pagination
-    paginator = Paginator(deals, 12)
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-    
-    # Stats
+
+    # Stats قبل الـ pagination
     stats = {
         'active_deals': deals.count(),
         'featured_deals': deals.filter(is_featured=True).count(),
         'ending_soon': deals.filter(end_date__lte=now + timezone.timedelta(days=3)).count(),
     }
-    
+
+    # Pagination
+    paginator = Paginator(deals, 12)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    # Categories للفلتر
+    from apps.categories.models import Category
+    categories = Category.objects.filter(
+        is_active=True,
+        parent__isnull=True
+    ).order_by('order')
+
     context = {
-        'page_obj': page_obj,
+        'deals': page_obj,        # ✅ اسمه deals عشان الـ template يشتغل
         'total_count': paginator.count,
         'search_query': search_query,
         'deal_type': deal_type,
         'stats': stats,
+        'categories': categories,  # ✅ أضفنا categories
     }
-    
+
     return render(request, 'deals/deal_list.html', context)
 
 

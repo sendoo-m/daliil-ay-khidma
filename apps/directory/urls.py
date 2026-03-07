@@ -44,5 +44,16 @@ urlpatterns = [
     # Search
     path('search/', views.business_search, name='business_search'),
  
+    # Shops
+    path('shops/',                    views.shops_list,    name='shops_list'),
+    path('shops/<slug:slug>/',        views.shop_detail,   name='shop_detail'),
+
+    # Crafts
+    path('crafts/',                   views.crafts_list,   name='crafts_list'),
+    path('crafts/<slug:slug>/',       views.craft_detail,  name='craft_detail'),
+
+    # Services
+    path('services/',                 views.services_list, name='services_list'),
+    path('services/<slug:slug>/',     views.service_detail, name='service_detail'),
 
 ]

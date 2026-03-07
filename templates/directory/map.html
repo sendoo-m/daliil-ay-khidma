@@ -1,442 +1,426 @@
 {% extends "base.html" %}
-{% load static %}
-{% load i18n %}
-{% load translation_tags %}
+{% load static i18n %}
 
-{% block title %}{% t "Map View" %} - {{ block.super }}{% endblock %}
+{% block title %}
+    {% if LANGUAGE_CODE == 'ar' %}خريطة المحلات{% else %}Business Map{% endif %} - {{ block.super }}
+{% endblock %}
 
 {% block extra_css %}
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
-      crossorigin=""/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 <style>
-    #map {
-        height: calc(100vh - 200px);
-        min-height: 500px;
-        width: 100%;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        z-index: 1;
-    }
-    
-    .map-controls {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-    }
-    
-    .business-popup {
-        max-width: 300px;
-    }
-    
-    .business-popup img {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 4px;
-        margin-bottom: 10px;
-    }
-    
-    .business-popup h6 {
-        font-size: 16px;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-    
-    .business-popup .badge {
-        font-size: 11px;
-        margin-bottom: 8px;
-    }
-    
-    .leaflet-popup-content {
-        margin: 15px;
-    }
-    
-    /* Custom marker icons */
-    .marker-icon {
-        background: #fff;
-        border: 3px solid #007bff;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    
-    .marker-icon.featured {
-        border-color: #ffc107;
-        background: #fff9e6;
-    }
-    
-    .stats-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 15px;
-        border-radius: 8px;
-        text-align: center;
-    }
-    
-    .stats-card h3 {
-        font-size: 32px;
-        font-weight: bold;
-        margin: 0;
-    }
-    
-    .stats-card p {
-        margin: 0;
-        opacity: 0.9;
-    }
-    
-    .loading-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255,255,255,0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        border-radius: 8px;
-    }
+:root {
+    --primary: #667eea;
+    --secondary: #764ba2;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --dark: #1e293b;
+    --muted: #64748b;
+}
+
+.map-page-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    padding: 1.5rem 0;
+    color: white;
+    margin-bottom: 0;
+}
+
+.map-page-header h1 { font-size: 1.6rem; font-weight: 900; margin: 0; }
+.map-page-header p  { margin: 0.25rem 0 0; opacity: 0.85; font-size: 0.9rem; }
+
+.map-controls-bar {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.map-controls-bar .form-control,
+.map-controls-bar .form-select {
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    font-size: 0.88rem;
+    padding: 0.5rem 0.9rem;
+    transition: border-color 0.2s;
+}
+
+.map-controls-bar .form-control:focus,
+.map-controls-bar .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+}
+
+.stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+.map-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.1rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.map-btn:hover { transform: translateY(-1px); }
+.map-btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
+.map-btn-secondary { background: #f1f5f9; color: var(--dark); }
+.map-btn-outline { background: white; color: var(--primary); border: 1.5px solid var(--primary); }
+.map-btn-outline.active { background: var(--primary); color: white; }
+
+/* الخريطة نفسها */
+#mapWrapper {
+    height: calc(100vh - 200px);
+    min-height: 500px;
+    position: relative;
+}
+
+#mapFrame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.map-loading {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    font-size: 0.95rem;
+    color: var(--muted);
+    gap: 0.75rem;
+}
+
+.spinner {
+    width: 40px; height: 40px;
+    border: 4px solid #e2e8f0;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Results count badge */
+.results-badge {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--dark);
+    z-index: 50;
+    white-space: nowrap;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Page Header -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <h1 class="h3 mb-0">
-                <i class="fas fa-map-marked-alt text-primary me-2"></i>
-                {% t "Business Map" %}
-            </h1>
-            <p class="text-muted mb-0">{% t "Explore businesses near you" %}</p>
-        </div>
-    </div>
 
-    <!-- Map Controls -->
-    <div class="map-controls">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <h3 id="displayCount">{{ total_businesses }}</h3>
-                    <p><i class="fas fa-store me-1"></i> {% t "Businesses" %}</p>
+{# PAGE HEADER #}
+<div class="map-page-header">
+    <div class="container">
+        <h1>
+            <i class="fas fa-map-marked-alt me-2"></i>
+            {% if LANGUAGE_CODE == 'ar' %}خريطة المحلات{% else %}Business Map{% endif %}
+        </h1>
+        <p>
+            {% if LANGUAGE_CODE == 'ar' %}اكتشف المحلات القريبة منك{% else %}Explore businesses near you{% endif %}
+        </p>
+    </div>
+</div>
+
+{# CONTROLS BAR #}
+<div class="map-controls-bar">
+    <div class="container">
+        <div class="row g-2 align-items-center">
+
+            <div class="col-auto">
+                <div class="stat-pill">
+                    <i class="fas fa-store"></i>
+                    <span id="displayCount">{{ total_businesses }}</span>
+                    <span>{% if LANGUAGE_CODE == 'ar' %}محل{% else %}Business{% endif %}</span>
                 </div>
             </div>
-            
-            <div class="col-md-3">
-                <label class="form-label">{% t "Category" %}</label>
-                <select id="categoryFilter" class="form-select">
-                    <option value="">{% t "All Categories" %}</option>
+
+            <div class="col-md-2 col-6">
+                <select id="categoryFilter" class="form-select form-select-sm">
+                    <option value="">{% if LANGUAGE_CODE == 'ar' %}كل الفئات{% else %}All Categories{% endif %}</option>
                     {% for category in categories %}
                     <option value="{{ category.name_en }}">
-                        {{ category.name }}
+                        {% if LANGUAGE_CODE == 'ar' %}{{ category.name_ar }}{% else %}{{ category.name_en }}{% endif %}
                     </option>
                     {% endfor %}
                 </select>
             </div>
-            
-            <div class="col-md-3">
-                <label class="form-label">{% t "Governorate" %}</label>
-                <select id="governorateFilter" class="form-select">
-                    <option value="">{% t "All Governorates" %}</option>
+
+            <div class="col-md-2 col-6">
+                <select id="governorateFilter" class="form-select form-select-sm">
+                    <option value="">{% if LANGUAGE_CODE == 'ar' %}كل المحافظات{% else %}All Governorates{% endif %}</option>
                     {% for gov in governorates %}
-                    <option value="{{ gov.name_en }}">{{ gov.name }}</option>
+                    <option value="{{ gov.name_en }}">
+                        {% if LANGUAGE_CODE == 'ar' %}{{ gov.name_ar }}{% else %}{{ gov.name_en }}{% endif %}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
-            
-            <div class="col-md-3">
-                <label class="form-label">{% t "Search" %}</label>
-                <input type="text" id="searchInput" class="form-control" 
-                       placeholder="{% t 'Search businesses...' %}">
-            </div>
-        </div>
-        
-        <div class="row mt-3">
-            <div class="col-12">
-                <button id="resetFilters" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-redo me-1"></i> {% t "Reset Filters" %}
-                </button>
-                <button id="myLocation" class="btn btn-primary btn-sm">
-                    <i class="fas fa-location-arrow me-1"></i> {% t "My Location" %}
-                </button>
-                <button id="toggleClustering" class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-layer-group me-1"></i> {% t "Toggle Clustering" %}
-                </button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Map Container -->
-    <div style="position: relative;">
-        <div id="map"></div>
-        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-            <div class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <div class="col-md-3 col-12">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text" style="border-radius:10px 0 0 10px;background:#f8fafc;border:1.5px solid #e2e8f0;border-right:none;">
+                        <i class="fas fa-search" style="color:var(--muted);"></i>
+                    </span>
+                    <input type="text" id="searchInput" class="form-control"
+                           placeholder="{% if LANGUAGE_CODE == 'ar' %}ابحث عن محل...{% else %}Search businesses...{% endif %}"
+                           style="border-radius:0 10px 10px 0;">
                 </div>
-                <p class="mt-2">{% t "Loading map..." %}</p>
             </div>
+
+            <div class="col-auto d-flex gap-2 flex-wrap">
+                <button id="btnMyLocation" class="map-btn map-btn-primary">
+                    <i class="fas fa-location-arrow"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}موقعي{% else %}My Location{% endif %}
+                </button>
+                <button id="btnCluster" class="map-btn map-btn-outline active">
+                    <i class="fas fa-layer-group"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}تجميع{% else %}Cluster{% endif %}
+                </button>
+                <button id="btnReset" class="map-btn map-btn-secondary">
+                    <i class="fas fa-redo"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}إعادة ضبط{% else %}Reset{% endif %}
+                </button>
+            </div>
+
         </div>
     </div>
 </div>
+
+{# MAP WRAPPER #}
+<div id="mapWrapper">
+    <div class="map-loading" id="mapLoading">
+        <div class="spinner"></div>
+        <span>{% if LANGUAGE_CODE == 'ar' %}جاري تحميل الخريطة...{% else %}Loading map...{% endif %}</span>
+    </div>
+    <iframe id="mapFrame" srcdoc="" title="map"></iframe>
+    <div class="results-badge" id="resultsBadge">
+        <i class="fas fa-store me-1" style="color:var(--primary);"></i>
+        <span id="badgeCount">{{ total_businesses }}</span>
+        {% if LANGUAGE_CODE == 'ar' %}محل على الخريطة{% else %}businesses on map{% endif %}
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin=""></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-
 <script>
-console.log('Map script starting...');
+(function () {
+    // ===== Data from Django =====
+    var ALL_BUSINESSES = {{ businesses_json|safe }};
+    var LANG = "{{ LANGUAGE_CODE }}";
+    var isAr = LANG === 'ar';
 
-// Business data from Django
-const businessesData = {{ businesses_json|safe }};
-console.log('Total businesses:', businessesData.length);
-console.log('Sample business:', businessesData[0]);
+    // ===== Labels =====
+    var labels = {
+        viewDetails : isAr ? 'عرض التفاصيل'   : 'View Details',
+        featured    : isAr ? 'مميز'            : 'Featured',
+        youAreHere  : isAr ? 'أنت هنا'         : 'You are here',
+        noLocation  : isAr ? 'تعذّر تحديد موقعك' : 'Unable to get your location',
+        openMaps    : isAr ? 'فتح في خرائط Google' : 'Open in Google Maps',
+        phone       : isAr ? 'الهاتف'          : 'Phone'
+    };
 
-// Show loading
-document.getElementById('loadingOverlay').style.display = 'flex';
+    // ===== State =====
+    var currentBusinesses = ALL_BUSINESSES.slice();
+    var clusterEnabled = true;
+    var frameReady = false;
+    var pendingUpdate = null;
 
-// Initialize map (centered on Egypt)
-let map;
-try {
-    map = L.map('map').setView([26.8206, 30.8025], 6);
-    console.log('Map initialized');
-} catch (error) {
-    console.error('Error initializing map:', error);
-    alert('خطأ في تحميل الخريطة. يرجى إعادة تحميل الصفحة.');
-}
+    // ===== Build iframe HTML =====
+    function buildMapHTML(businesses, opts) {
+        opts = opts || {};
+        var safeData = JSON.stringify({
+            businesses : businesses,
+            labels     : labels,
+            clusterEnabled: clusterEnabled,
+            userLat    : opts.userLat || null,
+            userLng    : opts.userLng || null
+        });
 
-// Add tile layer (OpenStreetMap)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 19
-}).addTo(map);
+        return '<!DOCTYPE html><html>'
+            + '<head><meta charset="utf-8">'
+            + '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>'
+            + '<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>'
+            + '<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>'
+            + '<style>'
+            + 'html,body{margin:0;padding:0;width:100%;height:100%;}'
+            + '#m{width:100%;height:100%;}'
+            + '.bpop{min-width:220px;max-width:280px;font-family:inherit;}'
+            + '.bpop-name{font-size:0.95rem;font-weight:800;color:#1e293b;margin:0 0 6px;}'
+            + '.bpop-loc{font-size:0.78rem;color:#64748b;margin:0 0 6px;}'
+            + '.bpop-phone{font-size:0.82rem;margin:0 0 8px;}'
+            + '.bpop-phone a{color:#10b981;text-decoration:none;font-weight:700;}'
+            + '.bpop-feat{display:inline-block;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:50px;font-size:0.72rem;font-weight:700;margin-bottom:6px;}'
+            + '.bpop-btn{display:block;background:linear-gradient(135deg,#667eea,#764ba2);color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-weight:700;font-size:0.82rem;margin-top:6px;}'
+            + '.bpop-btn:hover{opacity:0.9;color:white;}'
+            + '.bpop-img{width:100%;height:110px;object-fit:cover;border-radius:6px;margin-bottom:8px;}'
+            + '</style>'
+            + '</head><body><div id="m"></div>'
+            + '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>'
+            + '<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"><\/script>'
+            + '<script>'
+            + 'var D=' + safeData + ';'
+            + 'var map=L.map("m").setView([26.8206,30.8025],6);'
+            + 'L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap",maxZoom:19}).addTo(map);'
 
-// Hide loading after tiles load
-map.whenReady(function() {
-    console.log('Map ready');
-    document.getElementById('loadingOverlay').style.display = 'none';
-});
+            // icons
+            + 'var typeIcons={shop:"🏪",craft:"🔧",public:"🏛️"};'
 
-// Marker cluster group
-let markers = L.markerClusterGroup({
-    showCoverageOnHover: false,
-    maxClusterRadius: 50,
-    spiderfyOnMaxZoom: true,
-    disableClusteringAtZoom: 15
-});
+            // cluster group
+            + 'var cg=L.markerClusterGroup({showCoverageOnHover:false,maxClusterRadius:50,spiderfyOnMaxZoom:true,disableClusteringAtZoom:15});'
+            + 'var allM=[];'
 
-let allMarkers = [];
-let clusteringEnabled = true;
+            // create markers
+            + 'D.businesses.forEach(function(b){'
+            +   'var lat=parseFloat(b.latitude),lng=parseFloat(b.longitude);'
+            +   'if(isNaN(lat)||isNaN(lng))return;'
+            +   'var ico=typeIcons[b.business_type]||"📍";'
+            +   'var cls=b.is_featured?"marker-icon featured":"marker-icon";'
+            +   'var html="<div style=\'display:flex;align-items:center;justify-content:center;"'
+            +         '+"width:38px;height:38px;border-radius:50%;background:white;"'
+            +         '+"border:3px solid "+(b.is_featured?"#f59e0b":"#667eea")+";"'
+            +         '+"box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:18px;\'>"'
+            +         '+ico+"<\/div>";'
+            +   'var icon=L.divIcon({className:"",html:html,iconSize:[38,38],iconAnchor:[19,38],popupAnchor:[0,-40]});'
+            +   'var m=L.marker([lat,lng],{icon:icon});'
 
-// Business type icons
-const businessIcons = {
-    'shop': '🏪',
-    'craft': '🔧',
-    'public': '🏛️'
-};
+            // popup
+            +   'var pop="<div class=\'bpop\'>";'
+            +   'if(b.logo)pop+="<img src=\'"+b.logo+"\' class=\'bpop-img\' onerror=\'this.style.display=\\\"none\\\"\'>";'
+            +   'pop+="<p class=\'bpop-name\'>"+b.name_ar+"<\/p>";'
+            +   'pop+="<p class=\'bpop-loc\'><span>📍<\/span> "+b.district_name_ar+", "+b.city_name_ar+", "+b.governorate_name_ar+"<\/p>";'
+            +   'if(b.is_featured)pop+="<span class=\'bpop-feat\'>⭐ "+D.labels.featured+"<\/span>";'
+            +   'if(b.phone)pop+="<p class=\'bpop-phone\'>"+D.labels.phone+": <a href=\'tel:"+b.phone+"\'>"+b.phone+"<\/a><\/p>";'
+            +   'pop+="<a href=\'/directory/business/"+b.slug+"/\' class=\'bpop-btn\' target=\'_blank\'>👁 "+D.labels.viewDetails+"<\/a>";'
+            +   'pop+="<\/div>";'
+            +   'm.bindPopup(pop,{maxWidth:300});'
+            +   'm.businessData=b;'
+            +   'allM.push(m);'
+            +   'D.clusterEnabled?cg.addLayer(m):m.addTo(map);'
+            + '});'
 
-// Create markers
-function createMarkers(businesses) {
-    console.log('Creating markers for', businesses.length, 'businesses');
-    
-    // Clear existing markers
-    markers.clearLayers();
-    allMarkers.forEach(marker => {
-        if (map.hasLayer(marker)) {
-            map.removeLayer(marker);
+            // add cluster or markers
+            + 'if(D.clusterEnabled)map.addLayer(cg);'
+
+            // fit bounds
+            + 'if(allM.length>0){var g=new L.featureGroup(allM);map.fitBounds(g.getBounds().pad(0.1));}'
+
+            // user location marker
+            + 'if(D.userLat&&D.userLng){'
+            +   'var uIcon=L.divIcon({className:"",html:"<div style=\'width:16px;height:16px;background:#ef4444;border-radius:50%;border:3px solid white;box-shadow:0 0 0 4px rgba(239,68,68,0.3);\'><\/div>",iconSize:[16,16],iconAnchor:[8,8]});'
+            +   'L.marker([D.userLat,D.userLng],{icon:uIcon}).addTo(map).bindPopup(D.labels.youAreHere).openPopup();'
+            +   'map.setView([D.userLat,D.userLng],13);'
+            + '}'
+
+            + '<\/script><\/body><\/html>';
+    }
+
+    // ===== Load iframe =====
+    function loadMap(businesses, opts) {
+        var frame = document.getElementById('mapFrame');
+        if (!frame) return;
+        document.getElementById('mapLoading').style.display = 'flex';
+        frame.srcdoc = buildMapHTML(businesses, opts);
+        frame.onload = function() {
+            document.getElementById('mapLoading').style.display = 'none';
+            document.getElementById('badgeCount').textContent = businesses.length;
+            document.getElementById('displayCount').textContent = businesses.length;
+        };
+    }
+
+    // ===== Initial load =====
+    loadMap(ALL_BUSINESSES);
+
+    // ===== Filter =====
+    function applyFilters() {
+        var cat  = document.getElementById('categoryFilter').value;
+        var gov  = document.getElementById('governorateFilter').value;
+        var q    = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        var filtered = ALL_BUSINESSES.filter(function(b) {
+            var okCat = !cat || b.category_name_en === cat;
+            var okGov = !gov || b.governorate_name_en === gov;
+            var okQ   = !q
+                || b.name_en.toLowerCase().includes(q)
+                || b.name_ar.toLowerCase().includes(q);
+            return okCat && okGov && okQ;
+        });
+
+        currentBusinesses = filtered;
+        loadMap(filtered);
+    }
+
+    document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+    document.getElementById('governorateFilter').addEventListener('change', applyFilters);
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+    // ===== Reset =====
+    document.getElementById('btnReset').addEventListener('click', function() {
+        document.getElementById('categoryFilter').value = '';
+        document.getElementById('governorateFilter').value = '';
+        document.getElementById('searchInput').value = '';
+        currentBusinesses = ALL_BUSINESSES.slice();
+        loadMap(ALL_BUSINESSES);
+    });
+
+    // ===== My Location =====
+    document.getElementById('btnMyLocation').addEventListener('click', function() {
+        if (!navigator.geolocation) {
+            alert(labels.noLocation); return;
         }
-    });
-    allMarkers = [];
-    
-    if (businesses.length === 0) {
-        console.log('No businesses to display');
-        return;
-    }
-    
-    businesses.forEach((business, index) => {
-        try {
-            // Validate coordinates
-            const lat = parseFloat(business.latitude);
-            const lng = parseFloat(business.longitude);
-            
-            if (isNaN(lat) || isNaN(lng)) {
-                console.warn('Invalid coordinates for', business.name_en);
-                return;
-            }
-            
-            console.log(`Creating marker ${index + 1}:`, business.name_en, lat, lng);
-            
-            // Create custom icon
-            const icon = businessIcons[business.business_type] || '📍';
-            const iconClass = business.is_featured ? 'marker-icon featured' : 'marker-icon';
-            
-            const customIcon = L.divIcon({
-                className: 'custom-marker',
-                html: `<div class="${iconClass}">${icon}</div>`,
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-            
-            // Create marker
-            const marker = L.marker([lat, lng], { icon: customIcon });
-            
-            // Create popup content
-            const popupContent = `
-                <div class="business-popup">
-                    ${business.logo ? `<img src="${business.logo}" alt="${business.name_en}">` : ''}
-                    <h6>${business.name_en}</h6>
-                    <p class="text-muted small mb-2">
-                        <i class="fas fa-map-marker-alt me-1"></i>
-                        ${business.district_name_en}, ${business.city_name_en}
-                    </p>
-                    ${business.is_featured ? '<span class="badge bg-warning text-dark mb-2"><i class="fas fa-star me-1"></i>Featured</span>' : ''}
-                    <p class="mb-2">
-                        <i class="fas fa-phone me-1"></i>
-                        <a href="tel:${business.phone}">${business.phone}</a>
-                    </p>
-                    <a href="/directory/business/${business.slug}/" class="btn btn-primary btn-sm w-100" target="_blank">
-                        <i class="fas fa-eye me-1"></i> {% t "View Details" %}
-                    </a>
-                </div>
-            `;
-            
-            marker.bindPopup(popupContent);
-            
-            // Store business data with marker
-            marker.businessData = business;
-            allMarkers.push(marker);
-            
-            if (clusteringEnabled) {
-                markers.addLayer(marker);
-            } else {
-                marker.addTo(map);
-            }
-        } catch (error) {
-            console.error('Error creating marker for', business.name_en, error);
-        }
-    });
-    
-    if (clusteringEnabled) {
-        map.addLayer(markers);
-    }
-    
-    // Fit bounds if results exist
-    if (allMarkers.length > 0) {
-        const group = new L.featureGroup(allMarkers);
-        map.fitBounds(group.getBounds().pad(0.1));
-    }
-    
-    // Update count
-    document.getElementById('displayCount').textContent = businesses.length;
-    
-    console.log('Finished creating', allMarkers.length, 'markers');
-}
-
-// Initial markers
-createMarkers(businessesData);
-
-// Filter functions
-function filterBusinesses() {
-    const category = document.getElementById('categoryFilter').value;
-    const governorate = document.getElementById('governorateFilter').value;
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    
-    const filtered = businessesData.filter(business => {
-        const matchCategory = !category || business.category_name_en === category;
-        const matchGovernorate = !governorate || business.governorate_name_en === governorate;
-        const matchSearch = !search || 
-            business.name_en.toLowerCase().includes(search) ||
-            business.name_ar.toLowerCase().includes(search);
-        
-        return matchCategory && matchGovernorate && matchSearch;
-    });
-    
-    console.log('Filtered results:', filtered.length);
-    createMarkers(filtered);
-}
-
-// Event listeners
-document.getElementById('categoryFilter').addEventListener('change', filterBusinesses);
-document.getElementById('governorateFilter').addEventListener('change', filterBusinesses);
-document.getElementById('searchInput').addEventListener('input', filterBusinesses);
-
-// Reset filters
-document.getElementById('resetFilters').addEventListener('click', () => {
-    document.getElementById('categoryFilter').value = '';
-    document.getElementById('governorateFilter').value = '';
-    document.getElementById('searchInput').value = '';
-    createMarkers(businessesData);
-    map.setView([26.8206, 30.8025], 6);
-});
-
-// My location
-document.getElementById('myLocation').addEventListener('click', () => {
-    if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            position => {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                map.setView([lat, lng], 13);
-                
-                // Add temporary marker
-                L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        className: 'custom-marker',
-                        html: '<div class="marker-icon" style="border-color: #dc3545; background: #ffe6e6;">📍</div>',
-                        iconSize: [40, 40],
-                        iconAnchor: [20, 40]
-                    })
-                }).addTo(map).bindPopup('{% t "You are here" %}').openPopup();
+            function(pos) {
+                loadMap(currentBusinesses, {
+                    userLat: pos.coords.latitude,
+                    userLng: pos.coords.longitude
+                });
             },
-            error => {
-                alert('{% t "Unable to get your location" %}');
-            }
+            function() { alert(labels.noLocation); }
         );
-    } else {
-        alert('{% t "Geolocation is not supported by your browser" %}');
-    }
-});
-
-// Toggle clustering
-document.getElementById('toggleClustering').addEventListener('click', () => {
-    clusteringEnabled = !clusteringEnabled;
-    
-    // Clear all markers
-    markers.clearLayers();
-    allMarkers.forEach(marker => {
-        if (map.hasLayer(marker)) {
-            map.removeLayer(marker);
-        }
     });
-    
-    // Re-add markers
-    if (clusteringEnabled) {
-        allMarkers.forEach(marker => markers.addLayer(marker));
-        map.addLayer(markers);
-    } else {
-        map.removeLayer(markers);
-        allMarkers.forEach(marker => marker.addTo(map));
-    }
-});
 
-console.log('Map script loaded successfully');
+    // ===== Toggle Clustering =====
+    document.getElementById('btnCluster').addEventListener('click', function() {
+        clusterEnabled = !clusterEnabled;
+        this.classList.toggle('active', clusterEnabled);
+        loadMap(currentBusinesses);
+    });
+
+})();
 </script>
 {% endblock %}

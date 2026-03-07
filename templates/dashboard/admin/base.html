@@ -7,18 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}لوحة التحكم الإدارية{% endblock %} - دليل أي خدمة</title>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap 5 RTL -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Global Theme CSS -->
     <link rel="stylesheet" href="{% static 'dashboard/css/global-theme.css' %}">
     
     <style>
@@ -26,22 +19,20 @@
             --admin-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --admin-sidebar: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
         }
-        
-        /* Admin Sidebar */
         .admin-sidebar {
             min-height: 100vh;
             background: var(--admin-sidebar);
             box-shadow: 2px 0 15px rgba(0,0,0,0.2);
             position: sticky;
             top: 0;
+            overflow-y: auto;
+            max-height: 100vh;
         }
-        
         .admin-header {
             padding: 2rem 1.5rem;
             text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        
         .admin-logo {
             width: 70px;
             height: 70px;
@@ -55,7 +46,6 @@
             color: white;
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
-        
         .admin-sidebar .nav-link {
             color: rgba(255,255,255,0.8);
             padding: 0.85rem 1.5rem;
@@ -64,25 +54,21 @@
             transition: all 0.3s ease;
             font-weight: 600;
         }
-        
         .admin-sidebar .nav-link:hover {
             background: rgba(255,255,255,0.1);
             color: white;
             transform: translateX(-5px);
         }
-        
         .admin-sidebar .nav-link.active {
             background: var(--admin-primary);
             color: white;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
-        
         .admin-sidebar .nav-link i {
             margin-left: 12px;
             width: 24px;
             text-align: center;
         }
-        
         .admin-topbar {
             background: white;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -91,12 +77,10 @@
             top: 0;
             z-index: 999;
         }
-        
         .main-content {
             padding: 2rem;
             min-height: 100vh;
         }
-        
         .stat-card {
             border: none;
             border-radius: 15px;
@@ -105,160 +89,229 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
         }
-        
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-        
-        .stat-card-red { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; }
-        .stat-card-blue { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; }
-        .stat-card-green { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; }
+        .stat-card-red    { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; }
+        .stat-card-blue   { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; }
+        .stat-card-green  { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; }
         .stat-card-orange { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; }
         .stat-card-purple { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; }
-        .stat-card-teal { background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); color: white; }
-        
-        .stat-icon {
-            font-size: 2.5rem;
-            opacity: 0.9;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
-        
-        .table-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        .stat-card-teal   { background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); color: white; }
+        .stat-icon   { font-size: 2.5rem; opacity: 0.9; }
+        .stat-number { font-size: 2rem; font-weight: 700; margin: 0.5rem 0; }
+        .table-card  { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .sidebar-section-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            padding: 0 1.5rem;
+            margin: 0.25rem 0;
+            display: block;
         }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    
-    <!-- Top Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light admin-topbar">
-        <div class="container-fluid">
-            <button class="btn btn-link d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar">
-                <i class="fas fa-bars fa-lg"></i>
-            </button>
-            
-            <span class="navbar-brand fw-bold" style="background: var(--admin-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                <i class="fas fa-shield-alt" style="color: #667eea;"></i> لوحة التحكم الإدارية
-            </span>
-            
-            <div class="ms-auto d-flex align-items-center gap-2">
-                <a href="/" class="btn btn-outline-primary btn-sm" target="_blank">
-                    <i class="fas fa-external-link-alt"></i> الموقع
-                </a>
-                <a href="/admin/" class="btn btn-outline-secondary btn-sm" target="_blank">
-                    <i class="fas fa-cog"></i> Django Admin
-                </a>
-                <div class="dropdown">
-                    <button class="btn btn-link dropdown-toggle text-decoration-none" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle fa-lg" style="color: #667eea;"></i> 
-                        <span class="fw-bold">{{ user.username }}</span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li><h6 class="dropdown-header">مرحباً {{ user.get_full_name|default:user.username }}</h6></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'admin_dashboard:home' %}"><i class="fas fa-home me-2"></i> الرئيسية</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i> تسجيل الخروج</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
-    
+
+<!-- ===== Top Navbar ===== -->
+<nav class="navbar navbar-expand-lg navbar-light admin-topbar">
     <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-2 p-0 d-none d-lg-block">
-                <div class="admin-sidebar">
-                    <div class="admin-header">
-                        <div class="admin-logo">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h6 class="text-white fw-bold">الإدارة</h6>
-                        <small class="text-white-50"><i class="fas fa-user me-1"></i>{{ user.username }}</small>
-                    </div>
-                    
-                    <nav class="nav flex-column mt-3">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'admin_dashboard:home' %}">
-                            <i class="fas fa-tachometer-alt"></i> الرئيسية
+        <button class="btn btn-link d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+
+        <span class="navbar-brand fw-bold"
+              style="background: var(--admin-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            <i class="fas fa-shield-alt" style="color: #667eea;"></i> لوحة التحكم الإدارية
+        </span>
+
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <a href="/" class="btn btn-outline-primary btn-sm" target="_blank">
+                <i class="fas fa-external-link-alt"></i> الموقع
+            </a>
+            <a href="/admin/" class="btn btn-outline-secondary btn-sm" target="_blank">
+                <i class="fas fa-cog"></i> Django Admin
+            </a>
+            <div class="dropdown">
+                <button class="btn btn-link dropdown-toggle text-decoration-none" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle fa-lg" style="color: #667eea;"></i>
+                    <span class="fw-bold">{{ user.username }}</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><h6 class="dropdown-header">مرحباً {{ user.get_full_name|default:user.username }}</h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="{% url 'admin_dashboard:home' %}">
+                            <i class="fas fa-home me-2"></i> الرئيسية
                         </a>
-                        <a class="nav-link {% if 'users' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:users_list' %}">
-                            <i class="fas fa-users"></i> المستخدمين
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i> تسجيل الخروج
                         </a>
-                        <a class="nav-link {% if 'business' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:businesses_list' %}">
-                            <i class="fas fa-store"></i> المحلات
-                        </a>
-                        <a class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:products_list' %}">
-                            <i class="fas fa-box"></i> المنتجات
-                        </a>
-                        <a class="nav-link {% if 'deal' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:deals_list' %}">
-                            <i class="fas fa-percent"></i> العروض
-                        </a>
-                        <a class="nav-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:reviews_list' %}">
-                            <i class="fas fa-star"></i> التقييمات
-                        </a>
-                        <a class="nav-link {% if 'categor' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:categories_list' %}">
-                            <i class="fas fa-list"></i> التصنيفات
-                        </a>
-                        <hr class="text-white-50 mx-3">
-                        <a class="nav-link {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:analytics' %}">
-                            <i class="fas fa-chart-line"></i> التحليلات
-                        </a>
-                        <a class="nav-link {% if 'settings' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_dashboard:settings' %}">
-                            <i class="fas fa-cog"></i> الإعدادات
-                        </a>
-                    </nav>
-                </div>
-            </div>
-            
-            <!-- Main Content -->
-            <div class="col-lg-10 main-content">
-                {% if messages %}
-                <div class="mb-4">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                
-                {% block content %}{% endblock %}
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Auto-dismiss alerts after 5 seconds
-        setTimeout(function() {
-            let alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                let bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-        
-        // Active navigation highlight
-        document.querySelectorAll('.admin-sidebar .nav-link').forEach(link => {
-            if (link.href === window.location.href) {
-                link.classList.add('active');
-            }
+</nav>
+<!-- ===== End Top Navbar ===== -->
+
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- ===== Sidebar ===== -->
+        <div class="col-lg-2 p-0 d-none d-lg-block">
+            <div class="admin-sidebar">
+
+                <div class="admin-header">
+                    <div class="admin-logo">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h6 class="text-white fw-bold">الإدارة</h6>
+                    <small class="text-white-50">
+                        <i class="fas fa-user me-1"></i>{{ user.username }}
+                    </small>
+                </div>
+
+                <nav class="nav flex-column mt-3 pb-4">
+
+                    <!-- الرئيسية -->
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                       href="{% url 'admin_dashboard:home' %}">
+                        <i class="fas fa-tachometer-alt"></i> الرئيسية
+                    </a>
+
+                    <!-- ---- المستخدمون ---- -->
+                    <hr class="text-white-50 mx-3 my-2">
+                    <span class="sidebar-section-label">المستخدمون</span>
+
+                    <a class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:users_list' %}">
+                        <i class="fas fa-users"></i> المستخدمين
+                    </a>
+
+                    <!-- ---- المواقع الجغرافية ---- -->
+                    <hr class="text-white-50 mx-3 my-2">
+                    <span class="sidebar-section-label">المواقع الجغرافية</span>
+
+                    <a class="nav-link {% if 'governorate' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:governorates_list' %}">
+                        <i class="fas fa-map-marked-alt"></i> المحافظات
+                    </a>
+
+                    <a class="nav-link {% if 'city' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:cities_list' %}">
+                        <i class="fas fa-city"></i> المدن
+                    </a>
+
+                    <a class="nav-link {% if 'district' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:districts_list' %}">
+                        <i class="fas fa-map-marker-alt"></i> الأحياء
+                    </a>
+
+                    <!-- ---- المحتوى ---- -->
+                    <hr class="text-white-50 mx-3 my-2">
+                    <span class="sidebar-section-label">إدارة المحتوى</span>
+
+                    <a class="nav-link {% if 'business' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:businesses_list' %}">
+                        <i class="fas fa-store"></i> المحلات
+                    </a>
+
+                    <a class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:products_list' %}">
+                        <i class="fas fa-box"></i> المنتجات
+                    </a>
+
+                    <a class="nav-link {% if 'deal' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:deals_list' %}">
+                        <i class="fas fa-percent"></i> العروض
+                    </a>
+
+                    <a class="nav-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:reviews_list' %}">
+                        <i class="fas fa-star"></i> التقييمات
+                    </a>
+
+                    <a class="nav-link {% if 'categor' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:categories_list' %}">
+                        <i class="fas fa-list"></i> التصنيفات
+                    </a>
+
+                    <!-- ---- النظام ---- -->
+                    <hr class="text-white-50 mx-3 my-2">
+                    <span class="sidebar-section-label">النظام</span>
+
+                    <a class="nav-link {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:analytics' %}">
+                        <i class="fas fa-chart-line"></i> التحليلات
+                    </a>
+
+                    <a class="nav-link {% if 'settings' in request.resolver_match.url_name %}active{% endif %}"
+                       href="{% url 'admin_dashboard:settings' %}">
+                        <i class="fas fa-cog"></i> الإعدادات
+                    </a>
+
+                    <a class="nav-link" href="/admin/" target="_blank">
+                        <i class="fas fa-tools"></i> Django Admin
+                        <i class="fas fa-external-link-alt ms-1" style="font-size: 0.65rem; opacity: 0.5;"></i>
+                    </a>
+
+                </nav>
+
+            </div><!-- end .admin-sidebar -->
+        </div><!-- end col-lg-2 -->
+        <!-- ===== End Sidebar ===== -->
+
+
+        <!-- ===== Main Content ===== -->
+        <div class="col-lg-10 main-content">
+
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+
+        </div><!-- end col-lg-10 -->
+        <!-- ===== End Main Content ===== -->
+
+    </div><!-- end row -->
+</div><!-- end container-fluid -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Auto-dismiss alerts after 5 seconds
+    setTimeout(function () {
+        document.querySelectorAll('.alert').forEach(function (alert) {
+            new bootstrap.Alert(alert).close();
         });
-    </script>
-    {% block extra_js %}{% endblock %}
+    }, 5000);
+
+    // Active nav highlight by exact URL match (fallback)
+    document.querySelectorAll('.admin-sidebar .nav-link').forEach(function (link) {
+        if (link.href === window.location.href) {
+            link.classList.add('active');
+        }
+    });
+</script>
+{% block extra_js %}{% endblock %}
+
 </body>
 </html>

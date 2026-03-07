@@ -11,7 +11,11 @@ from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
-
+from django.shortcuts import render
+from django.db.models import Q
+from apps.directory.models import Business, Governorate
+from apps.categories.models import Category
+import json
 from apps.directory.models.favorites import Favorite
 
 from .models import (
@@ -56,32 +60,40 @@ def home(request):
 # Governorate Views
 # ========================================
 def governorate_list(request):
-    """قائمة المحافظات"""
-    governorates = Governorate.objects.filter(is_active=True)
-    
+    governorates = Governorate.objects.filter(is_active=True).prefetch_related('cities')
+
+    from apps.directory.models import Business
+    from apps.directory.models.location import City
+
     context = {
         'governorates': governorates,
-        'total_count': governorates.count()
+        'total_count': governorates.count(),
+        'total_cities': City.objects.filter(is_active=True).count(),
+        'total_businesses': Business.objects.filter(is_active=True).count(),
     }
     return render(request, 'directory/governorate_list.html', context)
 
 
 def governorate_detail(request, slug):
-    """تفاصيل محافظة"""
     governorate = get_object_or_404(Governorate, slug=slug, is_active=True)
-    
-    cities = governorate.cities.filter(is_active=True)
+
+    cities = governorate.cities.filter(is_active=True).order_by('order', 'name_en')
     businesses = Business.objects.filter(
         district__city__governorate=governorate,
         is_active=True,
         is_verified=True
-    )
-    
+    ).select_related('category', 'district').order_by('-is_featured', '-view_count')
+
+    other_governorates = Governorate.objects.filter(
+        is_active=True
+    ).exclude(id=governorate.id).order_by('order')[:6]
+
     context = {
         'governorate': governorate,
         'cities': cities,
         'businesses': businesses[:12],
-        'total_businesses': businesses.count()
+        'total_businesses': businesses.count(),
+        'other_governorates': other_governorates,
     }
     return render(request, 'directory/governorate_detail.html', context)
 
@@ -89,51 +101,48 @@ def governorate_detail(request, slug):
 # ========================================
 # City Views
 # ========================================
+
 def city_detail(request, slug):
-    """تفاصيل مدينة"""
     city = get_object_or_404(City, slug=slug, is_active=True)
-    
-    districts = city.districts.filter(is_active=True)
+
+    districts = city.districts.filter(is_active=True).order_by('order', 'name_en')
     businesses = Business.objects.filter(
         district__city=city,
         is_active=True,
         is_verified=True
-    )
-    
+    ).select_related('category', 'district').order_by('-is_featured', '-view_count')
+
     context = {
         'city': city,
         'districts': districts,
         'businesses': businesses[:12],
-        'total_businesses': businesses.count()
+        'total_businesses': businesses.count(),
     }
     return render(request, 'directory/city_detail.html', context)
-
 
 # ========================================
 # District Views
 # ========================================
+
 def district_detail(request, slug):
-    """تفاصيل حي"""
     district = get_object_or_404(District, slug=slug, is_active=True)
-    
+
     businesses = Business.objects.filter(
         district=district,
         is_active=True,
         is_verified=True
-    )
-    
-    # Pagination
+    ).select_related('category').order_by('-is_featured', '-view_count')
+
     paginator = Paginator(businesses, 20)
     page = request.GET.get('page')
     businesses_page = paginator.get_page(page)
-    
+
     context = {
         'district': district,
         'businesses': businesses_page,
-        'total_businesses': businesses.count()
+        'total_businesses': businesses.count(),
     }
     return render(request, 'directory/district_detail.html', context)
-
 
 # ========================================
 # Business Views
@@ -194,39 +203,6 @@ def business_list(request):
     return render(request, 'directory/business_list.html', context)
 
 
-# def business_detail(request, slug):
-#     """تفاصيل محل تجاري"""
-#     business = get_object_or_404(
-#         Business,
-#         slug=slug,
-#         is_active=True
-#     )
-    
-#     # Increment view count
-#     business.increment_view_count()
-    
-#     # Check if user has favorited this business
-#     is_favorited = False
-#     if request.user.is_authenticated:
-#         is_favorited = Favorite.objects.filter(
-#             user=request.user,
-#             business=business
-#         ).exists()
-    
-#     # Get related businesses
-#     related_businesses = Business.objects.filter(
-#         category=business.category,
-#         is_active=True,
-#         is_verified=True
-#     ).exclude(id=business.id)[:4]
-    
-#     context = {
-#         'business': business,
-#         'is_favorited': is_favorited,
-#         'related_businesses': related_businesses,
-#         'images': business.images.filter(is_active=True)
-#     }
-#     return render(request, 'directory/business_detail.html', context)
 def business_detail(request, slug):
     """تفاصيل محل معين"""
     business = get_object_or_404(
@@ -244,14 +220,14 @@ def business_detail(request, slug):
     # Get business images
     images = business.images.filter(is_active=True)
     
-    # Get products من تطبيق products
+    # Get products
     from apps.products.models import Product
     products = Product.objects.filter(
         business=business,
         is_available=True
     ).prefetch_related('images').order_by('-is_featured', 'order', '-created_at')
     
-    # Get reviews (if reviews app exists)
+    # Get reviews
     reviews = None
     average_rating = 0
     total_reviews = 0
@@ -285,13 +261,20 @@ def business_detail(request, slug):
             business=business
         ).exists()
     
-    # Related businesses (same category)
+    # Related businesses
     related_businesses = Business.objects.filter(
         category=business.category,
         is_active=True,
         is_verified=True
     ).exclude(id=business.id).order_by('-is_featured', '-view_count')[:5]
-    
+
+    # ← الإضافة الوحيدة: تحويل الإحداثيات لـ float صريح
+    # business_lat = float(business.latitude) if business.latitude else None
+    # business_lng = float(business.longitude) if business.longitude else None
+    # ✅ صح
+    business_lat = str(float(business.latitude)) if business.latitude else None
+    business_lng = str(float(business.longitude)) if business.longitude else None
+
     context = {
         'business': business,
         'images': images,
@@ -301,11 +284,12 @@ def business_detail(request, slug):
         'total_reviews': total_reviews,
         'is_favorited': is_favorited,
         'related_businesses': related_businesses,
+        # ← أضفهم للـ context
+        'business_lat': business_lat,
+        'business_lng': business_lng,
     }
     
     return render(request, 'directory/business_detail.html', context)
-
-
 
 # ========================================
 # Business CRUD (Owner)
@@ -470,17 +454,7 @@ def business_search(request):
     return render(request, 'directory/business_search.html', context)
 
 
-from django.shortcuts import render
-from django.db.models import Q
-from apps.directory.models import Business, Governorate
-from apps.categories.models import Category
-import json
-
-
 def map_view(request):
-    """خريطة المحلات التفاعلية"""
-    
-    # Get all active businesses with coordinates
     businesses = Business.objects.filter(
         is_active=True,
         is_verified=True,
@@ -490,44 +464,308 @@ def map_view(request):
         'category',
         'district__city__governorate'
     )
-    
-    # Convert to list of dicts for JSON
+
     businesses_data = []
-    for business in businesses:
+    for b in businesses:
         businesses_data.append({
-            'id': business.id,
-            'name_en': business.name_en,
-            'name_ar': business.name_ar,
-            'slug': business.slug,
-            'latitude': float(business.latitude),
-            'longitude': float(business.longitude),
-            'logo': business.logo.url if business.logo else '',
-            'business_type': business.business_type,
-            'category_name_en': business.category.name_en,
-            'category_name_ar': business.category.name_ar,
-            'category_icon': business.category.icon,
-            'district_name_en': business.district.name_en,
-            'city_name_en': business.district.city.name_en,
-            'governorate_name_en': business.district.city.governorate.name_en,
-            'phone': business.phone,
-            'is_featured': business.is_featured,
+            'id': b.id,
+            'name_en': b.name_en,
+            'name_ar': b.name_ar,
+            'slug': b.slug,
+            'latitude': float(b.latitude),
+            'longitude': float(b.longitude),
+            'logo': b.logo.url if b.logo else '',
+            'business_type': b.business_type,
+            'category_name_en': b.category.name_en,
+            'category_name_ar': b.category.name_ar,
+            'category_icon': b.category.icon if hasattr(b.category, 'icon') else '',
+            'district_name_en': b.district.name_en,
+            'district_name_ar': b.district.name_ar,
+            'city_name_en': b.district.city.name_en,
+            'city_name_ar': b.district.city.name_ar,
+            'governorate_name_en': b.district.city.governorate.name_en,
+            'governorate_name_ar': b.district.city.governorate.name_ar,
+            'phone': b.phone,
+            'is_featured': b.is_featured,
         })
-    
-    # Get filters
+
     categories = Category.objects.filter(
         is_active=True,
         parent__isnull=True
     ).order_by('order')
-    
+
     governorates = Governorate.objects.filter(
         is_active=True
     ).order_by('order')
-    
+
     context = {
-        'businesses_json': json.dumps(businesses_data),
+        'businesses_json': json.dumps(businesses_data, ensure_ascii=False),
         'categories': categories,
         'governorates': governorates,
         'total_businesses': len(businesses_data),
     }
-    
+
     return render(request, 'directory/map.html', context)
+
+
+# ========================================
+# Shops / Crafts / Services Views
+# ========================================
+
+def shops_list(request):
+    """قائمة المحلات التجارية"""
+    businesses = Business.objects.filter(
+        is_active=True,
+        business_type='shop'
+    ).select_related('category', 'district__city__governorate')
+
+    # Filters
+    category_slug   = request.GET.get('category')
+    governorate_slug = request.GET.get('governorate')
+    city_slug       = request.GET.get('city')
+    search          = request.GET.get('q')
+    sort            = request.GET.get('sort', '-created_at')
+
+    if category_slug:
+        businesses = businesses.filter(category__slug=category_slug)
+    if governorate_slug:
+        businesses = businesses.filter(
+            district__city__governorate__slug=governorate_slug)
+    if city_slug:
+        businesses = businesses.filter(district__city__slug=city_slug)
+    if search:
+        businesses = businesses.filter(
+            Q(name_ar__icontains=search) |
+            Q(name_en__icontains=search) |
+            Q(description_ar__icontains=search)
+        )
+
+    allowed_sorts = ['-created_at', '-view_count', '-average_rating', 'name_ar']
+    if sort in allowed_sorts:
+        businesses = businesses.order_by(sort)
+    else:
+        businesses = businesses.order_by('-created_at')
+
+    paginator = Paginator(businesses, 12)
+    page_obj  = paginator.get_page(request.GET.get('page'))
+
+    # Cities لو اختار محافظة
+    cities = []
+    if governorate_slug:
+        from apps.directory.models.location import City
+        gov = Governorate.objects.filter(slug=governorate_slug).first()
+        if gov:
+            cities = City.objects.filter(
+                governorate=gov, is_active=True).order_by('name_ar')
+
+    context = {
+        'page_obj'    : page_obj,
+        'total_count' : businesses.count(),
+        'categories'  : Category.objects.filter(
+            is_active=True, parent__isnull=True),
+        'governorates': Governorate.objects.filter(is_active=True),
+        'cities'      : cities,
+    }
+    return render(request, 'directory/shops/list.html', context)
+
+
+def crafts_list(request):
+    """قائمة الحرف والمهن"""
+    businesses = Business.objects.filter(
+        is_active=True,
+        business_type='craft'
+    ).select_related('category', 'district__city__governorate')
+
+    category_slug    = request.GET.get('category')
+    governorate_slug = request.GET.get('governorate')
+    city_slug        = request.GET.get('city')
+    search           = request.GET.get('q')
+    sort             = request.GET.get('sort', '-created_at')
+
+    if category_slug:
+        businesses = businesses.filter(category__slug=category_slug)
+    if governorate_slug:
+        businesses = businesses.filter(
+            district__city__governorate__slug=governorate_slug)
+    if city_slug:
+        businesses = businesses.filter(district__city__slug=city_slug)
+    if search:
+        businesses = businesses.filter(
+            Q(name_ar__icontains=search) |
+            Q(name_en__icontains=search) |
+            Q(description_ar__icontains=search)
+        )
+
+    allowed_sorts = ['-created_at', '-view_count', '-average_rating', 'name_ar']
+    if sort in allowed_sorts:
+        businesses = businesses.order_by(sort)
+    else:
+        businesses = businesses.order_by('-created_at')
+
+    paginator = Paginator(businesses, 12)
+    page_obj  = paginator.get_page(request.GET.get('page'))
+
+    cities = []
+    if governorate_slug:
+        from apps.directory.models.location import City
+        gov = Governorate.objects.filter(slug=governorate_slug).first()
+        if gov:
+            cities = City.objects.filter(
+                governorate=gov, is_active=True).order_by('name_ar')
+
+    context = {
+        'page_obj'    : page_obj,
+        'total_count' : businesses.count(),
+        'categories'  : Category.objects.filter(
+            is_active=True, parent__isnull=True),
+        'governorates': Governorate.objects.filter(is_active=True),
+        'cities'      : cities,
+    }
+    return render(request, 'directory/crafts/list.html', context)
+
+
+def services_list(request):
+    """قائمة الخدمات العامة"""
+    businesses = Business.objects.filter(
+        is_active=True,
+        business_type='public'
+    ).select_related('category', 'district__city__governorate')
+
+    governorate_slug = request.GET.get('governorate')
+    city_slug        = request.GET.get('city')
+    service_type     = request.GET.get('service_type')
+    search           = request.GET.get('q')
+    sort             = request.GET.get('sort', '-created_at')
+
+    if governorate_slug:
+        businesses = businesses.filter(
+            district__city__governorate__slug=governorate_slug)
+    if city_slug:
+        businesses = businesses.filter(district__city__slug=city_slug)
+    if service_type:
+        businesses = businesses.filter(category__slug=service_type)
+    if search:
+        businesses = businesses.filter(
+            Q(name_ar__icontains=search) |
+            Q(name_en__icontains=search) |
+            Q(description_ar__icontains=search)
+        )
+
+    allowed_sorts = ['-created_at', '-view_count', '-average_rating', 'name_ar']
+    if sort in allowed_sorts:
+        businesses = businesses.order_by(sort)
+    else:
+        businesses = businesses.order_by('-created_at')
+
+    paginator = Paginator(businesses, 12)
+    page_obj  = paginator.get_page(request.GET.get('page'))
+
+    cities = []
+    if governorate_slug:
+        from apps.directory.models.location import City
+        gov = Governorate.objects.filter(slug=governorate_slug).first()
+        if gov:
+            cities = City.objects.filter(
+                governorate=gov, is_active=True).order_by('name_ar')
+
+    context = {
+        'page_obj'    : page_obj,
+        'total_count' : businesses.count(),
+        'governorates': Governorate.objects.filter(is_active=True),
+        'cities'      : cities,
+    }
+    return render(request, 'directory/services/list.html', context)
+
+
+def shop_detail(request, slug):
+    """تفاصيل المحل"""
+    business = get_object_or_404(
+        Business.objects.select_related(
+            'category', 'district__city__governorate', 'owner'
+        ),
+        slug=slug, business_type='shop'
+    )
+    business.increment_view_count()
+    return _business_detail_context(
+        request, business, 'directory/shops/detail.html')
+
+
+def craft_detail(request, slug):
+    """تفاصيل الحرفي"""
+    business = get_object_or_404(
+        Business.objects.select_related(
+            'category', 'district__city__governorate', 'owner'
+        ),
+        slug=slug, business_type='craft'
+    )
+    business.increment_view_count()
+    return _business_detail_context(
+        request, business, 'directory/crafts/detail.html')
+
+
+def service_detail(request, slug):
+    """تفاصيل الخدمة العامة"""
+    business = get_object_or_404(
+        Business.objects.select_related(
+            'category', 'district__city__governorate', 'owner'
+        ),
+        slug=slug, business_type='public'
+    )
+    business.increment_view_count()
+
+    # خدمات مشابهة
+    similar_services = Business.objects.filter(
+        category=business.category,
+        business_type='public',
+        is_active=True
+    ).exclude(id=business.id).order_by('-view_count')[:4]
+
+    ctx = _get_detail_context(request, business)
+    ctx['similar_services'] = similar_services
+    return render(request, 'directory/services/detail.html', ctx)
+
+
+# ========================================
+# Helper مشترك للـ detail views
+# ========================================
+def _get_detail_context(request, business):
+    from apps.products.models import Product
+    from apps.reviews.models import Review
+    from django.db.models import Avg
+
+    images   = business.images.filter(is_active=True)
+    products = Product.objects.filter(
+        business=business, is_available=True
+    ).order_by('-is_featured', 'order', '-created_at')
+
+    reviews        = Review.objects.filter(
+        business=business, is_approved=True
+    ).select_related('user').order_by('-created_at')[:5]
+    total_reviews  = Review.objects.filter(
+        business=business, is_approved=True).count()
+    avg            = Review.objects.filter(
+        business=business, is_approved=True
+    ).aggregate(Avg('rating'))['rating__avg']
+    average_rating = round(avg, 1) if avg else 0
+
+    is_favorited = False
+    if request.user.is_authenticated:
+        is_favorited = Favorite.objects.filter(
+            user=request.user, business=business).exists()
+
+    return {
+        'business'      : business,
+        'images'        : images,
+        'products'      : products,
+        'reviews'       : reviews,
+        'average_rating': average_rating,
+        'total_reviews' : total_reviews,
+        'is_favorited'  : is_favorited,
+        'business_lat'  : str(float(business.latitude))  if business.latitude  else None,
+        'business_lng'  : str(float(business.longitude)) if business.longitude else None,
+    }
+
+
+def _business_detail_context(request, business, template):
+    ctx = _get_detail_context(request, business)
+    return render(request, template, ctx)

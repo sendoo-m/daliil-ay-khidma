@@ -1,125 +1,130 @@
-{% load static %}
+{% load static i18n %}
 
 <footer class="main-footer">
     <div class="container">
         <div class="row">
-            <!-- عمود 1: عن الموقع -->
+            {# عمود 1: عن الموقع #}
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="footer-section">
                     <h5>
                         <i class="fas fa-store-alt"></i>
-                        دليل أي خدمة
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            دليل أي خدمة
+                        {% else %}
+                            Daliil Ay Khidma
+                        {% endif %}
                     </h5>
                     <p class="text-white-50">
-                        دليلك الشامل للعثور على أفضل المحلات والخدمات في منطقتك.
-                        اكتشف آلاف الأنشطة التجارية والعروض المميزة.
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            دليلك الشامل للعثور على أفضل المحلات والخدمات في منطقتك.
+                            اكتشف آلاف الأنشطة التجارية والعروض المميزة.
+                        {% else %}
+                            Your complete guide to find the best businesses and services in your area.
+                            Discover thousands of listings and exclusive deals.
+                        {% endif %}
                     </p>
                     <div class="social-links mt-3">
-                        <a href="#" title="فيسبوك" aria-label="فيسبوك">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" title="تويتر" aria-label="تويتر">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" title="إنستغرام" aria-label="إنستغرام">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" title="لينكدإن" aria-label="لينكدإن">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a href="#" title="واتساب" aria-label="واتساب">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
+                        <a href="#" title="Facebook" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" title="Twitter" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" title="WhatsApp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             </div>
-            
-            <!-- عمود 2: روابط سريعة -->
+
+            {# عمود 2: روابط سريعة #}
             <div class="col-lg-2 col-md-6 mb-4">
                 <div class="footer-section">
-                    <h5>روابط سريعة</h5>
+                    <h5>{% if LANGUAGE_CODE == 'ar' %}روابط سريعة{% else %}Quick links{% endif %}</h5>
                     <ul class="footer-links">
                         <li>
                             <a href="{% url 'core:home' %}">
                                 <i class="fas fa-angle-left"></i>
-                                الرئيسية
+                                {% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Home{% endif %}
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'directory:business_list' %}">
                                 <i class="fas fa-angle-left"></i>
-                                المحلات
+                                {% if LANGUAGE_CODE == 'ar' %}المحلات{% else %}Businesses{% endif %}
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'categories:category_list' %}">
                                 <i class="fas fa-angle-left"></i>
-                                الأقسام
+                                {% if LANGUAGE_CODE == 'ar' %}الأقسام{% else %}Categories{% endif %}
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'core:about' %}">
                                 <i class="fas fa-angle-left"></i>
-                                من نحن
+                                {% if LANGUAGE_CODE == 'ar' %}من نحن{% else %}About{% endif %}
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'core:contact' %}">
                                 <i class="fas fa-angle-left"></i>
-                                اتصل بنا
+                                {% if LANGUAGE_CODE == 'ar' %}اتصل بنا{% else %}Contact{% endif %}
                             </a>
                         </li>
                     </ul>
                 </div>
             </div>
-            
-            <!-- عمود 3: أقسام مميزة -->
+
+            {# عمود 3: أقسام مميزة #}
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="footer-section">
-                    <h5>أقسام مميزة</h5>
+                    <h5>{% if LANGUAGE_CODE == 'ar' %}أقسام مميزة{% else %}Featured categories{% endif %}</h5>
                     <ul class="footer-links">
                         <li>
                             <a href="{% url 'directory:business_list' %}?category=restaurants">
                                 <i class="fas fa-angle-left"></i>
-                                مطاعم
+                                {% if LANGUAGE_CODE == 'ar' %}مطاعم{% else %}Restaurants{% endif %}
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'directory:business_list' %}?category=cafes">
                                 <i class="fas fa-angle-left"></i>
-                                كافيهات
+                                {% if LANGUAGE_CODE == 'ar' %}كافيهات{% else %}Cafes{% endif %}
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'directory:business_list' %}?category=shopping">
                                 <i class="fas fa-angle-left"></i>
-                                تسوّق
+                                {% if LANGUAGE_CODE == 'ar' %}تسوّق{% else %}Shopping{% endif %}
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'directory:business_list' %}?category=services">
                                 <i class="fas fa-angle-left"></i>
-                                خدمات
+                                {% if LANGUAGE_CODE == 'ar' %}خدمات{% else %}Services{% endif %}
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'categories:category_list' %}">
                                 <i class="fas fa-angle-left"></i>
-                                عرض الكل
+                                {% if LANGUAGE_CODE == 'ar' %}عرض الكل{% else %}View all{% endif %}
                             </a>
                         </li>
                     </ul>
                 </div>
             </div>
-            
-            <!-- عمود 4: تواصل معنا -->
+
+            {# عمود 4: تواصل معنا #}
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="footer-section">
-                    <h5>تواصل معنا</h5>
+                    <h5>{% if LANGUAGE_CODE == 'ar' %}تواصل معنا{% else %}Contact us{% endif %}</h5>
                     <ul style="list-style: none; padding: 0;">
                         <li class="mb-3 d-flex align-items-start">
                             <i class="fas fa-map-marker-alt" style="color: #667eea; margin-left: 10px; margin-top: 3px;"></i>
-                            <span class="text-white-50">الرياض، المملكة العربية السعودية</span>
+                            <span class="text-white-50">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                    الرياض، المملكة العربية السعودية
+                                {% else %}
+                                    Riyadh, Saudi Arabia
+                                {% endif %}
+                            </span>
                         </li>
                         <li class="mb-3 d-flex align-items-center">
                             <i class="fas fa-phone" style="color: #667eea; margin-left: 10px;"></i>
@@ -135,28 +140,40 @@
                         </li>
                         <li class="mb-3 d-flex align-items-center">
                             <i class="fas fa-clock" style="color: #667eea; margin-left: 10px;"></i>
-                            <span class="text-white-50">متاح  24/7</span>
+                            <span class="text-white-50">
+                                {% if LANGUAGE_CODE == 'ar' %}متاح 24/7{% else %}Available 24/7{% endif %}
+                            </span>
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
-        
-        <!-- شريط الحقوق -->
+
+        {# شريط الحقوق #}
         <div class="footer-bottom">
             <div class="row align-items-center">
                 <div class="col-md-6 text-center text-md-end mb-2 mb-md-0">
                     <p class="mb-0 text-white-50">
                         <i class="fas fa-copyright"></i>
-                        2026 دليل أي خدمة. جميع الحقوق محفوظة.
+                        {% if LANGUAGE_CODE == 'ar' %}
+                            2026 دليل أي خدمة. جميع الحقوق محفوظة.
+                        {% else %}
+                            2026 Daliil Ay Khidma. All rights reserved.
+                        {% endif %}
                     </p>
                 </div>
                 <div class="col-md-6 text-center text-md-start">
-                    <a href="#" class="text-white-50">سياسة الخصوصية</a>
+                    <a href="#" class="text-white-50">
+                        {% if LANGUAGE_CODE == 'ar' %}سياسة الخصوصية{% else %}Privacy policy{% endif %}
+                    </a>
                     <span class="text-white-50 mx-2">|</span>
-                    <a href="#" class="text-white-50">شروط الخدمة</a>
+                    <a href="#" class="text-white-50">
+                        {% if LANGUAGE_CODE == 'ar' %}شروط الخدمة{% else %}Terms of service{% endif %}
+                    </a>
                     <span class="text-white-50 mx-2">|</span>
-                    <a href="{% url 'core:contact' %}" class="text-white-50">الدعم الفني</a>
+                    <a href="{% url 'core:contact' %}" class="text-white-50">
+                        {% if LANGUAGE_CODE == 'ar' %}الدعم الفني{% else %}Support{% endif %}
+                    </a>
                 </div>
             </div>
         </div>

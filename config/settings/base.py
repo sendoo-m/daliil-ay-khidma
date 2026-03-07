@@ -70,12 +70,25 @@ INSTALLED_APPS = [
 # ========================================
 # MIDDLEWARE
 # ========================================
+# MIDDLEWARE = [
+#     'django.middleware.security.SecurityMiddleware',
+#     'corsheaders.middleware.CorsMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.locale.LocaleMiddleware',
+#     'apps.core.middleware.AdminEnglishMiddleware',  # Force admin to English
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+# ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'apps.core.middleware.AdminEnglishMiddleware',  # Force admin to English
+    'apps.core.middleware.AdminEnglishMiddleware',  # خليها
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
