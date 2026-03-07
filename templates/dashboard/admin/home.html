@@ -169,7 +169,7 @@
                     <div>
                         <p class="text-muted mb-1">بانتظار التوثيق</p>
                         <h2 class="mb-0 fw-bold" style="color: #e74c3c;">{{ stats.pending_verification }}</h2>
-                        <a href="{% url 'admin_dashboard:businesses_list' %}?status=pending" class="text-danger small">
+                        <a href="{% url 'dashboard:admin_businesses_list' %}?status=pending" class="text-danger small">
                             <i class="fas fa-arrow-left me-1"></i>مراجعة الآن
                         </a>
                     </div>
@@ -192,22 +192,22 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{% url 'admin_dashboard:users_list' %}" class="quick-action-btn">
+                    <a href="{% url 'dashboard:admin_users_list' %}" class="quick-action-btn">
                         <i class="fas fa-users"></i>
                         <span>إدارة المستخدمين</span>
                         <i class="fas fa-chevron-left ms-auto"></i>
                     </a>
-                    <a href="{% url 'admin_dashboard:businesses_list' %}?status=pending" class="quick-action-btn">
+                    <a href="{% url 'dashboard:admin_businesses_list' %}?status=pending" class="quick-action-btn">
                         <i class="fas fa-clock"></i>
                         <span>مراجعة المحلات</span>
                         <span class="badge bg-warning ms-auto">{{ stats.pending_verification }}</span>
                     </a>
-                    <a href="{% url 'admin_dashboard:categories_list' %}" class="quick-action-btn">
+                    <a href="{% url 'dashboard:admin_categories_list' %}" class="quick-action-btn">
                         <i class="fas fa-list"></i>
                         <span>إدارة التصنيفات</span>
                         <i class="fas fa-chevron-left ms-auto"></i>
                     </a>
-                    <a href="{% url 'admin_dashboard:deals_list' %}" class="quick-action-btn">
+                    <a href="{% url 'dashboard:admin_deals_list' %}" class="quick-action-btn">
                         <i class="fas fa-percent"></i>
                         <span>إدارة العروض</span>
                         <i class="fas fa-chevron-left ms-auto"></i>
@@ -244,7 +244,7 @@
                 {% endif %}
             </div>
             <div class="card-footer bg-white border-top text-center">
-                <a href="{% url 'admin_dashboard:users_list' %}" class="btn btn-sm btn-outline-primary">
+                <a href="{% url 'dashboard:admin_users_list' %}" class="btn btn-sm btn-outline-primary">
                     عرض الكل <i class="fas fa-arrow-left ms-1"></i>
                 </a>
             </div>
@@ -261,13 +261,13 @@
                 {% if top_businesses %}
                 <div class="list-group list-group-flush">
                     {% for business in top_businesses %}
-                    <a href="{% url 'admin_dashboard:business_detail' business.id %}" class="list-group-item list-group-item-action">
+                    <a href="{% url 'dashboard:admin_business_detail' business.id %}" class="list-group-item list-group-item-action">
                         <div class="d-flex align-items-center">
                             <div class="trophy-badge">{{ forloop.counter }}</div>
                             <div class="flex-grow-1">
                                 <strong class="d-block">{{ business.name_ar }}</strong>
                                 <small class="text-muted">
-                                    <i class="fas fa-eye me-1"></i>{{ business.views_count|intcomma }}
+                                    <i class="fas fa-eye me-1"></i>{{ business.view_count|intcomma }}
                                 </small>
                             </div>
                         </div>

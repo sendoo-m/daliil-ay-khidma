@@ -102,11 +102,38 @@ def about(request):
     """صفحة عن الموقع"""
     return render(request, 'core/about.html')
 
-
-def contact(request):
-    """صفحة اتصل بنا"""
-    return render(request, 'core/contact.html')
-
-
 def test_icons(request):
     return render(request, 'test_icons.html')
+
+def privacy_policy(request):
+    """سياسة الخصوصية"""
+    return render(request, 'core/privacy_policy.html')
+
+
+def terms_of_service(request):
+    """شروط الخدمة"""
+    return render(request, 'core/terms_of_service.html')
+
+
+def support(request):
+    """الدعم الفني"""
+    if request.method == 'POST':
+        # هنا تضيف منطق إرسال التذكرة لو عندك
+        pass
+    return render(request, 'core/support.html')
+
+from django.contrib import messages
+
+def contact(request):
+    if request.method == 'POST':
+        name    = request.POST.get('name', '')
+        email   = request.POST.get('email', '')
+        subject = request.POST.get('subject', '')
+        message = request.POST.get('message', '')
+        # أضف منطق الإرسال هنا (email أو حفظ في DB)
+        messages.success(request,
+            'تم إرسال رسالتك بنجاح! سنرد عليك قريباً.' if request.LANGUAGE_CODE == 'ar'
+            else 'Your message was sent successfully! We\'ll reply soon.'
+        )
+        return redirect('core:contact')
+    return render(request, 'core/contact.html')

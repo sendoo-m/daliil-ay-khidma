@@ -37,7 +37,7 @@ class LoginView(View):
         # If already logged in, redirect based on role
         if request.user.is_authenticated:
             if request.user.is_staff or request.user.is_superuser:
-                return redirect('admin_dashboard:home')
+                return redirect('dashboard:home')
             return redirect('dashboard:home')
         
         return render(request, self.template_name)
@@ -63,7 +63,7 @@ class LoginView(View):
             if next_url:
                 return redirect(next_url)
             elif user.is_staff or user.is_superuser:
-                return redirect('admin_dashboard:home')
+                return redirect('dashboard:home')
             else:
                 return redirect('dashboard:home')
         else:
@@ -81,7 +81,7 @@ def login_view(request):
     # If already logged in, redirect based on role
     if request.user.is_authenticated:
         if request.user.is_staff or request.user.is_superuser:
-            return redirect('admin_dashboard:home')
+            return redirect('dashboard:home')
         return redirect('dashboard:home')
     
     if request.method == 'POST':
@@ -105,7 +105,7 @@ def login_view(request):
             if next_url:
                 return redirect(next_url)
             elif user.is_staff or user.is_superuser:
-                return redirect('admin_dashboard:home')
+                return redirect('dashboard:home')
             else:
                 return redirect('dashboard:home')
         else:

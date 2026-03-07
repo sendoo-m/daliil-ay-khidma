@@ -7,8 +7,8 @@
     <div>
         <h4 class="fw-bold mb-1"><i class="fas fa-map-marker-alt text-danger me-2"></i> {{ action }} حي</h4>
         <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">الرئيسية</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:districts_list' %}">الأحياء</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_home' %}">الرئيسية</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_districts_list' %}">الأحياء</a></li>
             <li class="breadcrumb-item active">{{ action }}</li>
         </ol></nav>
     </div>
@@ -76,7 +76,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-2"></i> {{ action }} الحي
                         </button>
-                        <a href="{% url 'admin_dashboard:districts_list' %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'dashboard:admin_districts_list' %}" class="btn btn-outline-secondary">
                             <i class="fas fa-times me-2"></i> إلغاء
                         </a>
                     </div>

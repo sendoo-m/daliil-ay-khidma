@@ -145,7 +145,7 @@
                     <li><h6 class="dropdown-header">مرحباً {{ user.get_full_name|default:user.username }}</h6></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item" href="{% url 'admin_dashboard:home' %}">
+                        <a class="dropdown-item" href="{% url 'dashboard:admin_home' %}">
                             <i class="fas fa-home me-2"></i> الرئيسية
                         </a>
                     </li>
@@ -184,7 +184,7 @@
 
                     <!-- الرئيسية -->
                     <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
-                       href="{% url 'admin_dashboard:home' %}">
+                       href="{% url 'dashboard:admin_home' %}">
                         <i class="fas fa-tachometer-alt"></i> الرئيسية
                     </a>
 
@@ -193,7 +193,7 @@
                     <span class="sidebar-section-label">المستخدمون</span>
 
                     <a class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:users_list' %}">
+                       href="{% url 'dashboard:admin_users_list' %}">
                         <i class="fas fa-users"></i> المستخدمين
                     </a>
 
@@ -202,17 +202,17 @@
                     <span class="sidebar-section-label">المواقع الجغرافية</span>
 
                     <a class="nav-link {% if 'governorate' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:governorates_list' %}">
+                       href="{% url 'dashboard:admin_governorates_list' %}">
                         <i class="fas fa-map-marked-alt"></i> المحافظات
                     </a>
 
                     <a class="nav-link {% if 'city' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:cities_list' %}">
+                       href="{% url 'dashboard:admin_cities_list' %}">
                         <i class="fas fa-city"></i> المدن
                     </a>
 
                     <a class="nav-link {% if 'district' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:districts_list' %}">
+                       href="{% url 'dashboard:admin_districts_list' %}">
                         <i class="fas fa-map-marker-alt"></i> الأحياء
                     </a>
 
@@ -221,27 +221,27 @@
                     <span class="sidebar-section-label">إدارة المحتوى</span>
 
                     <a class="nav-link {% if 'business' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:businesses_list' %}">
+                       href="{% url 'dashboard:admin_businesses_list' %}">
                         <i class="fas fa-store"></i> المحلات
                     </a>
 
                     <a class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:products_list' %}">
+                       href="{% url 'dashboard:admin_products_list' %}">
                         <i class="fas fa-box"></i> المنتجات
                     </a>
 
                     <a class="nav-link {% if 'deal' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:deals_list' %}">
+                       href="{% url 'dashboard:admin_deals_list' %}">
                         <i class="fas fa-percent"></i> العروض
                     </a>
 
                     <a class="nav-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:reviews_list' %}">
+                       href="{% url 'dashboard:admin_reviews_list' %}">
                         <i class="fas fa-star"></i> التقييمات
                     </a>
 
                     <a class="nav-link {% if 'categor' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:categories_list' %}">
+                       href="{% url 'dashboard:admin_categories_list' %}">
                         <i class="fas fa-list"></i> التصنيفات
                     </a>
 
@@ -250,12 +250,12 @@
                     <span class="sidebar-section-label">النظام</span>
 
                     <a class="nav-link {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:analytics' %}">
+                       href="{% url 'dashboard:admin_analytics' %}">
                         <i class="fas fa-chart-line"></i> التحليلات
                     </a>
 
                     <a class="nav-link {% if 'settings' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'admin_dashboard:settings' %}">
+                       href="{% url 'dashboard:settings' %}">
                         <i class="fas fa-cog"></i> الإعدادات
                     </a>
 

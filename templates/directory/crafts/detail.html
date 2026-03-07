@@ -9,7 +9,7 @@
     {% else %}
         {{ business.name_en|default:business.name_ar }}
     {% endif %}
-    - {% trans "الحرف والمهن" %}
+    - {% if LANGUAGE_CODE == 'ar' %}الحرف والمهن{% else %}Crafts & Trades{% endif %}
 {% endblock %}
 
 {# ===================== CSS ===================== #}
@@ -146,10 +146,19 @@
     .booking-cta p  { font-size: 0.82rem; opacity: 0.9; margin-bottom: 1rem; }
     .availability-pulse { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; }
     .pulse-dot { width: 9px; height: 9px; border-radius: 50%; background: #2ecc71; animation: pulse 1.5s infinite; }
+    /* Map */
+    .map-wrapper { height: 260px; border-radius: 14px; overflow: hidden; }
+    .map-wrapper iframe { width: 100%; height: 100%; border: none; }
+    .map-placeholder { height: 260px; background: linear-gradient(135deg,#fff0f5,#fce4ec); border-radius: 14px; display: flex; align-items: center; justify-content: center; text-align: center; border: 2px dashed rgba(245,87,108,0.25); }
     @keyframes pulse {
         0%   { box-shadow: 0 0 0 0 rgba(46,204,113,0.5); }
         70%  { box-shadow: 0 0 0 8px rgba(46,204,113,0); }
         100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+    }
+    @media (max-width: 768px) {
+        .portfolio-grid { grid-template-columns: repeat(2,1fr); }
+        .craft-hero { padding: 2rem 0 4rem; }
+        .craftsman-name { font-size: 1.3rem; }
     }
 </style>
 {% endblock %}
@@ -157,115 +166,90 @@
 {# ===================== CONTENT ===================== #}
 {% block content %}
 
+<!-- Breadcrumb -->
 <div class="detail-breadcrumb">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="/">{% trans "الرئيسية" %}</a></li>
                 <li class="breadcrumb-item">
-                    <a href="{% url 'directory:crafts_list' %}">{% trans "الحرف والمهن" %}</a>
+                    <a href="/">{% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Home{% endif %}</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'directory:crafts_list' %}">
+                        {% if LANGUAGE_CODE == 'ar' %}الحرف والمهن{% else %}Crafts & Trades{% endif %}
+                    </a>
                 </li>
                 {% if business.category %}
                 <li class="breadcrumb-item">
                     <a href="{% url 'directory:crafts_list' %}?category={{ business.category.slug }}">
-                        {% if LANGUAGE_CODE == 'ar' %}
-                            {{ business.category.name_ar }}
-                        {% else %}
-                            {{ business.category.name_en|default:business.category.name_ar }}
-                        {% endif %}
+                        {% if LANGUAGE_CODE == 'ar' %}{{ business.category.name_ar }}{% else %}{{ business.category.name_en|default:business.category.name_ar }}{% endif %}
                     </a>
                 </li>
                 {% endif %}
                 <li class="breadcrumb-item active">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                        {{ business.name_ar }}
-                    {% else %}
-                        {{ business.name_en|default:business.name_ar }}
-                    {% endif %}
+                    {% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}
                 </li>
             </ol>
         </nav>
     </div>
 </div>
 
+<!-- Hero -->
 <div class="craft-hero">
     <div class="container position-relative" style="z-index:1;">
         <div class="text-white text-center">
             <span style="background:rgba(255,255,255,0.15); padding:5px 18px; border-radius:20px; font-size:0.82rem; border:1px solid rgba(255,255,255,0.25);">
                 🔧
-                {% if LANGUAGE_CODE == 'ar' %}
-                    {{ business.category.name_ar }}
-                {% else %}
-                    {{ business.category.name_en|default:business.category.name_ar }}
-                {% endif %}
+                {% if LANGUAGE_CODE == 'ar' %}{{ business.category.name_ar }}{% else %}{{ business.category.name_en|default:business.category.name_ar }}{% endif %}
             </span>
             <h1 class="fw-bold mt-2 mb-1" style="font-size:1.8rem;">
-                {% if LANGUAGE_CODE == 'ar' %}
-                    {{ business.name_ar }}
-                {% else %}
-                    {{ business.name_en|default:business.name_ar }}
-                {% endif %}
+                {% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}
             </h1>
             <div class="availability-pulse justify-content-center mt-1">
                 <div class="pulse-dot"></div>
-                <span style="opacity:0.9;">{% trans "متاح للعمل" %}</span>
+                <span style="opacity:0.9;">
+                    {% if LANGUAGE_CODE == 'ar' %}متاح للعمل{% else %}Available for Work{% endif %}
+                </span>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Profile Card -->
 <div class="container">
     <div class="craftsman-profile-card">
         <div class="d-flex flex-wrap gap-3 align-items-center">
+
             {% if business.logo %}
                 <img src="{{ business.logo.url }}"
                      alt="{% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}"
                      class="craftsman-avatar">
             {% else %}
                 <div class="craftsman-avatar-placeholder">
-                    {% if business.category.icon %}
-                        <i class="{{ business.category.icon }}"></i>
-                    {% else %}
-                        🔧
-                    {% endif %}
+                    {% if business.category.icon %}<i class="{{ business.category.icon }}"></i>{% else %}🔧{% endif %}
                 </div>
             {% endif %}
 
             <div class="flex-grow-1">
                 <div class="craftsman-name">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                        {{ business.name_ar }}
-                    {% else %}
-                        {{ business.name_en|default:business.name_ar }}
-                    {% endif %}
+                    {% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}
                 </div>
                 <div class="craftsman-specialty">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                        {{ business.category.name_ar }}
-                    {% else %}
-                        {{ business.category.name_en|default:business.category.name_ar }}
-                    {% endif %}
+                    {% if LANGUAGE_CODE == 'ar' %}{{ business.category.name_ar }}{% else %}{{ business.category.name_en|default:business.category.name_ar }}{% endif %}
                 </div>
                 <div class="d-flex flex-wrap gap-2">
                     <span class="meta-badge badge-specialty">
                         <i class="fas fa-tools"></i>
-                        {% if LANGUAGE_CODE == 'ar' %}
-                            {{ business.category.name_ar }}
-                        {% else %}
-                            {{ business.category.name_en|default:business.category.name_ar }}
-                        {% endif %}
+                        {% if LANGUAGE_CODE == 'ar' %}{{ business.category.name_ar }}{% else %}{{ business.category.name_en|default:business.category.name_ar }}{% endif %}
                     </span>
                     <span class="meta-badge badge-location">
                         <i class="fas fa-map-marker-alt"></i>
-                        {% if LANGUAGE_CODE == 'ar' %}
-                            {{ business.district.city.name_ar }}
-                        {% else %}
-                            {{ business.district.city.name_en|default:business.district.city.name_ar }}
-                        {% endif %}
+                        {% if LANGUAGE_CODE == 'ar' %}{{ business.district.city.name_ar }}{% else %}{{ business.district.city.name_en|default:business.district.city.name_ar }}{% endif %}
                     </span>
                     {% if business.is_verified %}
                     <span class="meta-badge badge-verified">
-                        <i class="fas fa-check-circle"></i> {% trans "موثق" %}
+                        <i class="fas fa-check-circle"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}موثق{% else %}Verified{% endif %}
                     </span>
                     {% endif %}
                     {% if business.average_rating > 0 %}
@@ -279,16 +263,19 @@
             <div class="d-flex flex-wrap gap-2">
                 {% if business.phone %}
                 <a href="tel:{{ business.phone }}" class="social-btn btn-phone">
-                    <i class="fas fa-phone"></i> {% trans "اتصال" %}
+                    <i class="fas fa-phone"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}اتصال{% else %}Call{% endif %}
                 </a>
                 {% endif %}
                 {% if business.whatsapp %}
                 <a href="https://wa.me/{{ business.whatsapp }}" target="_blank" class="social-btn btn-whatsapp">
-                    <i class="fab fa-whatsapp"></i> {% trans "واتساب" %}
+                    <i class="fab fa-whatsapp"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}واتساب{% else %}WhatsApp{% endif %}
                 </a>
                 {% endif %}
                 <button onclick="shareCraft()" class="btn btn-outline-secondary btn-sm rounded-pill">
-                    <i class="fas fa-share-alt me-1"></i>{% trans "مشاركة" %}
+                    <i class="fas fa-share-alt me-1"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}مشاركة{% else %}Share{% endif %}
                 </button>
             </div>
         </div>
@@ -296,50 +283,55 @@
         <div class="profile-stats">
             <div class="profile-stat">
                 <div class="profile-stat-value">{{ business.total_reviews|default:0 }}</div>
-                <div class="profile-stat-label">{% trans "تقييم" %}</div>
+                <div class="profile-stat-label">{% if LANGUAGE_CODE == 'ar' %}تقييم{% else %}Reviews{% endif %}</div>
             </div>
             <div class="profile-stat">
                 <div class="profile-stat-value">{{ business.average_rating|default:"—" }}</div>
-                <div class="profile-stat-label">{% trans "متوسط التقييم" %}</div>
+                <div class="profile-stat-label">{% if LANGUAGE_CODE == 'ar' %}متوسط التقييم{% else %}Avg. Rating{% endif %}</div>
             </div>
             <div class="profile-stat">
                 <div class="profile-stat-value">{{ business.view_count|default:0 }}</div>
-                <div class="profile-stat-label">{% trans "مشاهدة" %}</div>
+                <div class="profile-stat-label">{% if LANGUAGE_CODE == 'ar' %}مشاهدة{% else %}Views{% endif %}</div>
             </div>
             <div class="profile-stat">
                 <div class="profile-stat-value">{{ business.created_at|timesince|truncatewords:1 }}</div>
-                <div class="profile-stat-label">{% trans "عضو منذ" %}</div>
+                <div class="profile-stat-label">{% if LANGUAGE_CODE == 'ar' %}عضو منذ{% else %}Member since{% endif %}</div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Main Content -->
 <section class="detail-main">
     <div class="container">
         <div class="row g-4">
+
+            <!-- Right Column -->
             <div class="col-lg-8">
+
+                <!-- الوصف -->
                 {% if LANGUAGE_CODE == 'ar' and business.description_ar or LANGUAGE_CODE != 'ar' and business.description_en %}
                 <div class="content-card">
                     <div class="card-title">
-                        <i class="fas fa-user-circle"></i> {% trans "نبذة عن الحرفي" %}
+                        <i class="fas fa-user-circle"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}نبذة عن الحرفي{% else %}About the Craftsman{% endif %}
                     </div>
                     <p style="color:#555; line-height:2; font-size:0.92rem;">
-                        {% if LANGUAGE_CODE == 'ar' %}
-                            {{ business.description_ar }}
-                        {% else %}
-                            {{ business.description_en|default:business.description_ar }}
-                        {% endif %}
+                        {% if LANGUAGE_CODE == 'ar' %}{{ business.description_ar }}{% else %}{{ business.description_en|default:business.description_ar }}{% endif %}
                     </p>
                 </div>
                 {% endif %}
 
+                <!-- معرض الأعمال -->
                 {% if business.images.all %}
                 <div class="content-card">
                     <div class="card-title">
-                        <i class="fas fa-images"></i> {% trans "معرض الأعمال" %}
+                        <i class="fas fa-images"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}معرض الأعمال{% else %}Work Portfolio{% endif %}
                         <span class="badge ms-auto"
                               style="background:#fff0f5; color:#f5576c; font-size:0.75rem;">
-                            {{ business.images.count }} {% trans "صورة" %}
+                            {{ business.images.count }}
+                            {% if LANGUAGE_CODE == 'ar' %}صورة{% else %}Photos{% endif %}
                         </span>
                     </div>
                     <div class="portfolio-grid">
@@ -356,12 +348,14 @@
                 </div>
                 {% endif %}
 
+                <!-- الخدمات والتسعيرة -->
                 {% if business.products.all %}
                 <div class="content-card">
                     <div class="card-title">
-                        <i class="fas fa-list-ul"></i> {% trans "الخدمات والتسعيرة" %}
+                        <i class="fas fa-list-ul"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}الخدمات والتسعيرة{% else %}Services & Pricing{% endif %}
                         <small class="text-muted fw-normal me-2" style="font-size:0.75rem;">
-                            {% trans "الأسعار تقريبية وقابلة للتفاوض" %}
+                            {% if LANGUAGE_CODE == 'ar' %}الأسعار تقريبية وقابلة للتفاوض{% else %}Prices are approximate and negotiable{% endif %}
                         </small>
                     </div>
                     {% for product in business.products.all %}
@@ -369,28 +363,21 @@
                         <div class="service-icon"><i class="fas fa-wrench"></i></div>
                         <div class="flex-grow-1">
                             <div class="service-name">
-                                {% if LANGUAGE_CODE == 'ar' %}
-                                    {{ product.name_ar }}
-                                {% else %}
-                                    {{ product.name_en|default:product.name_ar }}
-                                {% endif %}
+                                {% if LANGUAGE_CODE == 'ar' %}{{ product.name_ar }}{% else %}{{ product.name_en|default:product.name_ar }}{% endif %}
                             </div>
                             {% if LANGUAGE_CODE == 'ar' and product.description_ar %}
-                            <div style="font-size:0.78rem; color:#999;">
-                                {{ product.description_ar|truncatechars:60 }}
-                            </div>
+                            <div style="font-size:0.78rem; color:#999;">{{ product.description_ar|truncatechars:60 }}</div>
                             {% elif LANGUAGE_CODE != 'ar' and product.description_en %}
-                            <div style="font-size:0.78rem; color:#999;">
-                                {{ product.description_en|truncatechars:60 }}
-                            </div>
+                            <div style="font-size:0.78rem; color:#999;">{{ product.description_en|truncatechars:60 }}</div>
                             {% endif %}
                         </div>
                         <div class="service-price">
                             {% if product.price %}
-                                {% trans "من" %} {{ product.price }}
+                                {% if LANGUAGE_CODE == 'ar' %}من{% else %}From{% endif %}
+                                {{ product.price }}
                                 {% if LANGUAGE_CODE == 'ar' %}ج.م{% else %}EGP{% endif %}
                             {% else %}
-                                {% trans "يُحدد عند الاتفاق" %}
+                                {% if LANGUAGE_CODE == 'ar' %}يُحدد عند الاتفاق{% else %}By agreement{% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -398,11 +385,14 @@
                 </div>
                 {% endif %}
 
+                <!-- التقييمات -->
                 <div class="content-card" id="reviews">
                     <div class="card-title">
-                        <i class="fas fa-star"></i> {% trans "آراء العملاء" %}
+                        <i class="fas fa-star"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}آراء العملاء{% else %}Customer Reviews{% endif %}
                         <span class="badge ms-auto" style="background:#fff0f5; color:#f5576c;">
-                            {{ business.total_reviews }} {% trans "تقييم" %}
+                            {{ business.total_reviews }}
+                            {% if LANGUAGE_CODE == 'ar' %}تقييم{% else %}Reviews{% endif %}
                         </span>
                     </div>
 
@@ -411,11 +401,9 @@
                         <div class="col-auto text-center">
                             <div class="rating-big">{{ business.average_rating }}</div>
                             <div style="color:#f5576c;">
-                                {% for i in "12345" %}
-                                    <i class="fas fa-star" style="font-size:0.9rem;"></i>
-                                {% endfor %}
+                                {% for i in "12345" %}<i class="fas fa-star" style="font-size:0.9rem;"></i>{% endfor %}
                             </div>
-                            <small class="text-muted">{% trans "من 5" %}</small>
+                            <small class="text-muted">{% if LANGUAGE_CODE == 'ar' %}من 5{% else %}out of 5{% endif %}</small>
                         </div>
                         <div class="col">
                             {% for star in "54321" %}
@@ -455,7 +443,8 @@
                                 {% if review.reply %}
                                 <div style="background:white; border-radius:8px; padding:0.6rem 0.9rem; border-right:3px solid #f5576c; margin-top:0.5rem;">
                                     <small style="color:#f5576c;" class="fw-bold">
-                                        <i class="fas fa-reply me-1"></i>{% trans "رد الحرفي:" %}
+                                        <i class="fas fa-reply me-1"></i>
+                                        {% if LANGUAGE_CODE == 'ar' %}رد الحرفي:{% else %}Craftsman's reply:{% endif %}
                                     </small>
                                     <p class="mb-0" style="font-size:0.82rem; color:#555; margin-top:4px;">
                                         {{ review.reply.comment }}
@@ -468,7 +457,7 @@
                     {% empty %}
                     <div class="text-center text-muted py-3">
                         <i class="fas fa-star fa-2x mb-2 d-block" style="color:#fce4ec;"></i>
-                        {% trans "لا توجد تقييمات بعد — كن أول من يقيّم هذا الحرفي!" %}
+                        {% if LANGUAGE_CODE == 'ar' %}لا توجد تقييمات بعد — كن أول من يقيّم هذا الحرفي!{% else %}No reviews yet — be the first to review!{% endif %}
                     </div>
                     {% endfor %}
 
@@ -476,12 +465,14 @@
                     <div class="review-form-card mt-4">
                         <h6 class="fw-bold mb-3">
                             <i class="fas fa-pen me-2" style="color:#f5576c;"></i>
-                            {% trans "قيّم تجربتك مع هذا الحرفي" %}
+                            {% if LANGUAGE_CODE == 'ar' %}قيّم تجربتك مع هذا الحرفي{% else %}Rate Your Experience{% endif %}
                         </h6>
                         <form method="post" action="{% url 'reviews:add_review' business.slug %}">
                             {% csrf_token %}
                             <div class="mb-3">
-                                <label class="form-label fw-semibold small">{% trans "التقييم" %}</label>
+                                <label class="form-label fw-semibold small">
+                                    {% if LANGUAGE_CODE == 'ar' %}التقييم{% else %}Rating{% endif %}
+                                </label>
                                 <div class="star-input">
                                     {% for i in "54321" %}
                                     <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}">
@@ -490,14 +481,17 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold small">{% trans "تعليقك" %}</label>
+                                <label class="form-label fw-semibold small">
+                                    {% if LANGUAGE_CODE == 'ar' %}تعليقك{% else %}Your Comment{% endif %}
+                                </label>
                                 <textarea name="comment" rows="3" class="form-control"
                                           style="border-radius:10px; border:1.5px solid #fce4ec;"
-                                          placeholder="{% trans 'كيف كانت تجربتك مع هذا الحرفي؟' %}"></textarea>
+                                          placeholder="{% if LANGUAGE_CODE == 'ar' %}كيف كانت تجربتك مع هذا الحرفي؟{% else %}How was your experience with this craftsman?{% endif %}"></textarea>
                             </div>
                             <button type="submit" class="btn btn-sm rounded-pill px-4"
                                     style="background:linear-gradient(135deg,#f093fb,#f5576c); color:white; border:none;">
-                                <i class="fas fa-paper-plane me-1"></i>{% trans "إرسال التقييم" %}
+                                <i class="fas fa-paper-plane me-1"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}إرسال التقييم{% else %}Submit Review{% endif %}
                             </button>
                         </form>
                     </div>
@@ -507,18 +501,28 @@
                            class="btn rounded-pill btn-sm"
                            style="border:1.5px solid #f5576c; color:#f5576c;">
                             <i class="fas fa-sign-in-alt me-1"></i>
-                            {% trans "سجّل دخولك لإضافة تقييم" %}
+                            {% if LANGUAGE_CODE == 'ar' %}سجّل دخولك لإضافة تقييم{% else %}Login to add a review{% endif %}
                         </a>
                     </div>
                     {% endif %}
                 </div>
-            </div>
 
+            </div>
+            <!-- End Right Column -->
+
+
+            <!-- Sidebar -->
             <div class="col-lg-4">
                 <div class="sidebar-sticky">
+
+                    <!-- CTA -->
                     <div class="booking-cta">
-                        <h6>🔧 {% trans "تحتاج هذه الخدمة؟" %}</h6>
-                        <p>{% trans "تواصل مع الحرفي مباشرةً الآن" %}</p>
+                        <h6>🔧
+                            {% if LANGUAGE_CODE == 'ar' %}تحتاج هذه الخدمة؟{% else %}Need This Service?{% endif %}
+                        </h6>
+                        <p>
+                            {% if LANGUAGE_CODE == 'ar' %}تواصل مع الحرفي مباشرةً الآن{% else %}Contact the craftsman directly now{% endif %}
+                        </p>
                         <div class="d-grid gap-2">
                             {% if business.phone %}
                             <a href="tel:{{ business.phone }}"
@@ -530,15 +534,18 @@
                             <a href="https://wa.me/{{ business.whatsapp }}" target="_blank"
                                class="btn rounded-pill fw-bold"
                                style="background:rgba(255,255,255,0.2); color:white; border:1.5px solid rgba(255,255,255,0.4);">
-                                <i class="fab fa-whatsapp me-2"></i>{% trans "راسل عبر واتساب" %}
+                                <i class="fab fa-whatsapp me-2"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}راسل عبر واتساب{% else %}Message on WhatsApp{% endif %}
                             </a>
                             {% endif %}
                         </div>
                     </div>
 
+                    <!-- بيانات التواصل -->
                     <div class="content-card">
                         <div class="card-title">
-                            <i class="fas fa-address-card"></i> {% trans "بيانات التواصل" %}
+                            <i class="fas fa-address-card"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}بيانات التواصل{% else %}Contact Details{% endif %}
                         </div>
 
                         {% if business.phone %}
@@ -547,7 +554,7 @@
                                 <i class="fas fa-phone"></i>
                             </div>
                             <div>
-                                <div class="contact-label">{% trans "الهاتف" %}</div>
+                                <div class="contact-label">{% if LANGUAGE_CODE == 'ar' %}الهاتف{% else %}Phone{% endif %}</div>
                                 <a href="tel:{{ business.phone }}" class="contact-value text-decoration-none">
                                     {{ business.phone }}
                                 </a>
@@ -561,7 +568,7 @@
                                 <i class="fab fa-whatsapp"></i>
                             </div>
                             <div>
-                                <div class="contact-label">{% trans "واتساب" %}</div>
+                                <div class="contact-label">{% if LANGUAGE_CODE == 'ar' %}واتساب{% else %}WhatsApp{% endif %}</div>
                                 <a href="https://wa.me/{{ business.whatsapp }}" target="_blank"
                                    class="contact-value text-decoration-none">{{ business.whatsapp }}</a>
                             </div>
@@ -574,13 +581,9 @@
                                 <i class="fas fa-map-marker-alt"></i>
                             </div>
                             <div>
-                                <div class="contact-label">{% trans "المنطقة" %}</div>
+                                <div class="contact-label">{% if LANGUAGE_CODE == 'ar' %}المنطقة{% else %}Area{% endif %}</div>
                                 <div class="contact-value">
-                                    {% if LANGUAGE_CODE == 'ar' %}
-                                        {{ business.address_ar }}
-                                    {% else %}
-                                        {{ business.address_en|default:business.address_ar }}
-                                    {% endif %}
+                                    {% if LANGUAGE_CODE == 'ar' %}{{ business.address_ar }}{% else %}{{ business.address_en|default:business.address_ar }}{% endif %}
                                 </div>
                             </div>
                         </div>
@@ -592,13 +595,9 @@
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div>
-                                <div class="contact-label">{% trans "أوقات التواصل" %}</div>
+                                <div class="contact-label">{% if LANGUAGE_CODE == 'ar' %}أوقات التواصل{% else %}Available Hours{% endif %}</div>
                                 <div class="contact-value">
-                                    {% if LANGUAGE_CODE == 'ar' %}
-                                        {{ business.working_hours_ar }}
-                                    {% else %}
-                                        {{ business.working_hours_en|default:business.working_hours_ar }}
-                                    {% endif %}
+                                    {% if LANGUAGE_CODE == 'ar' %}{{ business.working_hours_ar }}{% else %}{{ business.working_hours_en|default:business.working_hours_ar }}{% endif %}
                                 </div>
                             </div>
                         </div>
@@ -610,7 +609,7 @@
                                 <i class="fas fa-envelope"></i>
                             </div>
                             <div>
-                                <div class="contact-label">{% trans "البريد" %}</div>
+                                <div class="contact-label">{% if LANGUAGE_CODE == 'ar' %}البريد{% else %}Email{% endif %}</div>
                                 <a href="mailto:{{ business.email }}" class="contact-value text-decoration-none">
                                     {{ business.email }}
                                 </a>
@@ -619,53 +618,75 @@
                         {% endif %}
                     </div>
 
+                    <!-- السوشيال -->
                     {% if business.facebook or business.instagram %}
                     <div class="content-card">
                         <div class="card-title">
-                            <i class="fas fa-share-alt"></i> {% trans "تابع أعمالي" %}
+                            <i class="fas fa-share-alt"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}تابع أعمالي{% else %}Follow My Work{% endif %}
                         </div>
                         <div class="d-flex flex-wrap gap-2">
                             {% if business.facebook %}
                             <a href="{{ business.facebook }}" target="_blank" class="social-btn btn-facebook">
-                                <i class="fab fa-facebook-f"></i> {% trans "فيسبوك" %}
+                                <i class="fab fa-facebook-f"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}فيسبوك{% else %}Facebook{% endif %}
                             </a>
                             {% endif %}
                             {% if business.instagram %}
                             <a href="{{ business.instagram }}" target="_blank" class="social-btn btn-instagram">
-                                <i class="fab fa-instagram"></i> {% trans "إنستجرام" %}
+                                <i class="fab fa-instagram"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}إنستجرام{% else %}Instagram{% endif %}
                             </a>
                             {% endif %}
                         </div>
                     </div>
                     {% endif %}
 
-                    {% if business_lat and business_lng %}
+                    <!-- ===== الخريطة ===== -->
                     <div class="content-card" id="mapSection">
                         <div class="card-title">
                             <i class="fas fa-map-marked-alt"></i>
-                            {% if LANGUAGE_CODE == 'ar' %}{% trans "الموقع على الخريطة" %}{% else %}{% trans "Location on map" %}{% endif %}
+                            {% if LANGUAGE_CODE == 'ar' %}الموقع على الخريطة{% else %}Location on Map{% endif %}
                         </div>
-                        <div class="map-wrapper" style="height:320px; border-radius:12px; overflow:hidden;">
-                            <iframe id="craftMapFrame"
-                                    srcdoc=""
-                                    style="width:100%; height:100%; border:none; border-radius:12px;">
-                            </iframe>
-                        </div>
-                        {% if business.location_url %}
-                        <a href="{{ business.location_url }}" target="_blank"
-                           class="btn btn-sm flex-grow-1 rounded-pill mt-2"
-                           style="background:linear-gradient(135deg,#203a43,#2c5364); color:white; border:none;">
-                            <i class="fas fa-directions me-1"></i> Google Maps
-                        </a>
+                        {% if business_lat and business_lng %}
+                            <div class="map-wrapper">
+                                <iframe id="craftMapFrame" srcdoc=""
+                                        style="width:100%;height:260px;border:none;border-radius:14px;">
+                                </iframe>
+                            </div>
+                            <a href="https://www.google.com/maps/dir/?api=1&destination={{ business_lat }},{{ business_lng }}"
+                               target="_blank"
+                               style="display:flex;align-items:center;justify-content:center;gap:0.5rem;
+                                      background:linear-gradient(135deg,#f093fb,#f5576c);
+                                      color:white;padding:0.75rem;border-radius:12px;text-decoration:none;
+                                      font-weight:700;margin-top:0.75rem;transition:0.3s;"
+                               onmouseover="this.style.transform='translateY(-2px)'"
+                               onmouseout="this.style.transform='none'">
+                                <i class="fas fa-directions"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}احصل على الاتجاهات{% else %}Get Directions{% endif %}
+                            </a>
+                        {% else %}
+                            <div class="map-placeholder">
+                                <div>
+                                    <i class="fas fa-map-marked-alt fa-3x mb-2"
+                                       style="color:rgba(245,87,108,0.3);display:block;text-align:center;"></i>
+                                    <p class="text-muted mb-0 small">
+                                        {% if LANGUAGE_CODE == 'ar' %}الموقع غير متوفر{% else %}Location not available{% endif %}
+                                    </p>
+                                </div>
+                            </div>
                         {% endif %}
                     </div>
-                    {% endif %}
+
                 </div>
             </div>
+            <!-- End Sidebar -->
+
         </div>
     </div>
 </section>
 
+<!-- Lightbox -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
     <button class="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
     <button class="lightbox-prev" onclick="changeLightbox(-1); event.stopPropagation();">
@@ -681,60 +702,81 @@
 
 {# ===================== JS ===================== #}
 {% block extra_js %}
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// MAP - iframe RTL-safe
+// ===== MAP (iframe srcdoc - RTL safe) =====
 {% if business_lat and business_lng %}
 (function() {
-    var lat = {{ business_lat|default:"0" }};
-    var lng = {{ business_lng|default:"0" }};
-
-    var nameContainer = document.createElement('div');
-    nameContainer.innerHTML = "{% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar|escapejs }}{% else %}{{ business.name_en|default:business.name_ar|escapejs }}{% endif %}";
-    var nameText = nameContainer.textContent || nameContainer.innerText;
-
-    var dirLabel = "{% if LANGUAGE_CODE == 'ar' %}فتح في Google Maps{% else %}Open in Google Maps{% endif %}";
+    var lat      = parseFloat("{{ business_lat }}");
+    var lng      = parseFloat("{{ business_lng }}");
+    var bname    = "{% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar|escapejs }}{% else %}{{ business.name_en|default:business.name_ar|escapejs }}{% endif %}";
+    var dirLabel = "{% if LANGUAGE_CODE == 'ar' %}فتح في خرائط Google{% else %}Open in Google Maps{% endif %}";
     var mapsUrl  = "https://www.google.com/maps?q=" + lat + "," + lng;
 
-    var safeData = JSON.stringify({
-        lat: lat,
-        lng: lng,
-        name: nameText,
-        dirLabel: dirLabel,
-        mapsUrl: mapsUrl
-    });
-
-    var html = ''
-        + '<!DOCTYPE html>'
-        + '<html><head>'
-        + '  <meta charset="utf-8">'
-        + '  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>'
-        + '  <style>html,body,#m{margin:0;padding:0;width:100%;height:100%;}</style>'
-        + '</head><body>'
-        + '  <div id="m"></div>'
-        + '  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\\/script>'
-        + '  <script>'
-        + '    var d = ' + safeData + ';'
-        + '    var map = L.map("m").setView([d.lat, d.lng], 15);'
-        + '    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {'
-        + '      attribution: "© OpenStreetMap", maxZoom: 19'
-        + '    }).addTo(map);'
-        + '    var icon = L.divIcon({'
-        + '      className: "",'
-        + '      html: "<div style=\\"background:linear-gradient(135deg,#203a43,#2c5364);width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 4px rgba(0,0,0,0.15)\\"></div>",'
-        + '      iconSize: [20,20], iconAnchor: [10,10], popupAnchor: [0,-14]'
-        + '    });'
-        + '    L.marker([d.lat, d.lng], {icon: icon}).addTo(map)'
-        + '      .bindPopup('
-        + '        "<strong style=\\"color:#203a43\\">" + d.name + "</strong><br>" +'
-        + '        "<a href=\\"" + d.mapsUrl + "\\" target=\\"_blank\\" style=\\"color:#203a43;font-size:0.82rem\\">" + d.dirLabel + "</a>"'
-        + '      ).openPopup();'
-        + '  <\\/script>'
-        + '</body></html>';
+    var mapHTML = [
+        '<!DOCTYPE html><html><head><meta charset="utf-8">',
+        '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>',
+        '<style>html,body{margin:0;padding:0;width:100%;height:100%;}#m{width:100%;height:100%;}</style>',
+        '</head><body><div id="m"></div>',
+        '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>',
+        '<script>',
+        'var map=L.map("m").setView([' + lat + ',' + lng + '],15);',
+        'L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap",maxZoom:19}).addTo(map);',
+        'var icon=L.divIcon({className:"",html:"<div style=\'width:20px;height:20px;background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:50%;border:3px solid white;box-shadow:0 0 0 4px rgba(245,87,108,0.25);\'><\/div>",iconSize:[20,20],iconAnchor:[10,10],popupAnchor:[0,-14]});',
+        'var marker=L.marker([' + lat + ',' + lng + '],{icon:icon}).addTo(map);',
+        'var popupContent=document.createElement("div");',
+        'popupContent.innerHTML="<strong style=\'color:#f5576c;\'>' + bname.replace(/\\/g,"\\\\").replace(/\'/g,"\\'") + '<\/strong><br><a href=\'' + mapsUrl + '\' target=\'_blank\' style=\'color:#f5576c;font-size:0.82rem;\'>' + dirLabel + '<\/a>";',
+        'marker.bindPopup(popupContent).openPopup();',
+        '<\/script></body></html>'
+    ].join('');
 
     var frame = document.getElementById('craftMapFrame');
-    if (frame) frame.srcdoc = html;
+    if (frame) frame.srcdoc = mapHTML;
 })();
 {% endif %}
+
+// ===== Lightbox =====
+const images = [
+    {% for img in business.images.all %}"{{ img.image.url }}"{% if not forloop.last %},{% endif %}{% endfor %}
+];
+let currentImg = 0;
+
+function openLightbox(index) {
+    currentImg = index;
+    document.getElementById('lightboxImg').src = images[index];
+    document.getElementById('lightbox').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+function closeLightbox(e) {
+    if (!e || e.target === document.getElementById('lightbox') ||
+        e.currentTarget.classList.contains('lightbox-close')) {
+        document.getElementById('lightbox').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+function changeLightbox(dir) {
+    currentImg = (currentImg + dir + images.length) % images.length;
+    document.getElementById('lightboxImg').src = images[currentImg];
+}
+document.addEventListener('keydown', e => {
+    if (document.getElementById('lightbox').classList.contains('show')) {
+        if (e.key === 'ArrowRight') changeLightbox(-1);
+        if (e.key === 'ArrowLeft')  changeLightbox(1);
+        if (e.key === 'Escape')     closeLightbox();
+    }
+});
+
+// ===== Share =====
+function shareCraft() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{% if LANGUAGE_CODE == "ar" %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}',
+            text: '{% if LANGUAGE_CODE == "ar" %}{{ business.category.name_ar }} في {{ business.district.city.name_ar }}{% else %}{{ business.category.name_en }} in {{ business.district.city.name_en }}{% endif %}',
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('{% if LANGUAGE_CODE == "ar" %}تم نسخ الرابط!{% else %}Link copied!{% endif %}');
+    }
+}
 </script>
 {% endblock %}

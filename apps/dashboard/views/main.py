@@ -7,6 +7,8 @@ from django.contrib import messages
 from django.db.models import Count, Q, Avg, Sum
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django import forms  # ← أضف
+from apps.accounts.forms import ProfileUpdateForm as UserProfileForm
 
 from apps.directory.models import Business
 from apps.directory.models.location import District, Governorate, City
@@ -14,6 +16,7 @@ from apps.products.models import Product
 from apps.deals.models import Deal
 from apps.reviews.models import Review
 from apps.accounts.models import User
+from apps.dashboard.forms import UserProfileForm
 
 @login_required
 def index(request):
@@ -22,14 +25,14 @@ def index(request):
     """
     if request.user.is_staff or request.user.is_superuser:
         # Admin user - redirect to admin dashboard
-        return redirect('dashboard:admin_dashboard:home')
+        return redirect('dashboard:admin_home')
     else:
         # Regular user - business owner
         businesses = Business.objects.filter(owner=request.user)
         
         if businesses.exists():
             # Has businesses - show owner dashboard
-            return redirect('dashboard:owner:dashboard')
+            return redirect('dashboard:owner_dashboard')
         else:
             # No businesses yet - encourage to create one
             messages.info(request, 'مرحباً! يمكنك إضافة محلك الأول من هنا.')
@@ -99,7 +102,7 @@ def settings(request):
         'user': request.user,
         'form': form,
     }
-    return render(request, 'dashboard/settings.html', context)
+    return render(request, 'dashboard/admin/settings.html', context)
 
 @login_required
 def notifications(request):

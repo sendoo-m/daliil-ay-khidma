@@ -7,12 +7,12 @@
     <div>
         <h4 class="fw-bold mb-1"><i class="fas fa-city text-primary me-2"></i> إدارة المدن</h4>
         <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">الرئيسية</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:governorates_list' %}">المحافظات</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_home' %}">الرئيسية</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_governorates_list' %}">المحافظات</a></li>
             <li class="breadcrumb-item active">المدن</li>
         </ol></nav>
     </div>
-    <a href="{% url 'admin_dashboard:city_create' %}" class="btn btn-primary">
+    <a href="{% url 'dashboard:admin_city_create' %}" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i> إضافة مدينة
     </a>
 </div>
@@ -34,7 +34,7 @@
             </div>
             {% if gov_filter %}
             <div class="col-md-2">
-                <a href="{% url 'admin_dashboard:cities_list' %}" class="btn btn-outline-secondary w-100">
+                <a href="{% url 'dashboard:admin_cities_list' %}" class="btn btn-outline-secondary w-100">
                     <i class="fas fa-redo me-1"></i> إعادة تعيين
                 </a>
             </div>
@@ -73,7 +73,7 @@
                         <span class="badge bg-light text-dark">{{ city.governorate.name_ar }}</span>
                     </td>
                     <td>
-                        <a href="{% url 'admin_dashboard:districts_list' %}?city={{ city.id }}" class="badge bg-info text-decoration-none">
+                        <a href="{% url 'dashboard:admin_districts_list' %}?city={{ city.id }}" class="badge bg-info text-decoration-none">
                             {{ city.districts.count }} حي
                         </a>
                     </td>
@@ -86,11 +86,11 @@
                     </td>
                     <td>
                         <div class="d-flex gap-1">
-                            <a href="{% url 'admin_dashboard:city_edit' city.id %}" class="btn btn-sm btn-outline-warning">
+                            <a href="{% url 'dashboard:admin_city_edit' city.id %}" class="btn btn-sm btn-outline-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <button class="btn btn-sm btn-outline-danger"
-                                onclick="confirmDelete('{% url 'admin_dashboard:city_delete' city.id %}', '{{ city.name_ar }}')">
+                                onclick="confirmDelete('{% url 'dashboard:admin_city_delete' city.id %}', '{{ city.name_ar }}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>

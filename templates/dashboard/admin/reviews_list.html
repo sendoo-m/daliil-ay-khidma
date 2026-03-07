@@ -64,15 +64,15 @@
                     </td>
                     <td>
                         {% if not review.is_approved %}
-                            <a href="{% url 'admin_dashboard:review_approve' review.id %}" class="btn btn-sm btn-success">
+                            <a href="{% url 'dashboard:admin_review_approve' review.id %}" class="btn btn-sm btn-success">
                                 <i class="fas fa-check"></i>
                             </a>
                         {% else %}
-                            <a href="{% url 'admin_dashboard:review_reject' review.id %}" class="btn btn-sm btn-warning">
+                            <a href="{% url 'dashboard:admin_review_reject' review.id %}" class="btn btn-sm btn-warning">
                                 <i class="fas fa-times"></i>
                             </a>
                         {% endif %}
-                        <form method="post" action="{% url 'admin_dashboard:review_delete' review.id %}" style="display:inline;">
+                        <form method="post" action="{% url 'dashboard:admin_review_delete' review.id %}" style="display:inline;">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد؟')">
                                 <i class="fas fa-trash"></i>

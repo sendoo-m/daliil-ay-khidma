@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% load static i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 
-{% block title %}الخدمات العامة - دليل أي خدمة{% endblock %}
+{% block title %}
+    {% if LANGUAGE_CODE == 'ar' %}الخدمات العامة - دليل أي خدمة{% else %}Public Services - Directory{% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -121,27 +124,17 @@
         object-fit: cover; transition: transform 0.4s;
     }
     .service-card:hover .service-card-img img { transform: scale(1.06); }
-
-    /* Overlay gradient على الصورة */
     .service-card-img::after {
         content: '';
         position: absolute; inset: 0;
         background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%);
     }
-
-    /* اسم الخدمة فوق الصورة */
     .service-card-overlay {
         position: absolute; bottom: 0; right: 0; left: 0;
         padding: 1rem 1.2rem; z-index: 2; color: white;
     }
-    .service-card-overlay .service-name {
-        font-size: 1rem; font-weight: 700; margin-bottom: 2px;
-    }
-    .service-card-overlay .service-category {
-        font-size: 0.75rem; opacity: 0.85;
-    }
-
-    /* Badge نوع الخدمة */
+    .service-card-overlay .service-name { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
+    .service-card-overlay .service-category { font-size: 0.75rem; opacity: 0.85; }
     .service-type-badge {
         position: absolute; top: 12px; right: 12px; z-index: 3;
         font-size: 0.72rem; padding: 5px 12px;
@@ -153,8 +146,6 @@
     .badge-police    { background: rgba(41,128,185,0.85); color:white; }
     .badge-fire      { background: rgba(230,126,34,0.85); color:white; }
     .badge-default   { background: rgba(44,83,100,0.85);  color:white; }
-
-    /* Open/Closed Badge */
     .status-badge {
         position: absolute; top: 12px; left: 12px; z-index: 3;
         font-size: 0.7rem; padding: 4px 10px;
@@ -162,18 +153,14 @@
     }
     .status-open   { background: rgba(46,204,113,0.9); color:white; }
     .status-closed { background: rgba(231,76,60,0.9);  color:white; }
-
     .service-card-body { padding: 1rem 1.2rem; }
-
     .service-info-row {
         display: flex; align-items: center; gap: 8px;
         font-size: 0.8rem; color: #666; margin-bottom: 0.4rem;
     }
     .service-info-row i { color: #2c5364; width: 16px; text-align:center; }
-
     .service-rating { font-size: 0.82rem; color: #f39c12; }
     .service-rating span { color: #888; }
-
     .service-card-footer {
         padding: 0.8rem 1.2rem;
         border-top: 1px solid #f0f4f8;
@@ -195,9 +182,7 @@
         width: 180px; min-width: 180px; overflow: hidden;
         position: relative;
     }
-    .service-list-img img {
-        width: 100%; height: 100%; object-fit: cover;
-    }
+    .service-list-img img { width: 100%; height: 100%; object-fit: cover; }
     .service-list-img::after {
         content: '';
         position: absolute; inset: 0;
@@ -208,23 +193,6 @@
         padding: 1rem; display: flex; flex-direction: column;
         justify-content: center; gap: 0.5rem; min-width: 130px;
         background: #f8fafc;
-    }
-
-    /* ===== Category Chips ===== */
-    .category-chips {
-        display: flex; flex-wrap: wrap; gap: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-    .category-chip {
-        display: flex; align-items: center; gap: 6px;
-        background: white; border: 1.5px solid #dde3ea;
-        border-radius: 30px; padding: 5px 14px;
-        font-size: 0.8rem; font-weight: 600; color: #555;
-        text-decoration: none; transition: all 0.2s;
-    }
-    .category-chip:hover, .category-chip.active {
-        background: linear-gradient(135deg,#203a43,#2c5364);
-        border-color: transparent; color: white;
     }
 
     /* ===== Empty ===== */
@@ -239,7 +207,6 @@
 </style>
 {% endblock %}
 
-
 {% block content %}
 
 <!-- ===== Hero ===== -->
@@ -247,25 +214,32 @@
     <div class="container text-center position-relative" style="z-index:1;">
         <div class="mb-3">
             <span style="background:rgba(255,255,255,0.1); padding:6px 20px; border-radius:20px; font-size:0.85rem; border:1px solid rgba(255,255,255,0.2);">
-                🏛️ الخدمات العامة
+                🏛️ {% if LANGUAGE_CODE == 'ar' %}الخدمات العامة{% else %}Public Services{% endif %}
             </span>
         </div>
-        <h1 class="fw-bold fs-2 mb-2">دليل الخدمات العامة</h1>
+        <h1 class="fw-bold fs-2 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}دليل الخدمات العامة{% else %}Public Services Directory{% endif %}
+        </h1>
         <p class="opacity-75 mb-0">
-            {{ total_count|default:0 }} خدمة عامة —
-            مستشفيات • حدائق • شرطة • إطفاء • وأكثر
+            {{ total_count|default:0 }}
+            {% if LANGUAGE_CODE == 'ar' %}
+                خدمة عامة — مستشفيات • حدائق • شرطة • إطفاء • وأكثر
+            {% else %}
+                public services — Hospitals • Parks • Police • Fire • and more
+            {% endif %}
         </p>
         <form method="get">
             <div class="hero-search">
                 <i class="fas fa-search text-muted"></i>
                 <input type="text" name="q" value="{{ request.GET.q }}"
-                       placeholder="ابحث عن مستشفى، حديقة، نقطة شرطة...">
-                <button type="submit">بحث</button>
+                       placeholder="{% if LANGUAGE_CODE == 'ar' %}ابحث عن مستشفى، حديقة، نقطة شرطة...{% else %}Search for hospital, park, police station...{% endif %}">
+                <button type="submit">
+                    {% if LANGUAGE_CODE == 'ar' %}بحث{% else %}Search{% endif %}
+                </button>
             </div>
         </form>
     </div>
 </section>
-
 
 <!-- ===== Service Type Tabs ===== -->
 <div class="service-types">
@@ -273,40 +247,47 @@
         <div class="d-flex overflow-auto gap-2 pb-1" style="scrollbar-width:none;">
             <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}"
                class="type-tab {% if not request.GET.service_type %}active{% endif %}">
-                <span class="tab-icon">🏛️</span> الكل
+                <span class="tab-icon">🏛️</span>
+                {% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}
             </a>
             <a href="?service_type=hospital{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                class="type-tab {% if request.GET.service_type == 'hospital' %}active{% endif %}">
-                <span class="tab-icon">🏥</span> مستشفيات
+                <span class="tab-icon">🏥</span>
+                {% if LANGUAGE_CODE == 'ar' %}مستشفيات{% else %}Hospitals{% endif %}
             </a>
             <a href="?service_type=park{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                class="type-tab {% if request.GET.service_type == 'park' %}active{% endif %}">
-                <span class="tab-icon">🌳</span> حدائق
+                <span class="tab-icon">🌳</span>
+                {% if LANGUAGE_CODE == 'ar' %}حدائق{% else %}Parks{% endif %}
             </a>
             <a href="?service_type=police{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                class="type-tab {% if request.GET.service_type == 'police' %}active{% endif %}">
-                <span class="tab-icon">👮</span> شرطة
+                <span class="tab-icon">👮</span>
+                {% if LANGUAGE_CODE == 'ar' %}شرطة{% else %}Police{% endif %}
             </a>
             <a href="?service_type=fire{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                class="type-tab {% if request.GET.service_type == 'fire' %}active{% endif %}">
-                <span class="tab-icon">🚒</span> إطفاء
+                <span class="tab-icon">🚒</span>
+                {% if LANGUAGE_CODE == 'ar' %}إطفاء{% else %}Fire{% endif %}
             </a>
             <a href="?service_type=school{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                class="type-tab {% if request.GET.service_type == 'school' %}active{% endif %}">
-                <span class="tab-icon">🏫</span> مدارس
+                <span class="tab-icon">🏫</span>
+                {% if LANGUAGE_CODE == 'ar' %}مدارس{% else %}Schools{% endif %}
             </a>
             <a href="?service_type=mosque{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                class="type-tab {% if request.GET.service_type == 'mosque' %}active{% endif %}">
-                <span class="tab-icon">🕌</span> مساجد
+                <span class="tab-icon">🕌</span>
+                {% if LANGUAGE_CODE == 'ar' %}مساجد{% else %}Mosques{% endif %}
             </a>
             <a href="?service_type=government{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
                class="type-tab {% if request.GET.service_type == 'government' %}active{% endif %}">
-                <span class="tab-icon">🏢</span> حكومية
+                <span class="tab-icon">🏢</span>
+                {% if LANGUAGE_CODE == 'ar' %}حكومية{% else %}Government{% endif %}
             </a>
         </div>
     </div>
 </div>
-
 
 <!-- ===== Filters Bar ===== -->
 <div class="filters-bar">
@@ -319,11 +300,11 @@
                 <!-- المحافظة -->
                 <select name="governorate" class="filter-select"
                         id="govFilter" onchange="loadCities(this.value)">
-                    <option value="">📍 كل المحافظات</option>
+                    <option value="">📍 {% if LANGUAGE_CODE == 'ar' %}كل المحافظات{% else %}All Governorates{% endif %}</option>
                     {% for gov in governorates %}
                     <option value="{{ gov.slug }}"
                             {% if request.GET.governorate == gov.slug %}selected{% endif %}>
-                        {{ gov.name_ar }}
+                        {% if LANGUAGE_CODE == 'ar' %}{{ gov.name_ar }}{% else %}{{ gov.name_en|default:gov.name_ar }}{% endif %}
                     </option>
                     {% endfor %}
                 </select>
@@ -331,11 +312,11 @@
                 <!-- المدينة -->
                 <select name="city" class="filter-select" id="cityFilter"
                         onchange="document.getElementById('filterForm').submit()">
-                    <option value="">🏙 كل المدن</option>
+                    <option value="">🏙 {% if LANGUAGE_CODE == 'ar' %}كل المدن{% else %}All Cities{% endif %}</option>
                     {% for city in cities %}
                     <option value="{{ city.slug }}"
                             {% if request.GET.city == city.slug %}selected{% endif %}>
-                        {{ city.name_ar }}
+                        {% if LANGUAGE_CODE == 'ar' %}{{ city.name_ar }}{% else %}{{ city.name_en|default:city.name_ar }}{% endif %}
                     </option>
                     {% endfor %}
                 </select>
@@ -343,14 +324,23 @@
                 <!-- الترتيب -->
                 <select name="sort" class="filter-select"
                         onchange="document.getElementById('filterForm').submit()">
-                    <option value="-created_at"    {% if request.GET.sort == '-created_at'    %}selected{% endif %}>🕒 الأحدث إضافةً</option>
-                    <option value="-view_count"     {% if request.GET.sort == '-view_count'     %}selected{% endif %}>🔥 الأكثر زيارة</option>
-                    <option value="-average_rating" {% if request.GET.sort == '-average_rating' %}selected{% endif %}>⭐ الأعلى تقييماً</option>
-                    <option value="name_ar"         {% if request.GET.sort == 'name_ar'         %}selected{% endif %}>🔤 أبجدي</option>
+                    <option value="-created_at"    {% if request.GET.sort == '-created_at'    %}selected{% endif %}>
+                        🕒 {% if LANGUAGE_CODE == 'ar' %}الأحدث إضافةً{% else %}Latest{% endif %}
+                    </option>
+                    <option value="-view_count"     {% if request.GET.sort == '-view_count'     %}selected{% endif %}>
+                        🔥 {% if LANGUAGE_CODE == 'ar' %}الأكثر زيارة{% else %}Most Visited{% endif %}
+                    </option>
+                    <option value="-average_rating" {% if request.GET.sort == '-average_rating' %}selected{% endif %}>
+                        ⭐ {% if LANGUAGE_CODE == 'ar' %}الأعلى تقييماً{% else %}Top Rated{% endif %}
+                    </option>
+                    <option value="name_ar"         {% if request.GET.sort == 'name_ar'         %}selected{% endif %}>
+                        🔤 {% if LANGUAGE_CODE == 'ar' %}أبجدي{% else %}Alphabetical{% endif %}
+                    </option>
                 </select>
 
                 <span class="text-muted small ms-auto">
-                    <strong>{{ total_count|default:0 }}</strong> خدمة
+                    <strong>{{ total_count|default:0 }}</strong>
+                    {% if LANGUAGE_CODE == 'ar' %}خدمة{% else %}services{% endif %}
                 </span>
 
                 <!-- View Toggle -->
@@ -369,7 +359,6 @@
     </div>
 </div>
 
-
 <!-- ===== Results ===== -->
 <section class="py-4" style="background:#f0f4f8; min-height:60vh;">
     <div class="container">
@@ -384,38 +373,38 @@
 
                     <div class="service-card-img">
                         {% if business.cover_image %}
-                            <img src="{{ business.cover_image.url }}" alt="{{ business.name_ar }}">
+                            <img src="{{ business.cover_image.url }}"
+                                 alt="{% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}">
                         {% else %}
                             <img src="{% static 'images/service-placeholder.jpg' %}" alt="">
                         {% endif %}
 
-                        <!-- نوع الخدمة badge -->
                         <span class="service-type-badge badge-default">
                             {% if business.category.icon %}
                                 <i class="{{ business.category.icon }} me-1"></i>
                             {% endif %}
-                            {{ business.category.name_ar }}
+                            {% if LANGUAGE_CODE == 'ar' %}{{ business.category.name_ar }}{% else %}{{ business.category.name_en|default:business.category.name_ar }}{% endif %}
                         </span>
 
-                        <!-- حالة الفتح / الإغلاق -->
                         {% if business.working_hours_ar %}
                         <span class="status-badge status-open">
-                            <i class="fas fa-circle me-1" style="font-size:0.5rem;"></i>مفتوح
+                            <i class="fas fa-circle me-1" style="font-size:0.5rem;"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}مفتوح{% else %}Open{% endif %}
                         </span>
                         {% endif %}
 
-                        <!-- اسم الخدمة فوق الصورة -->
                         <div class="service-card-overlay">
-                            <div class="service-name">{{ business.name_ar }}</div>
+                            <div class="service-name">
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}
+                            </div>
                             <div class="service-category">
                                 <i class="fas fa-map-marker-alt me-1"></i>
-                                {{ business.district.city.name_ar }}
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.district.city.name_ar }}{% else %}{{ business.district.city.name_en|default:business.district.city.name_ar }}{% endif %}
                             </div>
                         </div>
                     </div>
 
                     <div class="service-card-body">
-                        <!-- معلومات سريعة -->
                         {% if business.phone %}
                         <div class="service-info-row">
                             <i class="fas fa-phone"></i>
@@ -423,21 +412,20 @@
                         </div>
                         {% endif %}
 
-                        {% if business.working_hours_ar %}
+                        {% if LANGUAGE_CODE == 'ar' and business.working_hours_ar or LANGUAGE_CODE != 'ar' and business.working_hours_en %}
                         <div class="service-info-row">
                             <i class="fas fa-clock"></i>
-                            <span>{{ business.working_hours_ar|truncatechars:35 }}</span>
+                            <span>{% if LANGUAGE_CODE == 'ar' %}{{ business.working_hours_ar|truncatechars:35 }}{% else %}{{ business.working_hours_en|truncatechars:35 }}{% endif %}</span>
                         </div>
                         {% endif %}
 
-                        {% if business.address_ar %}
+                        {% if LANGUAGE_CODE == 'ar' and business.address_ar or LANGUAGE_CODE != 'ar' and business.address_en %}
                         <div class="service-info-row">
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>{{ business.address_ar|truncatechars:40 }}</span>
+                            <span>{% if LANGUAGE_CODE == 'ar' %}{{ business.address_ar|truncatechars:40 }}{% else %}{{ business.address_en|truncatechars:40 }}{% endif %}</span>
                         </div>
                         {% endif %}
 
-                        <!-- التقييم -->
                         {% if business.average_rating > 0 %}
                         <div class="service-rating mt-2">
                             {% for i in "12345" %}
@@ -449,7 +437,8 @@
                                     <i class="far fa-star"></i>
                                 {% endif %}
                             {% endfor %}
-                            <span>({{ business.total_reviews }} تقييم)</span>
+                            <span>({{ business.total_reviews }}
+                            {% if LANGUAGE_CODE == 'ar' %}تقييم{% else %}reviews{% endif %})</span>
                         </div>
                         {% endif %}
                     </div>
@@ -459,13 +448,14 @@
                         <a href="tel:{{ business.phone }}"
                            class="btn btn-sm btn-outline-secondary rounded-pill"
                            style="font-size:0.78rem;">
-                            <i class="fas fa-phone me-1"></i>اتصال
+                            <i class="fas fa-phone me-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}اتصال{% else %}Call{% endif %}
                         </a>
                         {% endif %}
                         <a href="{% url 'directory:service_detail' business.slug %}"
                            class="btn btn-sm rounded-pill px-3"
                            style="background:linear-gradient(135deg,#203a43,#2c5364); color:white; border:none; font-size:0.78rem;">
-                            التفاصيل والخريطة
+                            {% if LANGUAGE_CODE == 'ar' %}التفاصيل والخريطة{% else %}Details & Map{% endif %}
                         </a>
                     </div>
 
@@ -481,7 +471,8 @@
 
                 <div class="service-list-img">
                     {% if business.cover_image %}
-                        <img src="{{ business.cover_image.url }}" alt="{{ business.name_ar }}">
+                        <img src="{{ business.cover_image.url }}"
+                             alt="{% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}">
                     {% else %}
                         <img src="{% static 'images/service-placeholder.jpg' %}" alt="">
                     {% endif %}
@@ -490,18 +481,21 @@
                 <div class="service-list-body">
                     <div class="d-flex align-items-start gap-2 mb-1 flex-wrap">
                         <div>
-                            <div class="fw-bold fs-6">{{ business.name_ar }}</div>
+                            <div class="fw-bold fs-6">
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}
+                            </div>
                             <div class="small fw-semibold" style="color:#2c5364;">
                                 {% if business.category.icon %}
                                     <i class="{{ business.category.icon }} me-1"></i>
                                 {% endif %}
-                                {{ business.category.name_ar }}
+                                {% if LANGUAGE_CODE == 'ar' %}{{ business.category.name_ar }}{% else %}{{ business.category.name_en|default:business.category.name_ar }}{% endif %}
                             </div>
                         </div>
                         {% if business.is_verified %}
                         <span class="badge ms-auto"
                               style="background:linear-gradient(135deg,#203a43,#2c5364);">
-                            <i class="fas fa-check me-1"></i>موثق
+                            <i class="fas fa-check me-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}موثق{% else %}Verified{% endif %}
                         </span>
                         {% endif %}
                     </div>
@@ -509,7 +503,12 @@
                     <div class="d-flex flex-wrap gap-3 small text-muted mt-2">
                         <span>
                             <i class="fas fa-map-marker-alt me-1 text-danger"></i>
-                            {{ business.district.city.name_ar }} — {{ business.district.name_ar }}
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ business.district.city.name_ar }} — {{ business.district.name_ar }}
+                            {% else %}
+                                {{ business.district.city.name_en|default:business.district.city.name_ar }}
+                                — {{ business.district.name_en|default:business.district.name_ar }}
+                            {% endif %}
                         </span>
                         {% if business.phone %}
                         <span>
@@ -517,10 +516,10 @@
                             {{ business.phone }}
                         </span>
                         {% endif %}
-                        {% if business.working_hours_ar %}
+                        {% if LANGUAGE_CODE == 'ar' and business.working_hours_ar or LANGUAGE_CODE != 'ar' and business.working_hours_en %}
                         <span>
                             <i class="fas fa-clock me-1" style="color:#2c5364;"></i>
-                            {{ business.working_hours_ar|truncatechars:30 }}
+                            {% if LANGUAGE_CODE == 'ar' %}{{ business.working_hours_ar|truncatechars:30 }}{% else %}{{ business.working_hours_en|truncatechars:30 }}{% endif %}
                         </span>
                         {% endif %}
                         {% if business.average_rating > 0 %}
@@ -536,20 +535,23 @@
                     <a href="{% url 'directory:service_detail' business.slug %}"
                        class="btn btn-sm text-center"
                        style="background:linear-gradient(135deg,#203a43,#2c5364); color:white; border:none; border-radius:10px; font-size:0.8rem;">
-                        <i class="fas fa-map-marked-alt me-1"></i>التفاصيل
+                        <i class="fas fa-map-marked-alt me-1"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}التفاصيل{% else %}Details{% endif %}
                     </a>
                     {% if business.phone %}
                     <a href="tel:{{ business.phone }}"
                        class="btn btn-sm btn-outline-secondary text-center"
                        style="border-radius:10px; font-size:0.8rem;">
-                        <i class="fas fa-phone me-1"></i>اتصال
+                        <i class="fas fa-phone me-1"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}اتصال{% else %}Call{% endif %}
                     </a>
                     {% endif %}
                     {% if business.has_location %}
                     <a href="{{ business.get_map_url }}" target="_blank"
                        class="btn btn-sm btn-outline-success text-center"
                        style="border-radius:10px; font-size:0.8rem;">
-                        <i class="fas fa-map me-1"></i>خريطة
+                        <i class="fas fa-map me-1"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}خريطة{% else %}Map{% endif %}
                     </a>
                     {% endif %}
                 </div>
@@ -598,12 +600,16 @@
         {% else %}
         <div class="empty-state">
             <i class="fas fa-building"></i>
-            <h5 class="text-muted">لا توجد خدمات مطابقة</h5>
-            <p class="small text-muted">جرب تغيير الفلاتر أو اختيار منطقة أخرى</p>
+            <h5 class="text-muted">
+                {% if LANGUAGE_CODE == 'ar' %}لا توجد خدمات مطابقة{% else %}No services found{% endif %}
+            </h5>
+            <p class="small text-muted">
+                {% if LANGUAGE_CODE == 'ar' %}جرب تغيير الفلاتر أو اختيار منطقة أخرى{% else %}Try changing filters or selecting a different area{% endif %}
+            </p>
             <a href="{% url 'directory:services_list' %}"
                class="btn rounded-pill mt-2"
                style="background:linear-gradient(135deg,#203a43,#2c5364); color:white; border:none;">
-                عرض كل الخدمات
+                {% if LANGUAGE_CODE == 'ar' %}عرض كل الخدمات{% else %}Show All Services{% endif %}
             </a>
         </div>
         {% endif %}
@@ -612,7 +618,6 @@
 </section>
 
 {% endblock %}
-
 
 {% block extra_js %}
 <script>
@@ -636,13 +641,14 @@ if (savedView === 'list') setView('list');
 
 function loadCities(govSlug) {
     const citySelect = document.getElementById('cityFilter');
-    citySelect.innerHTML = '<option value="">🏙 كل المدن</option>';
+    citySelect.innerHTML = '<option value="">🏙 {% if LANGUAGE_CODE == "ar" %}كل المدن{% else %}All Cities{% endif %}</option>';
     if (!govSlug) { document.getElementById('filterForm').submit(); return; }
     fetch(`/dashboard/ajax/get-cities/?governorate_slug=${govSlug}`)
         .then(r => r.json())
         .then(data => {
             data.cities.forEach(c => {
-                citySelect.innerHTML += `<option value="${c.slug}">${c.name_ar}</option>`;
+                const name = '{{ LANGUAGE_CODE }}' === 'ar' ? c.name_ar : (c.name_en || c.name_ar);
+                citySelect.innerHTML += `<option value="${c.slug}">${name}</option>`;
             });
             document.getElementById('filterForm').submit();
         });

@@ -134,50 +134,6 @@ def business_update(request, slug):
         'action':        'update',
     })
 
-# @login_required
-# def business_create(request):
-#     """إضافة محل جديد"""
-#     if request.method == 'POST':
-#         form = BusinessForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             business = form.save(commit=False)
-#             business.owner = request.user
-#             business.save()
-#             messages.success(request, 'تم إضافة المحل بنجاح!')
-#             return redirect('dashboard:business_detail', slug=business.slug)
-#     else:
-#         form = BusinessForm()
-    
-#     context = {
-#         'form': form,
-#         'title': 'إضانفة محل جديد',
-#     }
-    
-#     return render(request, 'dashboard/business/form.html', context)
-
-
-# @login_required
-# def business_update(request, slug):
-#     """تعديل محل"""
-#     business = get_object_or_404(Business, slug=slug, owner=request.user)
-    
-#     if request.method == 'POST':
-#         form = BusinessForm(request.POST, request.FILES, instance=business)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'تم تحديث المحل بنجاح!')
-#             return redirect('dashboard:business_detail', slug=business.slug)
-#     else:
-#         form = BusinessForm(instance=business)
-    
-#     context = {
-#         'form': form,
-#         'business': business,
-#         'title': f'تعديل {business.name_ar}',
-#     }
-    
-#     return render(request, 'dashboard/business/form.html', context)
-
 
 @login_required
 def business_detail(request, slug):
@@ -223,3 +179,48 @@ def business_delete(request, slug):
     }
     
     return render(request, 'dashboard/business/delete.html', context)
+
+# @login_required
+# def business_create(request):
+#     """إضافة محل جديد"""
+#     if request.method == 'POST':
+#         form = BusinessForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             business = form.save(commit=False)
+#             business.owner = request.user
+#             business.save()
+#             messages.success(request, 'تم إضافة المحل بنجاح!')
+#             return redirect('dashboard:business_detail', slug=business.slug)
+#     else:
+#         form = BusinessForm()
+    
+#     context = {
+#         'form': form,
+#         'title': 'إضانفة محل جديد',
+#     }
+    
+#     return render(request, 'dashboard/business/form.html', context)
+
+
+# @login_required
+# def business_update(request, slug):
+#     """تعديل محل"""
+#     business = get_object_or_404(Business, slug=slug, owner=request.user)
+    
+#     if request.method == 'POST':
+#         form = BusinessForm(request.POST, request.FILES, instance=business)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'تم تحديث المحل بنجاح!')
+#             return redirect('dashboard:business_detail', slug=business.slug)
+#     else:
+#         form = BusinessForm(instance=business)
+    
+#     context = {
+#         'form': form,
+#         'business': business,
+#         'title': f'تعديل {business.name_ar}',
+#     }
+    
+#     return render(request, 'dashboard/business/form.html', context)
+

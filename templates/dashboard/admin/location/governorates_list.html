@@ -7,18 +7,18 @@
     <div>
         <h4 class="fw-bold mb-1"><i class="fas fa-map-marked-alt text-primary me-2"></i> إدارة المحافظات</h4>
         <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">الرئيسية</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_home' %}">الرئيسية</a></li>
             <li class="breadcrumb-item active">المحافظات</li>
         </ol></nav>
     </div>
     <div class="d-flex gap-2">
-        <a href="{% url 'admin_dashboard:cities_list' %}" class="btn btn-outline-secondary">
+        <a href="{% url 'dashboard:admin_cities_list' %}" class="btn btn-outline-secondary">
             <i class="fas fa-city me-1"></i> المدن
         </a>
-        <a href="{% url 'admin_dashboard:districts_list' %}" class="btn btn-outline-secondary">
+        <a href="{% url 'dashboard:admin_districts_list' %}" class="btn btn-outline-secondary">
             <i class="fas fa-map-marker-alt me-1"></i> الأحياء
         </a>
-        <a href="{% url 'admin_dashboard:governorate_create' %}" class="btn btn-primary">
+        <a href="{% url 'dashboard:admin_governorate_create' %}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i> إضافة محافظة
         </a>
     </div>
@@ -50,7 +50,7 @@
                     <td><strong>{{ gov.name_ar }}</strong></td>
                     <td class="text-muted">{{ gov.name_en|default:"-" }}</td>
                     <td>
-                        <a href="{% url 'admin_dashboard:cities_list' %}?governorate={{ gov.id }}" class="badge bg-info text-decoration-none">
+                        <a href="{% url 'dashboard:admin_cities_list' %}?governorate={{ gov.id }}" class="badge bg-info text-decoration-none">
                             {{ gov.cities.count }} مدينة
                         </a>
                     </td>
@@ -63,11 +63,11 @@
                     </td>
                     <td>
                         <div class="d-flex gap-1">
-                            <a href="{% url 'admin_dashboard:governorate_edit' gov.id %}" class="btn btn-sm btn-outline-warning">
+                            <a href="{% url 'dashboard:admin_governorate_edit' gov.id %}" class="btn btn-sm btn-outline-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <button class="btn btn-sm btn-outline-danger"
-                                onclick="confirmDelete('{% url 'admin_dashboard:governorate_delete' gov.id %}', '{{ gov.name_ar }}')">
+                                onclick="confirmDelete('{% url 'dashboard:admin_governorate_delete' gov.id %}', '{{ gov.name_ar }}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>

@@ -10,24 +10,24 @@
         <h4 class="fw-bold mb-1"><i class="fas fa-percent text-warning me-2"></i> {{ deal.title_ar }}</h4>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">الرئيسية</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:deals_list' %}">العروض</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_home' %}">الرئيسية</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_deals_list' %}">العروض</a></li>
                 <li class="breadcrumb-item active">{{ deal.title_ar }}</li>
             </ol>
         </nav>
     </div>
     <div class="d-flex gap-2">
-        <a href="{% url 'admin_dashboard:deal_edit' deal.id %}" class="btn btn-warning">
+        <a href="{% url 'dashboard:admin_deal_edit' deal.id %}" class="btn btn-warning">
             <i class="fas fa-edit me-1"></i> تعديل
         </a>
-        <form method="post" action="{% url 'admin_dashboard:deal_approve' deal.id %}" class="d-inline">
+        <form method="post" action="{% url 'dashboard:admin_deal_approve' deal.id %}" class="d-inline">
             {% csrf_token %}
             <button class="btn {% if deal.is_active %}btn-secondary{% else %}btn-success{% endif %}">
                 <i class="fas fa-{% if deal.is_active %}pause{% else %}play{% endif %} me-1"></i>
                 {% if deal.is_active %}إيقاف{% else %}تفعيل{% endif %}
             </button>
         </form>
-        <form method="post" action="{% url 'admin_dashboard:deal_feature' deal.id %}" class="d-inline">
+        <form method="post" action="{% url 'dashboard:admin_deal_feature' deal.id %}" class="d-inline">
             {% csrf_token %}
             <button class="btn {% if deal.is_featured %}btn-warning{% else %}btn-outline-warning{% endif %}">
                 <i class="fas fa-star me-1"></i>
@@ -82,7 +82,7 @@
                     <tr>
                         <td class="text-muted">المحل</td>
                         <td>
-                            <a href="{% url 'admin_dashboard:business_detail' deal.business.id %}" class="text-decoration-none">
+                            <a href="{% url 'dashboard:admin_business_detail' deal.business.id %}" class="text-decoration-none">
                                 {{ deal.business.name_ar }}
                             </a>
                         </td>
@@ -137,7 +137,7 @@
 
 {% block content %}
 <div class="mb-4">
-    <a href="{% url 'admin_dashboard:deals_list' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'dashboard:admin_deals_list' %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-right me-1"></i> عودة
     </a>
 </div>

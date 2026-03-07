@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="mb-4">
-    <a href="{% url 'admin_dashboard:products_list' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'dashboard:admin_products_list' %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-right me-1"></i> عودة
     </a>
 </div>
@@ -25,10 +25,10 @@
     </div>
     
     <div class="mt-4">
-        <a href="{% url 'admin_dashboard:product_toggle_status' product.id %}" class="btn btn-warning">
+        <a href="{% url 'dashboard:admin_product_toggle' product.id %}" class="btn btn-warning">
             {% if product.is_available %}جعله غير متاح{% else %}جعله متاح{% endif %}
         </a>
-        <a href="{% url 'admin_dashboard:product_feature' product.id %}" class="btn btn-success">
+        <a href="{% url 'dashboard:admin_product_feature' product.id %}" class="btn btn-success">
             {% if product.is_featured %}إلغاء الإبراز{% else %}إبراز{% endif %}
         </a>
     </div>

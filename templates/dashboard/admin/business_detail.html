@@ -11,31 +11,31 @@
         <h4 class="fw-bold mb-1"><i class="fas fa-store text-primary me-2"></i> {{ business.name_ar }}</h4>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">الرئيسية</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:businesses_list' %}">المحلات</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_home' %}">الرئيسية</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_businesses_list' %}">المحلات</a></li>
                 <li class="breadcrumb-item active">{{ business.name_ar }}</li>
             </ol>
         </nav>
     </div>
     <div class="d-flex gap-2">
-        <a href="{% url 'admin_dashboard:business_edit' business.id %}" class="btn btn-warning">
+        <a href="{% url 'dashboard:admin_business_edit' business.id %}" class="btn btn-warning">
             <i class="fas fa-edit me-1"></i> تعديل
         </a>
-        <form method="post" action="{% url 'admin_dashboard:business_verify' business.id %}" class="d-inline">
+        <form method="post" action="{% url 'dashboard:admin_business_verify' business.id %}" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn {% if business.is_verified %}btn-secondary{% else %}btn-success{% endif %}">
                 <i class="fas fa-{% if business.is_verified %}times{% else %}check{% endif %} me-1"></i>
                 {% if business.is_verified %}إلغاء التوثيق{% else %}توثيق{% endif %}
             </button>
         </form>
-        <form method="post" action="{% url 'admin_dashboard:business_toggle_status' business.id %}" class="d-inline">
+        <form method="post" action="{% url 'dashboard:admin_business_toggle' business.id %}" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn {% if business.is_active %}btn-outline-secondary{% else %}btn-outline-success{% endif %}">
                 <i class="fas fa-{% if business.is_active %}ban{% else %}check-circle{% endif %} me-1"></i>
                 {% if business.is_active %}تعطيل{% else %}تفعيل{% endif %}
             </button>
         </form>
-        <form method="post" action="{% url 'admin_dashboard:business_feature' business.id %}" class="d-inline">
+        <form method="post" action="{% url 'dashboard:admin_business_feature' business.id %}" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn {% if business.is_featured %}btn-warning{% else %}btn-outline-warning{% endif %}">
                 <i class="fas fa-star me-1"></i>
@@ -111,7 +111,7 @@
                     <tr>
                         <td class="text-muted">المالك</td>
                         <td>
-                            <a href="{% url 'admin_dashboard:user_detail' business.owner.id %}" class="text-decoration-none">
+                            <a href="{% url 'dashboard:admin_user_detail' business.owner.id %}" class="text-decoration-none">
                                 {{ business.owner.username }}
                             </a>
                         </td>
@@ -144,7 +144,7 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="fas fa-box text-success me-2"></i> المنتجات ({{ products.count }})</h6>
-                <a href="{% url 'admin_dashboard:product_create_for_business' business.id %}" class="btn btn-sm btn-success">
+                <a href="{% url 'dashboard:admin_product_create_for_business' business.id %}" class="btn btn-sm btn-success">
                     <i class="fas fa-plus me-1"></i> إضافة منتج
                 </a>
             </div>
@@ -179,7 +179,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'admin_dashboard:product_detail' product.id %}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{% url 'dashboard:admin_product_detail' product.id %}" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </td>
@@ -249,7 +249,7 @@
 
 {% block content %}
 <div class="mb-4">
-    <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'dashboard:admin_businesses_list' %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-right me-1"></i> عودة
     </a>
 </div>
@@ -289,13 +289,13 @@
         <div class="table-card">
             <h5 class="fw-bold mb-3">إجراءات</h5>
             <div class="d-grid gap-2">
-                <a href="{% url 'admin_dashboard:business_verify' business.id %}" class="btn btn-success">
+                <a href="{% url 'dashboard:admin_business_verify' business.id %}" class="btn btn-success">
                     <i class="fas fa-check me-1"></i> {% if business.is_verified %}إلغاء التوثيق{% else %}توثيق{% endif %}
                 </a>
-                <a href="{% url 'admin_dashboard:business_feature' business.id %}" class="btn btn-warning">
+                <a href="{% url 'dashboard:admin_business_feature' business.id %}" class="btn btn-warning">
                     <i class="fas fa-star me-1"></i> {% if business.is_featured %}إلغاء الإبراز{% else %}إبراز{% endif %}
                 </a>
-                <a href="{% url 'admin_dashboard:business_toggle_status' business.id %}" class="btn btn-secondary">
+                <a href="{% url 'dashboard:admin_business_toggle' business.id %}" class="btn btn-secondary">
                     <i class="fas fa-power-off me-1"></i> {% if business.is_active %}تعطيل{% else %}تفعيل{% endif %}
                 </a>
             </div>

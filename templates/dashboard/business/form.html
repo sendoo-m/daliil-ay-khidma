@@ -178,13 +178,13 @@
         <h4 class="fw-bold mb-1">{{ title.icon }} {{ title.ar }}</h4>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 small">
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">الرئيسية</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:businesses_list' %}">المحلات</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_home' %}">الرئيسية</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_businesses_list' %}">المحلات</a></li>
                 <li class="breadcrumb-item active">{{ action|yesno:"تعديل,إضافة" }}</li>
             </ol>
         </nav>
     </div>
-    <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'dashboard:admin_businesses_list' %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-right me-1"></i> رجوع
     </a>
 </div>

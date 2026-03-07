@@ -178,13 +178,13 @@
         <h4 class="fw-bold mb-1">{{ title.icon }} {{ title.ar }}</h4>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 small">
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">الرئيسية</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:businesses_list' %}">المحلات</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_home' %}">الرئيسية</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_businesses_list' %}">المحلات</a></li>
                 <li class="breadcrumb-item active">{{ action|yesno:"تعديل,إضافة" }}</li>
             </ol>
         </nav>
     </div>
-    <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'dashboard:admin_businesses_list' %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-right me-1"></i> رجوع
     </a>
 </div>
@@ -835,8 +835,8 @@ dropZone.addEventListener('drop', e => {
         <h4 class="fw-bold mb-1"><i class="fas fa-store text-primary me-2"></i> {{ title }}</h4>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:home' %}">الرئيسية</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:businesses_list' %}">المحلات</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_home' %}">الرئيسية</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_businesses_list' %}">المحلات</a></li>
                 <li class="breadcrumb-item active">{{ action }}</li>
             </ol>
         </nav>
@@ -998,7 +998,7 @@ dropZone.addEventListener('drop', e => {
                 <button type="submit" class="btn btn-primary btn-lg">
                     <i class="fas fa-save me-2"></i> {{ action }} المحل
                 </button>
-                <a href="{% url 'admin_dashboard:businesses_list' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'dashboard:admin_businesses_list' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-times me-2"></i> إلغاء
                 </a>
             </div>
@@ -1566,7 +1566,7 @@ $(document).ready(function() {
         if (governorateId) {
             // Fetch districts for selected governorate
             $.ajax({
-                url: '{% url "admin_dashboard:ajax_get_districts" %}',
+                url: '{% url "dashboard:admin_ajax_get_districts" %}',
                 data: { governorate_id: governorateId },
                 success: function(data) {
                     // Add placeholder
