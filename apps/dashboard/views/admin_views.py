@@ -10,6 +10,7 @@ from django.db.models import Count, Sum, Avg, Q
 from django.utils import timezone
 from django.core.paginator import Paginator
 from datetime import timedelta
+from apps.dashboard.views.product import admin_products_list
 
 from apps.accounts.models import User
 from apps.directory.models import Business
@@ -17,7 +18,8 @@ from apps.products.models import Product
 from apps.deals.models import Deal
 from apps.reviews.models import Review
 from apps.categories.models import Category
-
+from apps.directory.models.location import Governorate, City, District
+from django.db import models
 
 # ========================================
 # ADMIN DASHBOARD HOME
@@ -91,9 +93,87 @@ def admin_dashboard_home(request):
 # ========================================
 # ANALYTICS & REPORTS
 # ========================================
+from django.db.models import Count, Avg
+from django.db.models.functions import TruncMonth
+from django.utils import timezone
+import json
+
 @staff_member_required
 def admin_analytics(request):
-    return render(request, 'dashboard/admin/analytics.html')
+    now = timezone.now()
+    year_ago = now - timezone.timedelta(days=365)
+
+    # ── إحصائيات عامة ──────────────────────────
+    stats = {
+        'total_users':      User.objects.count(),
+        'total_businesses': Business.objects.count(),
+        'total_products':   Product.objects.count(),
+        'total_deals':      Deal.objects.count(),
+        'active_businesses': Business.objects.filter(is_active=True).count(),
+        'avg_rating':       Business.objects.aggregate(a=Avg('average_rating'))['a'] or 0,
+    }
+
+    # ── المستخدمون الجدد شهرياً (آخر 12 شهر) ──
+    users_monthly = (
+        User.objects
+        .filter(date_joined__gte=year_ago)
+        .annotate(month=TruncMonth('date_joined'))
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    users_chart = {
+        'labels': [item['month'].strftime('%b %Y') for item in users_monthly],
+        'data':   [item['count'] for item in users_monthly],
+    }
+
+    # ── المحلات حسب التصنيف (أعلى 8) ──────────
+    by_category = (
+        Category.objects
+        .annotate(count=Count('business'))
+        .filter(count__gt=0)
+        .order_by('-count')[:8]
+    )
+    category_chart = {
+        'labels': [c.name_ar for c in by_category],
+        'data':   [c.count for c in by_category],
+    }
+
+    # ── المحلات حسب المحافظة (أعلى 10) ────────
+    # ── المحلات حسب المحافظة ────────────────────
+    by_gov = (
+        Governorate.objects
+        .annotate(count=Count('cities__districts__business'))
+        .filter(count__gt=0)
+        .order_by('-count')[:10]
+    )
+    gov_chart = {
+        'labels': [g.name_ar for g in by_gov],
+        'data':   [g.count for g in by_gov],
+    }
+
+    # ── المحلات المضافة شهرياً (آخر 12 شهر) ───
+    businesses_monthly = (
+        Business.objects
+        .filter(created_at__gte=year_ago)
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    businesses_chart = {
+        'labels': [item['month'].strftime('%b %Y') for item in businesses_monthly],
+        'data':   [item['count'] for item in businesses_monthly],
+    }
+
+    context = {
+        'stats':             stats,
+        'users_chart':       json.dumps(users_chart,       ensure_ascii=False),
+        'category_chart':    json.dumps(category_chart,    ensure_ascii=False),
+        'gov_chart':         json.dumps(gov_chart,         ensure_ascii=False),
+        'businesses_chart':  json.dumps(businesses_chart,  ensure_ascii=False),
+    }
+    return render(request, 'dashboard/admin/analytics.html', context)
 
 
 @staff_member_required
@@ -423,12 +503,28 @@ def admin_review_delete(request, review_id):
 # ========================================
 @staff_member_required
 def admin_categories_list(request):
+    from django.db.models import Q
+    search = request.GET.get('q', '').strip()
+
     categories = Category.objects.annotate(
         business_count=Count('business')
     ).order_by('order', 'name_ar')
+
+    if search:
+        categories = categories.filter(
+            Q(name_ar__icontains=search) |
+            Q(name_en__icontains=search)
+        )
+
+    paginator = Paginator(categories, 20)
+    page = paginator.get_page(request.GET.get('page', 1))
+
     return render(request, 'dashboard/admin/categories_list.html', {
-        'categories': categories
+        'categories': page,
+        'page_obj':   page,
+        'search':     search,
     })
+
 
 
 @staff_member_required

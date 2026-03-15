@@ -49,7 +49,7 @@ def admin_user_create(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, f'✅ تم إضافة المستخدم "{user.username}" بنجاح!')
-            return redirect('admin_dashboard:user_detail', user_id=user.id)
+            return redirect('dashboard:admin_user_detail', user_id=user.id)
         else:
             for field, errors in form.errors.items():
                 for error in errors:
@@ -73,7 +73,7 @@ def admin_user_edit_view(request, user_id):
         if form.is_valid():
             form.save()
             messages.success(request, '✅ تم تحديث بيانات المستخدم بنجاح!')
-            return redirect('admin_dashboard:user_detail', user_id=user_id)
+            return redirect('dashboard:admin_user_detail', user_id=user_id)
         else:
             for field, errors in form.errors.items():
                 for error in errors:
@@ -103,7 +103,7 @@ def admin_business_create(request):
                 business.owner = request.user
                 business.save()
                 messages.success(request, f'✅ تم إضافة المحل "{business.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:business_detail', business_id=business.id)
+                return redirect('dashboard:admin_business_detail', business_id=business.id)
             except Exception as e:
                 messages.error(request, f'❌ حدث خطأ أثناء حفظ المحل: {str(e)}')
         else:
@@ -133,7 +133,7 @@ def admin_business_edit_view(request, business_id):
             try:
                 form.save()
                 messages.success(request, f'✅ تم تحديث بيانات المحل "{business.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:business_detail', business_id=business_id)
+                return redirect('dashboard:admin_business_detail', business_id=business_id)
             except Exception as e:
                 messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
         else:
@@ -174,7 +174,7 @@ def admin_product_create(request, business_id=None):
                 else:
                     product.save()
                     messages.success(request, f'✅ تم إضافة المنتج "{product.name_ar}" بنجاح!')
-                    return redirect('admin_dashboard:product_detail', product_id=product.id)
+                    return redirect('dashboard:admin_product_detail', product_id=product.id)
             except Exception as e:
                 messages.error(request, f'❌ حدث خطأ أثناء حفظ المنتج: {str(e)}')
         else:
@@ -202,7 +202,7 @@ def admin_product_edit_view(request, product_id):
             try:
                 form.save()
                 messages.success(request, f'✅ تم تحديث بيانات المنتج "{product.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:product_detail', product_id=product_id)
+                return redirect('dashboard:admin_product_detail', product_id=product_id)
             except Exception as e:
                 messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
         else:
@@ -232,7 +232,7 @@ def admin_category_create_view(request):
             try:
                 category = form.save()
                 messages.success(request, f'✅ تم إضافة التصنيف "{category.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:categories_list')
+                return redirect('dashboard:admin_categories_list')
             except Exception as e:
                 messages.error(request, f'❌ حدث خطأ أثناء حفظ التصنيف: {str(e)}')
         else:
@@ -259,7 +259,7 @@ def admin_category_edit_view(request, category_id):
             try:
                 form.save()
                 messages.success(request, f'✅ تم تحديث بيانات التصنيف "{category.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:categories_list')
+                return redirect('dashboard:admin_categories_list')
             except Exception as e:
                 messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
         else:
@@ -297,7 +297,7 @@ def admin_deal_create(request, business_id=None):
                 else:
                     deal.save()
                     messages.success(request, f'✅ تم إضافة العرض "{deal.title_ar}" بنجاح!')
-                    return redirect('admin_dashboard:deal_detail', deal_id=deal.id)
+                    return redirect('dashboard:admin_deal_detail', deal_id=deal.id)
             except Exception as e:
                 messages.error(request, f'❌ حدث خطأ أثناء حفظ العرض: {str(e)}')
         else:
@@ -325,7 +325,7 @@ def admin_deal_edit_view(request, deal_id):
             try:
                 form.save()
                 messages.success(request, f'✅ تم تحديث بيانات العرض "{deal.title_ar}" بنجاح!')
-                return redirect('admin_dashboard:deal_detail', deal_id=deal_id)
+                return redirect('dashboard:admin_deal_detail', deal_id=deal_id)
             except Exception as e:
                 messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
         else:
@@ -401,7 +401,7 @@ def admin_governorate_create(request):
                     name_ar=name_ar, name_en=name_en, is_active=is_active
                 )
                 messages.success(request, f'✅ تم إضافة محافظة "{gov.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:governorates_list')
+                return redirect('dashboard:admin_governorates_list')
             except Exception as e:
                 messages.error(request, f'❌ خطأ: {str(e)}')
 
@@ -432,7 +432,7 @@ def admin_governorate_edit(request, gov_id):
                 gov.is_active = is_active
                 gov.save(update_fields=['name_ar', 'name_en', 'is_active', 'updated_at'])
                 messages.success(request, f'✅ تم تحديث "{gov.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:governorates_list')
+                return redirect('dashboard:admin_governorates_list')
             except Exception as e:
                 messages.error(request, f'❌ خطأ: {str(e)}')
 
@@ -446,19 +446,19 @@ def admin_governorate_edit(request, gov_id):
 def admin_governorate_delete(request, gov_id):
     """حذف محافظة - POST فقط"""
     if request.method != 'POST':
-        return redirect('admin_dashboard:governorates_list')
+        return redirect('dashboard:admin_governorates_list')
 
     gov = get_object_or_404(Governorate, id=gov_id)
     cities_count = gov.cities.count()
 
     if cities_count > 0:
         messages.error(request, f'❌ لا يمكن حذف "{gov.name_ar}" لأنها تحتوي على {cities_count} مدينة. احذف المدن أولاً.')
-        return redirect('admin_dashboard:governorates_list')
+        return redirect('dashboard:admin_governorates_list')
 
     name = gov.name_ar
     gov.delete()
     messages.success(request, f'✅ تم حذف "{name}" بنجاح!')
-    return redirect('admin_dashboard:governorates_list')
+    return redirect('dashboard:admin_governorates_list')
 
 
 # ---- Cities ----
@@ -503,7 +503,7 @@ def admin_city_create(request):
                     governorate_id=governorate_id, is_active=is_active
                 )
                 messages.success(request, f'✅ تم إضافة مدينة "{city.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:cities_list')
+                return redirect('dashboard:admin_cities_list')
             except Exception as e:
                 messages.error(request, f'❌ خطأ: {str(e)}')
 
@@ -538,7 +538,7 @@ def admin_city_edit(request, city_id):
                 city.is_active = is_active
                 city.save(update_fields=['name_ar', 'name_en', 'governorate', 'is_active', 'updated_at'])
                 messages.success(request, f'✅ تم تحديث "{city.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:cities_list')
+                return redirect('dashboard:admin_cities_list')
             except Exception as e:
                 messages.error(request, f'❌ خطأ: {str(e)}')
 
@@ -553,19 +553,19 @@ def admin_city_edit(request, city_id):
 def admin_city_delete(request, city_id):
     """حذف مدينة - POST فقط"""
     if request.method != 'POST':
-        return redirect('admin_dashboard:cities_list')
+        return redirect('dashboard:admin_cities_list')
 
     city = get_object_or_404(City, id=city_id)
     districts_count = city.districts.count()
 
     if districts_count > 0:
         messages.error(request, f'❌ لا يمكن حذف "{city.name_ar}" لأنها تحتوي على {districts_count} حي. احذف الأحياء أولاً.')
-        return redirect('admin_dashboard:cities_list')
+        return redirect('dashboard:admin_cities_list')
 
     name = city.name_ar
     city.delete()
     messages.success(request, f'✅ تم حذف "{name}" بنجاح!')
-    return redirect('admin_dashboard:cities_list')
+    return redirect('dashboard:admin_cities_list')
 
 
 # ---- Districts ----
@@ -624,7 +624,7 @@ def admin_district_create(request):
                     city_id=city_id, is_active=is_active
                 )
                 messages.success(request, f'✅ تم إضافة حي "{district.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:districts_list')
+                return redirect('dashboard:admin_districts_list')
             except Exception as e:
                 messages.error(request, f'❌ خطأ: {str(e)}')
 
@@ -663,7 +663,7 @@ def admin_district_edit(request, district_id):
                 district.is_active = is_active
                 district.save(update_fields=['name_ar', 'name_en', 'city', 'is_active', 'updated_at'])
                 messages.success(request, f'✅ تم تحديث "{district.name_ar}" بنجاح!')
-                return redirect('admin_dashboard:districts_list')
+                return redirect('dashboard:admin_districts_list')
             except Exception as e:
                 messages.error(request, f'❌ خطأ: {str(e)}')
 
@@ -679,19 +679,19 @@ def admin_district_edit(request, district_id):
 def admin_district_delete(request, district_id):
     """حذف حي - POST فقط"""
     if request.method != 'POST':
-        return redirect('admin_dashboard:districts_list')
+        return redirect('dashboard:admin_districts_list')
 
     district = get_object_or_404(District, id=district_id)
     businesses_count = district.businesses.count()
 
     if businesses_count > 0:
         messages.error(request, f'❌ لا يمكن حذف "{district.name_ar}" لأنه يحتوي على {businesses_count} محل. انقل المحلات أولاً.')
-        return redirect('admin_dashboard:districts_list')
+        return redirect('dashboard:admin_districts_list')
 
     name = district.name_ar
     district.delete()
     messages.success(request, f'✅ تم حذف "{name}" بنجاح!')
-    return redirect('admin_dashboard:districts_list')
+    return redirect('dashboard:admin_districts_list')
 
 from apps.core.models import SiteSettings
 from apps.core.serializers import SiteSettingsSerializer
@@ -790,7 +790,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #         if form.is_valid():
 #             user = form.save()
 #             messages.success(request, f'تم إضافة المستخدم {user.username} بنجاح')
-#             return redirect('admin_dashboard:user_detail', user_id=user.id)
+#             return redirect('dashboard:admin_user_detail', user_id=user.id)
 #         else:
 #             for field, errors in form.errors.items():
 #                 for error in errors:
@@ -810,7 +810,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #         if form.is_valid():
 #             form.save()
 #             messages.success(request, 'تم تحديث بيانات المستخدم بنجاح')
-#             return redirect('admin_dashboard:user_detail', user_id=user_id)
+#             return redirect('dashboard:admin_user_detail', user_id=user_id)
 #         else:
 #             for field, errors in form.errors.items():
 #                 for error in errors:
@@ -839,7 +839,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #                 business.owner = request.user
 #                 business.save()
 #                 messages.success(request, f'✅ تم إضافة المحل "{business.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:business_detail', business_id=business.id)
+#                 return redirect('dashboard:admin_business_detail', business_id=business.id)
 #             except Exception as e:
 #                 messages.error(request, f'❌ حدث خطأ أثناء حفظ المحل: {str(e)}')
 #         else:
@@ -871,7 +871,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #             try:
 #                 form.save()
 #                 messages.success(request, f'✅ تم تحديث بيانات المحل "{business.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:business_detail', business_id=business_id)
+#                 return redirect('dashboard:admin_business_detail', business_id=business_id)
 #             except Exception as e:
 #                 messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
 #         else:
@@ -920,7 +920,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #                     })
 #                 product.save()
 #                 messages.success(request, f'✅ تم إضافة المنتج "{product.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:product_detail', product_id=product.id)
+#                 return redirect('dashboard:admin_product_detail', product_id=product.id)
 #             except Exception as e:
 #                 messages.error(request, f'❌ حدث خطأ أثناء حفظ المنتج: {str(e)}')
 #         else:
@@ -947,7 +947,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #             try:
 #                 form.save()
 #                 messages.success(request, f'✅ تم تحديث بيانات المنتج "{product.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:product_detail', product_id=product_id)
+#                 return redirect('dashboard:admin_product_detail', product_id=product_id)
 #             except Exception as e:
 #                 messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
 #         else:
@@ -976,7 +976,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #             try:
 #                 category = form.save()
 #                 messages.success(request, f'✅ تم إضافة التصنيف "{category.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:categories_list')
+#                 return redirect('dashboard:admin_categories_list')
 #             except Exception as e:
 #                 messages.error(request, f'❌ حدث خطأ أثناء حفظ التصنيف: {str(e)}')
 #         else:
@@ -999,7 +999,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #             try:
 #                 form.save()
 #                 messages.success(request, f'✅ تم تحديث بيانات التصنيف "{category.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:categories_list')
+#                 return redirect('dashboard:admin_categories_list')
 #             except Exception as e:
 #                 messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
 #         else:
@@ -1042,7 +1042,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #                     })
 #                 deal.save()
 #                 messages.success(request, f'✅ تم إضافة العرض "{deal.title_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:deal_detail', deal_id=deal.id)
+#                 return redirect('dashboard:admin_deal_detail', deal_id=deal.id)
 #             except Exception as e:
 #                 messages.error(request, f'❌ حدث خطأ أثناء حفظ العرض: {str(e)}')
 #         else:
@@ -1069,7 +1069,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #             try:
 #                 form.save()
 #                 messages.success(request, f'✅ تم تحديث بيانات العرض "{deal.title_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:deal_detail', deal_id=deal_id)
+#                 return redirect('dashboard:admin_deal_detail', deal_id=deal_id)
 #             except Exception as e:
 #                 messages.error(request, f'❌ حدث خطأ أثناء التحديث: {str(e)}')
 #         else:
@@ -1150,7 +1150,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #                     is_active=is_active
 #                 )
 #                 messages.success(request, f'✅ تم إضافة محافظة "{gov.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:governorates_list')
+#                 return redirect('dashboard:admin_governorates_list')
 #             except Exception as e:
 #                 messages.error(request, f'❌ خطأ: {str(e)}')
 #     return render(request, 'dashboard/admin/location/governorate_form.html', {
@@ -1178,7 +1178,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #                 gov.is_active = is_active
 #                 gov.save(update_fields=['name_ar', 'name_en', 'is_active', 'updated_at'])
 #                 messages.success(request, f'✅ تم تحديث "{gov.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:governorates_list')
+#                 return redirect('dashboard:admin_governorates_list')
 #             except Exception as e:
 #                 messages.error(request, f'❌ خطأ: {str(e)}')
 #     return render(request, 'dashboard/admin/location/governorate_form.html', {
@@ -1191,17 +1191,17 @@ class AdminSettingsView(AdminRequiredMixin, View):
 # def admin_governorate_delete(request, gov_id):
 #     """حذف محافظة - POST فقط"""
 #     if request.method != 'POST':
-#         return redirect('admin_dashboard:governorates_list')
+#         return redirect('dashboard:admin_governorates_list')
 #     gov = get_object_or_404(Governorate, id=gov_id)
 #     # منع الحذف لو فيه مدن مرتبطة
 #     cities_count = gov.cities.count()
 #     if cities_count > 0:
 #         messages.error(request, f'❌ لا يمكن حذف "{gov.name_ar}" لأنها تحتوي على {cities_count} مدينة. احذف المدن أولاً.')
-#         return redirect('admin_dashboard:governorates_list')
+#         return redirect('dashboard:admin_governorates_list')
 #     name = gov.name_ar
 #     gov.delete()
 #     messages.success(request, f'✅ تم حذف "{name}" بنجاح!')
-#     return redirect('admin_dashboard:governorates_list')
+#     return redirect('dashboard:admin_governorates_list')
 
 
 # # ---- Cities ----
@@ -1246,7 +1246,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #                     is_active=is_active
 #                 )
 #                 messages.success(request, f'✅ تم إضافة مدينة "{city.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:cities_list')
+#                 return redirect('dashboard:admin_cities_list')
 #             except Exception as e:
 #                 messages.error(request, f'❌ خطأ: {str(e)}')
 #     return render(request, 'dashboard/admin/location/city_form.html', {
@@ -1278,7 +1278,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #                 city.is_active = is_active
 #                 city.save(update_fields=['name_ar', 'name_en', 'governorate', 'is_active', 'updated_at'])
 #                 messages.success(request, f'✅ تم تحديث "{city.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:cities_list')
+#                 return redirect('dashboard:admin_cities_list')
 #             except Exception as e:
 #                 messages.error(request, f'❌ خطأ: {str(e)}')
 #     return render(request, 'dashboard/admin/location/city_form.html', {
@@ -1292,16 +1292,16 @@ class AdminSettingsView(AdminRequiredMixin, View):
 # def admin_city_delete(request, city_id):
 #     """حذف مدينة - POST فقط"""
 #     if request.method != 'POST':
-#         return redirect('admin_dashboard:cities_list')
+#         return redirect('dashboard:admin_cities_list')
 #     city = get_object_or_404(City, id=city_id)
 #     districts_count = city.districts.count()
 #     if districts_count > 0:
 #         messages.error(request, f'❌ لا يمكن حذف "{city.name_ar}" لأنها تحتوي على {districts_count} حي. احذف الأحياء أولاً.')
-#         return redirect('admin_dashboard:cities_list')
+#         return redirect('dashboard:admin_cities_list')
 #     name = city.name_ar
 #     city.delete()
 #     messages.success(request, f'✅ تم حذف "{name}" بنجاح!')
-#     return redirect('admin_dashboard:cities_list')
+#     return redirect('dashboard:admin_cities_list')
 
 
 # # ---- Districts ----
@@ -1364,7 +1364,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #                     is_active=is_active
 #                 )
 #                 messages.success(request, f'✅ تم إضافة حي "{district.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:districts_list')
+#                 return redirect('dashboard:admin_districts_list')
 #             except Exception as e:
 #                 messages.error(request, f'❌ خطأ: {str(e)}')
 #     return render(request, 'dashboard/admin/location/district_form.html', {
@@ -1400,7 +1400,7 @@ class AdminSettingsView(AdminRequiredMixin, View):
 #                 district.is_active = is_active
 #                 district.save(update_fields=['name_ar', 'name_en', 'city', 'is_active', 'updated_at'])
 #                 messages.success(request, f'✅ تم تحديث "{district.name_ar}" بنجاح!')
-#                 return redirect('admin_dashboard:districts_list')
+#                 return redirect('dashboard:admin_districts_list')
 #             except Exception as e:
 #                 messages.error(request, f'❌ خطأ: {str(e)}')
 #     return render(request, 'dashboard/admin/location/district_form.html', {
@@ -1415,14 +1415,14 @@ class AdminSettingsView(AdminRequiredMixin, View):
 # def admin_district_delete(request, district_id):
 #     """حذف حي - POST فقط"""
 #     if request.method != 'POST':
-#         return redirect('admin_dashboard:districts_list')
+#         return redirect('dashboard:admin_districts_list')
 #     district = get_object_or_404(District, id=district_id)
 #     # منع الحذف لو فيه محلات مرتبطة
 #     businesses_count = district.businesses.count()
 #     if businesses_count > 0:
 #         messages.error(request, f'❌ لا يمكن حذف "{district.name_ar}" لأنه يحتوي على {businesses_count} محل. انقل المحلات أولاً.')
-#         return redirect('admin_dashboard:districts_list')
+#         return redirect('dashboard:admin_districts_list')
 #     name = district.name_ar
 #     district.delete()
 #     messages.success(request, f'✅ تم حذف "{name}" بنجاح!')
-#     return redirect('admin_dashboard:districts_list')
+#     return redirect('dashboard:admin_districts_list')

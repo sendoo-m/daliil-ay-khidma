@@ -16,6 +16,7 @@ from apps.dashboard.views.business import (
 )
 from apps.dashboard.views.product import (
     product_list, product_create, product_update, product_delete,
+    admin_products_list,
 )
 from apps.dashboard.views.deal import (
     deal_list, deal_create, deal_update, deal_delete,
@@ -143,7 +144,7 @@ urlpatterns = [
 
     # Products
     path('admin/products/',
-         admin_views.admin_products_list,         name='admin_products_list'),
+     admin_products_list, name='admin_products_list'),
     path('admin/products/create/',
          admin_crud.admin_product_create,          name='admin_product_create'),
     path('admin/products/create/<int:business_id>/',
@@ -239,5 +240,6 @@ urlpatterns = [
          admin_crud.ajax_get_districts, name='admin_ajax_districts'),
     
     path("settings/", admin_crud.AdminSettingsView.as_view(), name="settings"),
+         # Duplicate or erroneous path removed: path('admin/products/', product_views.admin_products_list, name='admin_products_list'),
 
 ]
