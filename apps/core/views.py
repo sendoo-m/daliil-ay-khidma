@@ -137,3 +137,36 @@ def contact(request):
         )
         return redirect('core:contact')
     return render(request, 'core/contact.html')
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from .models import SiteSettings
+from .serializers import SiteSettingsSerializer
+
+class SiteSettingsPublicView(APIView):
+    """عامة — للفرونت والموبايل"""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        settings = SiteSettings.get_settings()
+        serializer = SiteSettingsSerializer(settings)
+        return Response(serializer.data)
+
+class SiteSettingsAdminView(APIView):
+    """للأدمن فقط — قراءة وتعديل"""
+    permission_classes = [IsAdminUser]
+    parser_classes     = [MultiPartParser, FormParser, JSONParser]
+
+    def get(self, request):
+        settings = SiteSettings.get_settings()
+        return Response(SiteSettingsSerializer(settings).data)
+
+    def patch(self, request):
+        settings = SiteSettings.get_settings()
+        serializer = SiteSettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)

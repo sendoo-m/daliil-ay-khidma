@@ -15,6 +15,11 @@ from django.contrib import messages
 from django.db.models import Count
 from django.core.paginator import Paginator
 
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from apps.dashboard.mixins import AdminRequiredMixin
+
 from apps.accounts.models import User
 from apps.categories.models import Category
 from apps.directory.models import Business
@@ -687,6 +692,59 @@ def admin_district_delete(request, district_id):
     district.delete()
     messages.success(request, f'✅ تم حذف "{name}" بنجاح!')
     return redirect('admin_dashboard:districts_list')
+
+from apps.core.models import SiteSettings
+from apps.core.serializers import SiteSettingsSerializer
+
+class AdminSettingsView(AdminRequiredMixin, View):
+    template_name = "dashboard/admin/settings.html"
+
+    def get(self, request):
+        settings = SiteSettings.get_settings()
+        return render(request, self.template_name, {"settings": settings})
+
+    def post(self, request):
+        settings = SiteSettings.get_settings()
+        data = request.POST.copy()
+
+        # حذف اللوجو لو طُلب
+        if request.POST.get("delete_logo"):
+            if settings.logo:
+                settings.logo.delete()
+
+        # حذف الفافيكون لو طُلب
+        if request.POST.get("delete_favicon"):
+            if settings.favicon:
+                settings.favicon.delete()
+
+        # تحديث الحقول النصية
+        fields = [
+            "site_name_ar", "site_name_en",
+            "site_description_ar", "site_description_en",
+            "contact_email", "contact_phone", "address",
+            "facebook", "instagram", "twitter", "whatsapp", "youtube",
+            "results_per_page", "meta_description",
+            "meta_keywords", "google_analytics_id", "google_maps_key",
+        ]
+        for field in fields:
+            if field in data:
+                setattr(settings, field, data[field])
+
+        # البولeans
+        settings.maintenance_mode        = "maintenance_mode" in request.POST
+        settings.allow_registration      = "allow_registration" in request.POST
+        settings.allow_reviews           = "allow_reviews" in request.POST
+        settings.require_review_approval = "require_review_approval" in request.POST
+
+        # الصور
+        if "logo" in request.FILES:
+            settings.logo = request.FILES["logo"]
+        if "favicon" in request.FILES:
+            settings.favicon = request.FILES["favicon"]
+
+        settings.save()
+        messages.success(request, "✅ تم حفظ الإعدادات بنجاح!")
+        return redirect("dashboard:settings")
 
 # """
 # Admin CRUD Views

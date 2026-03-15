@@ -237,4 +237,7 @@ urlpatterns = [
     # AJAX Admin
     path('admin/ajax/districts/',
          admin_crud.ajax_get_districts, name='admin_ajax_districts'),
+    
+    path("settings/", admin_crud.AdminSettingsView.as_view(), name="settings"),
+
 ]

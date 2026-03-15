@@ -1,6 +1,7 @@
 # apps/core/urls.py
 from django.urls import path
 from . import views
+from .views import SiteSettingsPublicView, SiteSettingsAdminView
 
 
 app_name = 'core'
@@ -15,4 +16,6 @@ urlpatterns = [
     path('support/', views.support, name='support'),                     # ← جديد
     path('test-icons/', views.test_icons, name='test_icons'),
     path('set-language/', views.set_language, name='set_language'),
+    path("settings/",       SiteSettingsPublicView.as_view(),  name="site-settings-public"),
+    path("settings/admin/", SiteSettingsAdminView.as_view(),   name="site-settings-admin"),
 ]
