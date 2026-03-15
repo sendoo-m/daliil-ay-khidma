@@ -24,6 +24,8 @@ urlpatterns = [
 
     # API
     path('api/v1/', include('apps.api.urls', namespace='api')),
+    path('api/dashboard/', include('apps.dashboard.api.urls')),
+
 ]
 
 
