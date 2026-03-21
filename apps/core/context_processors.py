@@ -16,6 +16,15 @@ def language_context(request):
         'AVAILABLE_LANGUAGES': dict(settings.LANGUAGES),
     }
 
+# core/context_processors.py
+from .models import SiteSettings
+
+def site_settings(request):
+    settings_obj = SiteSettings.get_settings()
+    return {
+        'site_settings': settings_obj
+    }
+
 # # apps/core/context_processors.py
 # def language_context(request):
 #     """Add language info to all templates"""
