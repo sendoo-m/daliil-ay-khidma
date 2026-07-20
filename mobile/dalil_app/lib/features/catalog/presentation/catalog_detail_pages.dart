@@ -54,7 +54,9 @@ class _JsonDetailPage extends StatelessWidget {
         future: future,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
           }
           final item = snapshot.data!;
           return Scaffold(
@@ -65,7 +67,10 @@ class _JsonDetailPage extends StatelessWidget {
                 if (item['image'] != null)
                   Image.network('${item['image']}', height: 200),
                 const SizedBox(height: 16),
-                Text('${item[titleKey] ?? ''}', style: Theme.of(context).textTheme.headlineSmall),
+                Text(
+                  '${item[titleKey] ?? ''}',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
                 const SizedBox(height: 12),
                 Text('${item[descriptionKey] ?? ''}'),
                 const SizedBox(height: 20),

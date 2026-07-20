@@ -80,7 +80,10 @@ class HomePage extends ConsumerWidget {
                 (item) => BusinessCard(business: item),
               ),
               const SizedBox(height: 20),
-              Text('منتجات مميزة', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'منتجات مميزة',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               ...data.products.map(
                 (item) => ListTile(
                   leading: const Icon(Icons.shopping_bag_outlined),
@@ -94,12 +97,17 @@ class HomePage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('عروض مميزة', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'عروض مميزة',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               ...data.deals.map(
                 (item) => ListTile(
                   leading: const Icon(Icons.local_offer_outlined),
                   title: Text(item.title),
-                  subtitle: Text('${item.finalPrice} جنيه • ${item.daysRemaining} يوم'),
+                  subtitle: Text(
+                    '${item.finalPrice} جنيه • ${item.daysRemaining} يوم',
+                  ),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (_) => DealDetailPage(slug: item.slug),
