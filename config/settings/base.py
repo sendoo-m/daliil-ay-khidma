@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework.authtoken',  # ← أضف
+    'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
     'corsheaders',
     'django_filters',
@@ -65,6 +66,7 @@ INSTALLED_APPS = [
     'apps.services',
     'apps.search',
     'apps.dashboard',
+    'apps.notifications',
 ]
 
 
@@ -249,14 +251,26 @@ REST_FRAMEWORK = {
     
     # Authentication
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
     ],
     
     # Permissions
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '300/hour',
+        'user': '3000/hour',
+        'login': '10/minute',
+        'registration': '5/hour',
+        'password_reset': '5/hour',
+    },
     
     # Pagination
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -281,24 +295,34 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ],
-
-
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',   # ← Flutter
-        'rest_framework.authentication.SessionAuthentication', # ← Browser
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ],
-
     # Date/Time formats
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
     'DATE_FORMAT': '%Y-%m-%d',
     'TIME_FORMAT': '%H:%M:%S',
     
     # Error handling
-    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+    'EXCEPTION_HANDLER': 'apps.api.exceptions.mobile_api_exception_handler',
 }
+
+
+# ========================================
+# SIMPLE JWT - MOBILE API
+# ========================================
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'CHECK_REVOKE_TOKEN': True,
+}
+
+MOBILE_PASSWORD_RESET_URL = config(
+    'MOBILE_PASSWORD_RESET_URL',
+    default='daliil://reset-password',
+)
+
+PUSH_NOTIFICATIONS_ENABLED = config(
+    'PUSH_NOTIFICATIONS_ENABLED', default=False, cast=bool
+)
+FIREBASE_CREDENTIALS_PATH = config('FIREBASE_CREDENTIALS_PATH', default='')
 
 
 # ========================================
@@ -307,7 +331,8 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Daliil Ay Khidma API',
     'DESCRIPTION': 'RESTful API for Business Directory Platform',
-    'VERSION': '1.0.0',
+    'VERSION': '2.0.0',
+    'SCHEMA_PATH_PREFIX_INSERT': '/api/v2',
     'SERVE_INCLUDE_SCHEMA': False,
     
     # API info

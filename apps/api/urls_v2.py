@@ -3,6 +3,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
+from drf_spectacular.views import (
+    SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView,
+)
 
 from apps.api.views.admin import (
     AdminDashboardViewSet, AdminUserViewSet, AdminBusinessViewSet,
@@ -14,8 +17,16 @@ from apps.api.views.business_owner import (
 )
 from apps.api.views import directory, deals, products, reviews, subscriptions
 from apps.api.views.auth import (
-    CustomTokenObtainPairView, TokenRefreshView,
-    register, get_user_profile, update_user_profile, change_password
+    CustomTokenObtainPairView, MobileTokenRefreshView,
+    register, get_user_profile, update_user_profile, change_password,
+    logout, request_password_reset, confirm_password_reset,
+)
+from apps.api.views.home import MobileHomeView
+from apps.notifications.views import (
+    AdminSendNotificationView,
+    DeviceRegistrationViewSet,
+    MobileAppConfigView,
+    NotificationViewSet,
 )
 
 app_name = 'api_v2'
@@ -53,20 +64,29 @@ router.register(r'deal-claims',        deals.DealClaimViewSet,              base
 router.register(r'reviews',            reviews.ReviewViewSet,               basename='reviews')
 router.register(r'subscriptions',      subscriptions.SubscriptionViewSet,   basename='subscriptions')
 router.register(r'subscription-plans', subscriptions.SubscriptionPlanViewSet, basename='subscription-plans')
+router.register(r'devices', DeviceRegistrationViewSet, basename='devices')
+router.register(r'notifications', NotificationViewSet, basename='notifications')
 
 urlpatterns = [
     # ── Auth ───────────────────────────────────────────
     path('auth/login/',           CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('auth/refresh/',         TokenRefreshView.as_view(),          name='token_refresh'),
+    path('auth/refresh/',         MobileTokenRefreshView.as_view(),    name='token_refresh'),
     path('auth/register/',        register,                            name='register'),
     path('auth/profile/',         get_user_profile,                    name='profile'),
     path('auth/profile/update/',  update_user_profile,                 name='profile_update'),
     path('auth/change-password/', change_password,                     name='change_password'),
+    path('auth/logout/',          logout,                              name='logout'),
+    path('auth/password-reset/',  request_password_reset,              name='password_reset'),
+    path('auth/password-reset/confirm/', confirm_password_reset,       name='password_reset_confirm'),
+    path('home/',                 MobileHomeView.as_view(),             name='home'),
+    path('app-config/',           MobileAppConfigView.as_view(),        name='app_config'),
+    path('admin/notifications/send/', AdminSendNotificationView.as_view(), name='admin_send_notification'),
+    path('schema/', SpectacularAPIView.as_view(urlconf='apps.api.urls_v2'), name='schema'),
+    path('docs/', SpectacularSwaggerView.as_view(url_name='api_v2:schema'), name='swagger'),
+    path('redoc/', SpectacularRedocView.as_view(url_name='api_v2:schema'), name='redoc'),
 
     # ── Routers ────────────────────────────────────────
     path('', include(router.urls)),
     path('', include(business_router.urls)),
 
-    # ── Dashboard API ──────────────────────────────────
-    path('dashboard/', include('apps.dashboard.api.urls')),
 ]

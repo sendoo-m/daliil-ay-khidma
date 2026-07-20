@@ -27,6 +27,12 @@ User = get_user_model()
 class AdminDashboardViewSet(viewsets.ViewSet):
     """Admin dashboard statistics"""
     permission_classes = [IsAdminUser]
+    serializer_class = DashboardStatsSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'analytics':
+            return AdminAnalyticsSerializer
+        return DashboardStatsSerializer
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -53,8 +59,8 @@ class AdminDashboardViewSet(viewsets.ViewSet):
             'pending_reviews':      Review.objects.filter(is_approved=False).count(),
             'average_rating':       Review.objects.filter(is_approved=True).aggregate(
                 Avg('rating'))['rating__avg'] or 0,
-            'total_views':          Business.objects.aggregate(Sum('views_count'))['views_count__sum'] or 0,
-            'total_clicks':         Business.objects.aggregate(Sum('clicks_count'))['clicks_count__sum'] or 0,
+            'total_views':          Business.objects.aggregate(Sum('view_count'))['view_count__sum'] or 0,
+            'total_clicks':         Business.objects.aggregate(Sum('click_count'))['click_count__sum'] or 0,
         }
 
         serializer = DashboardStatsSerializer(stats)

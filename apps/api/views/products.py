@@ -4,25 +4,24 @@ Products API Views
 ViewSets for Products & Services
 """
 
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 
-from apps.products.models import Product, ProductImage
+from apps.products.models import Product
 from apps.api.serializers.products import (
     ProductListSerializer, ProductDetailSerializer,
-    ProductCreateUpdateSerializer, ProductImageSerializer
 )
-from apps.api.permissions import IsBusinessOwner
+from apps.api.filters import ProductFilter
 
 
-class ProductViewSet(viewsets.ModelViewSet):
-    """Product ViewSet"""
-    permission_classes = [IsAuthenticatedOrReadOnly, IsBusinessOwner]
+class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+    """Public read-only products and services catalogue."""
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['product_type', 'business', 'is_available', 'is_featured']
+    filterset_class = ProductFilter
     search_fields = ['name_en', 'name_ar', 'description_en', 'description_ar']
     ordering_fields = ['price', 'view_count', 'created_at']
     ordering = ['-is_featured', '-created_at']
@@ -37,8 +36,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'list':
             return ProductListSerializer
-        elif self.action in ['create', 'update', 'partial_update']:
-            return ProductCreateUpdateSerializer
         return ProductDetailSerializer
     
     @action(detail=True, methods=['post'])

@@ -40,6 +40,8 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SubscriptionSerializer
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Subscription.objects.none()
         return Subscription.objects.filter(
             business__owner=self.request.user
         ).select_related('plan', 'business')

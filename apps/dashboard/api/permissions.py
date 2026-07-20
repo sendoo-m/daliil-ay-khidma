@@ -24,10 +24,15 @@ class IsBusinessOwner(BasePermission):
     message = 'ليس لديك صلاحية الوصول للوحة صاحب المحل'
 
     def has_permission(self, request, view):
+        user = request.user
         return bool(
-            request.user and
-            request.user.is_authenticated and
-            not request.user.is_staff
+            user and
+            user.is_authenticated and
+            not user.is_staff and
+            (
+                getattr(user, 'is_business_owner', False) or
+                user.businesses.exists()
+            )
         )
 
 

@@ -1,18 +1,11 @@
-"""
-Deals API Views
-===============
-ViewSets for Deals & Offers
-"""
-"""
-Deals API Views
-===============
-"""
+"""Public deals API views."""
 
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db import transaction
 from django.utils import timezone
 
 from apps.deals.models import Deal, DealClaim
@@ -20,15 +13,15 @@ from apps.api.serializers.deals import (
     DealListSerializer, DealDetailSerializer, DealClaimSerializer
 )
 from apps.api.pagination import StandardResultsSetPagination
+from apps.api.filters import DealFilter
 
 
-class DealViewSet(viewsets.ModelViewSet):
-    """Deal ViewSet"""
-    # ✅ أُزيل IsBusinessOwner من هنا — يكفي has_object_permission
-    permission_classes = [IsAuthenticatedOrReadOnly]
+class DealViewSet(viewsets.ReadOnlyModelViewSet):
+    """Public read-only deals catalogue with authenticated claiming."""
+    permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['deal_type', 'business', 'is_active', 'is_featured']
+    filterset_class = DealFilter
     search_fields = ['title_en', 'title_ar', 'description_en', 'description_ar']
     ordering_fields = ['start_date', 'end_date', 'view_count', 'created_at']
     ordering = ['-is_featured', '-created_at']
@@ -37,7 +30,8 @@ class DealViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         now = timezone.now()
         qs = Deal.objects.filter(
-            business__is_active=True
+            business__is_active=True,
+            business__is_verified=True,
         ).select_related('business')
 
         # ✅ الأدمن والمالك يشوف كل العروض
@@ -56,44 +50,32 @@ class DealViewSet(viewsets.ModelViewSet):
             return DealListSerializer
         return DealDetailSerializer
 
-    def check_object_permissions(self, request, obj):
-        """✅ التحقق من الملكية عند التعديل/الحذف"""
-        super().check_object_permissions(request, obj)
-        if request.method not in ('GET', 'HEAD', 'OPTIONS'):
-            if not request.user.is_staff and obj.business.owner != request.user:
-                from rest_framework.exceptions import PermissionDenied
-                raise PermissionDenied("ليس لديك صلاحية تعديل هذا العرض")
-
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def claim(self, request, slug=None):
         """Claim a deal"""
-        deal = self.get_object()
+        public_deal = self.get_object()
 
-        if not deal.is_valid:
-            return Response(
-                {'error': 'العرض غير متاح حالياً'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        with transaction.atomic():
+            deal = Deal.objects.select_for_update().get(pk=public_deal.pk)
+            if not deal.is_valid:
+                return Response(
+                    {'error': 'العرض غير متاح حالياً'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        user_claims = DealClaim.objects.filter(deal=deal, user=request.user).count()
+            user_claims = DealClaim.objects.filter(deal=deal, user=request.user).count()
+            if deal.max_uses_per_user and user_claims >= deal.max_uses_per_user:
+                return Response(
+                    {'error': 'وصلت للحد الأقصى من المطالبات لهذا العرض'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        if deal.max_uses_per_user and user_claims >= deal.max_uses_per_user:
-            return Response(
-                {'error': 'وصلت للحد الأقصى من المطالبات لهذا العرض'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            claim = DealClaim.objects.create(deal=deal, user=request.user)
+            deal.current_uses += 1
+            deal.save(update_fields=['current_uses'])
 
-        claim = DealClaim.objects.create(deal=deal, user=request.user)
-
-        if deal.increment_uses():
-            serializer = DealClaimSerializer(claim)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            claim.delete()
-            return Response(
-                {'error': 'العرض وصل للحد الأقصى من الاستخدامات'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer = DealClaimSerializer(claim)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
     def increment_view(self, request, slug=None):
@@ -129,6 +111,8 @@ class DealClaimViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['-claimed_at']
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return DealClaim.objects.none()
         return DealClaim.objects.filter(
             user=self.request.user
         ).select_related('deal', 'deal__business')

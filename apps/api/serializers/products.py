@@ -37,7 +37,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             'business', 'primary_image', 'view_count'
         ]
     
-    def get_primary_image(self, obj):
+    def get_primary_image(self, obj) -> dict | None:
         primary = obj.images.filter(is_primary=True).first()
         if primary:
             return ProductImageSerializer(primary).data

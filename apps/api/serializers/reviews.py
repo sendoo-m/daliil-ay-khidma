@@ -4,11 +4,6 @@ Reviews Serializers
 Serializers for Reviews (if reviews app exists)
 """
 
-"""
-Reviews Serializers
-===================
-"""
-
 from rest_framework import serializers
 
 try:
@@ -19,11 +14,19 @@ try:
         user_name = serializers.CharField(source='user.get_full_name', read_only=True)
         user_username = serializers.CharField(source='user.username', read_only=True)
         business_name = serializers.CharField(source='business.name_ar', read_only=True)
+        likes_count = serializers.IntegerField(read_only=True)
+        is_liked = serializers.SerializerMethodField()
 
         class Meta:
             model = Review
             fields = '__all__'
             read_only_fields = ['user', 'is_approved', 'approved_at', 'approved_by', 'created_at', 'updated_at']
+
+        def get_is_liked(self, obj) -> bool:
+            request = self.context.get('request')
+            return bool(request) and request.user.is_authenticated and bool(
+                obj.likes.filter(user=request.user).exists()
+            )
 
     class ReviewCreateSerializer(serializers.ModelSerializer):
         """Review Create/Update Serializer"""
@@ -45,6 +48,9 @@ try:
             if request and business and hasattr(business, 'owner'):
                 if business.owner == request.user:
                     raise serializers.ValidationError("لا يمكنك تقييم محلك الخاص")
+
+            if business and not (business.is_active and business.is_verified):
+                raise serializers.ValidationError("لا يمكن تقييم نشاط غير منشور")
 
             # منع تكرار التقييم
             if request and business:

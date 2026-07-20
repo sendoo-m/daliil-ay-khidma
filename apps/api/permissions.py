@@ -24,7 +24,16 @@ class IsBusinessOwner(permissions.BasePermission):
     """Allow only business owners to access"""
     
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated
+        user = request.user
+        return bool(
+            user
+            and user.is_authenticated
+            and (
+                user.is_staff
+                or getattr(user, 'is_business_owner', False)
+                or user.businesses.exists()
+            )
+        )
     
     def has_object_permission(self, request, view, obj):
         # For Business model

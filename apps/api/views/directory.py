@@ -4,16 +4,15 @@ Directory API Views
 ViewSets for Location & Business
 """
 
-"""
-Directory API Views
-===================
-"""
+from math import asin, cos, radians, sin, sqrt
 
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
 
 from apps.directory.models import (
     Governorate, City, District, Category,
@@ -24,8 +23,8 @@ from apps.api.serializers.directory import (
     CategorySerializer, BusinessListSerializer, BusinessDetailSerializer,
     BusinessImageSerializer, FavoriteSerializer
 )
-from apps.api.permissions import IsOwnerOrReadOnly
 from apps.api.pagination import StandardResultsSetPagination
+from apps.api.filters import BusinessFilter
 
 
 class GovernorateViewSet(viewsets.ReadOnlyModelViewSet):
@@ -74,14 +73,17 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['order', 'name_en']
 
 
-class BusinessViewSet(viewsets.ModelViewSet):
-    """Business ViewSet"""
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+class BusinessViewSet(viewsets.ReadOnlyModelViewSet):
+    """Public read-only business directory."""
+    permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['business_type', 'category', 'district', 'is_verified', 'is_featured']
-    search_fields = ['name_en', 'name_ar', 'description_en', 'description_ar']
-    ordering_fields = ['view_count', 'created_at', 'name_en']
+    filterset_class = BusinessFilter
+    search_fields = [
+        'name_en', 'name_ar', 'description_en', 'description_ar',
+        'address_en', 'address_ar', 'phone',
+    ]
+    ordering_fields = ['view_count', 'average_rating', 'created_at', 'name_en']
     ordering = ['-is_featured', '-created_at']
     lookup_field = 'slug'
 
@@ -92,18 +94,12 @@ class BusinessViewSet(viewsets.ModelViewSet):
             'category', 'district__city__governorate'
         ).prefetch_related('images')
 
-        if not self.request.user.is_authenticated:
-            queryset = queryset.filter(is_verified=True)
-
-        return queryset
+        return queryset.filter(is_verified=True)
 
     def get_serializer_class(self):
         if self.action == 'list':
             return BusinessListSerializer
         return BusinessDetailSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
 
     @action(detail=True, methods=['post'])
     def increment_view(self, request, slug=None):
@@ -147,15 +143,50 @@ class BusinessViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(self.get_serializer(page, many=True).data)
         return Response(self.get_serializer(businesses, many=True).data)
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
-    def my_businesses(self, request):
-        """✅ هنا مكانها الصح — مع pagination"""
-        businesses = Business.objects.filter(owner=request.user).select_related('category')
-        page = self.paginate_queryset(businesses)
-        if page is not None:
-            return self.get_paginated_response(self.get_serializer(page, many=True).data)
-        return Response(self.get_serializer(businesses, many=True).data)
+    @action(detail=False, methods=['get'])
+    def nearby(self, request):
+        """Return the nearest verified businesses within a radius."""
+        try:
+            latitude = float(request.query_params['latitude'])
+            longitude = float(request.query_params['longitude'])
+            radius_km = float(request.query_params.get('radius_km', 10))
+        except (KeyError, TypeError, ValueError):
+            raise ValidationError({
+                'coordinates': 'latitude وlongitude مطلوبان ويجب أن يكونا أرقامًا'
+            })
 
+        if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+            raise ValidationError({'coordinates': 'الإحداثيات خارج النطاق الصحيح'})
+        if not 0 < radius_km <= 100:
+            raise ValidationError({'radius_km': 'نطاق البحث يجب أن يكون بين 0 و100 كم'})
+
+        latitude_delta = radius_km / 111.0
+        longitude_scale = max(cos(radians(latitude)), 0.01)
+        longitude_delta = radius_km / (111.0 * longitude_scale)
+        candidates = self.filter_queryset(self.get_queryset()).filter(
+            latitude__isnull=False,
+            longitude__isnull=False,
+            latitude__range=(latitude - latitude_delta, latitude + latitude_delta),
+            longitude__range=(longitude - longitude_delta, longitude + longitude_delta),
+        )[:200]
+
+        nearby_businesses = []
+        for business in candidates:
+            lat_delta = radians(float(business.latitude) - latitude)
+            lng_delta = radians(float(business.longitude) - longitude)
+            value = sin(lat_delta / 2) ** 2 + cos(radians(latitude)) * cos(
+                radians(float(business.latitude))
+            ) * sin(lng_delta / 2) ** 2
+            distance = 6371.0 * 2 * asin(sqrt(value))
+            if distance <= radius_km:
+                business.distance_km = distance
+                nearby_businesses.append(business)
+
+        nearby_businesses.sort(key=lambda business: business.distance_km)
+        serializer = BusinessListSerializer(
+            nearby_businesses[:20], many=True, context={'request': request}
+        )
+        return Response(serializer.data)
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     """Favorite ViewSet"""
@@ -164,8 +195,12 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Favorite.objects.none()
         return Favorite.objects.filter(
-            user=self.request.user
+            user=self.request.user,
+            business__is_active=True,
+            business__is_verified=True,
         ).select_related('business')
 
     def perform_create(self, serializer):
@@ -180,16 +215,22 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        business = get_object_or_404(
+            Business,
+            pk=business_id,
+            is_active=True,
+            is_verified=True,
+        )
         favorite = Favorite.objects.filter(
             user=request.user,
-            business_id=business_id
+            business=business,
         ).first()
 
         if favorite:
             favorite.delete()
             return Response({'status': 'removed', 'is_favorite': False})
 
-        Favorite.objects.create(user=request.user, business_id=business_id)
+        Favorite.objects.create(user=request.user, business=business)
         return Response({'status': 'added', 'is_favorite': True})
 
 
