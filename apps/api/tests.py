@@ -1,7 +1,9 @@
 """Regression tests for the mobile API v2 contract."""
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
+from urllib.parse import parse_qs, urlparse
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -42,6 +44,64 @@ class MobileApiV2AuthenticationTests(TestCase):
         self.assertEqual(response.data['success'], False)
         self.assertEqual(response.data['status_code'], 401)
         self.assertIn('errors', response.data)
+
+    def test_logout_blacklists_refresh_token(self):
+        login = self.client.post(
+            '/api/v2/auth/login/',
+            {'username': self.user.username, 'password': 'StrongPass123!'},
+            format='json',
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {login.data['access']}")
+
+        logout = self.client.post(
+            '/api/v2/auth/logout/',
+            {'refresh': login.data['refresh']},
+            format='json',
+        )
+        self.assertEqual(logout.status_code, status.HTTP_200_OK)
+
+        refresh = self.client.post(
+            '/api/v2/auth/refresh/',
+            {'refresh': login.data['refresh']},
+            format='json',
+        )
+        self.assertEqual(refresh.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_password_reset_changes_password(self):
+        request_reset = self.client.post(
+            '/api/v2/auth/password-reset/',
+            {'email': self.user.email},
+            format='json',
+        )
+        self.assertEqual(request_reset.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+
+        reset_url = mail.outbox[0].body.splitlines()[2]
+        query = parse_qs(urlparse(reset_url).query)
+        confirm = self.client.post(
+            '/api/v2/auth/password-reset/confirm/',
+            {
+                'uid': query['uid'][0],
+                'token': query['token'][0],
+                'password': 'NewStrongPass456!',
+                'password_confirm': 'NewStrongPass456!',
+            },
+            format='json',
+        )
+
+        self.assertEqual(confirm.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('NewStrongPass456!'))
+
+    def test_password_reset_does_not_disclose_unknown_email(self):
+        response = self.client.post(
+            '/api/v2/auth/password-reset/',
+            {'email': 'unknown@example.com'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 0)
 
 
 class MobileApiV2RolePermissionTests(TestCase):

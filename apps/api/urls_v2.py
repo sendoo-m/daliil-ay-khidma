@@ -15,7 +15,8 @@ from apps.api.views.business_owner import (
 from apps.api.views import directory, deals, products, reviews, subscriptions
 from apps.api.views.auth import (
     CustomTokenObtainPairView, TokenRefreshView,
-    register, get_user_profile, update_user_profile, change_password
+    register, get_user_profile, update_user_profile, change_password,
+    logout, request_password_reset, confirm_password_reset,
 )
 
 app_name = 'api_v2'
@@ -62,6 +63,9 @@ urlpatterns = [
     path('auth/profile/',         get_user_profile,                    name='profile'),
     path('auth/profile/update/',  update_user_profile,                 name='profile_update'),
     path('auth/change-password/', change_password,                     name='change_password'),
+    path('auth/logout/',          logout,                              name='logout'),
+    path('auth/password-reset/',  request_password_reset,              name='password_reset'),
+    path('auth/password-reset/confirm/', confirm_password_reset,       name='password_reset_confirm'),
 
     # ── Routers ────────────────────────────────────────
     path('', include(router.urls)),

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework.authtoken',  # ← أضف
+    'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
     'corsheaders',
     'django_filters',
@@ -289,6 +290,21 @@ REST_FRAMEWORK = {
     # Error handling
     'EXCEPTION_HANDLER': 'apps.api.exceptions.mobile_api_exception_handler',
 }
+
+
+# ========================================
+# SIMPLE JWT - MOBILE API
+# ========================================
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'CHECK_REVOKE_TOKEN': True,
+}
+
+MOBILE_PASSWORD_RESET_URL = config(
+    'MOBILE_PASSWORD_RESET_URL',
+    default='daliil://reset-password',
+)
 
 
 # ========================================
