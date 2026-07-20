@@ -26,5 +26,6 @@ Production builds must supply the HTTPS API URL through `--dart-define`.
 - FCM/APNs device-token registration contract
 - Arabic/English localization setup and Material 3 theme
 
-The generated `android/` and `ios/` folders should be committed after running
-the command above with the team's pinned Flutter SDK.
+Run `tool/bootstrap_native.sh` with the team's pinned Flutter SDK to generate
+and validate both native projects. Then follow `FIREBASE_SETUP.md` to connect
+the Firebase project without committing credentials.

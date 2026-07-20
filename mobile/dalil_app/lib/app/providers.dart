@@ -3,6 +3,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../core/auth/token_store.dart';
 import '../core/network/api_client.dart';
+import '../core/notifications/push_service.dart';
+import '../features/auth/data/auth_repository.dart';
+import '../features/auth/presentation/auth_controller.dart';
+import '../features/directory/data/business_repository.dart';
+import '../features/home/data/home_repository.dart';
 import '../features/app_config/data/app_config_repository.dart';
 import '../features/notifications/data/device_repository.dart';
 
@@ -15,6 +20,28 @@ final appConfigRepositoryProvider = Provider(
 );
 final deviceRepositoryProvider = Provider(
   (ref) => DeviceRepository(ref.watch(apiClientProvider).dio),
+);
+final pushServiceProvider = Provider(
+  (ref) => PushService(ref.watch(deviceRepositoryProvider)),
+);
+final authRepositoryProvider = Provider(
+  (ref) => AuthRepository(
+    ref.watch(apiClientProvider).dio,
+    ref.watch(tokenStoreProvider),
+  ),
+);
+final authControllerProvider = StateNotifierProvider<AuthController, AsyncValue<bool>>(
+  (ref) => AuthController(
+    ref.watch(authRepositoryProvider),
+    ref.watch(tokenStoreProvider).hasSession,
+  ),
+);
+final homeRepositoryProvider = Provider(
+  (ref) => HomeRepository(ref.watch(apiClientProvider).dio),
+);
+final homeProvider = FutureProvider((ref) => ref.watch(homeRepositoryProvider).fetch());
+final businessRepositoryProvider = Provider(
+  (ref) => BusinessRepository(ref.watch(apiClientProvider).dio),
 );
 final appConfigProvider = FutureProvider(
   (ref) => ref.watch(appConfigRepositoryProvider).fetch(),

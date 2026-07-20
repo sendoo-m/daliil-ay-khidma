@@ -3,6 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/app_localizations.dart';
+import '../features/auth/presentation/login_page.dart';
+import '../features/home/presentation/home_page.dart';
 import 'providers.dart';
 
 class DalilApp extends ConsumerWidget {
@@ -10,7 +12,12 @@ class DalilApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final config = ref.watch(appConfigProvider);
+    final auth = ref.watch(authControllerProvider);
+    ref.listen(authControllerProvider, (_, next) {
+      if (next.valueOrNull == true) {
+        ref.read(pushServiceProvider).initialize().catchError((_) {});
+      }
+    });
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
@@ -26,41 +33,15 @@ class DalilApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF006C51)),
         useMaterial3: true,
       ),
-      home: config.when(
+      home: auth.when(
         loading: () => const Scaffold(
           body: Center(child: CircularProgressIndicator()),
         ),
-        error: (_, __) => const _HomePage(isOffline: true),
-        data: (value) => value.maintenanceMode
-            ? const _MaintenancePage()
-            : const _HomePage(),
+        error: (_, __) => const LoginPage(),
+        data: (isAuthenticated) => isAuthenticated
+            ? const HomePage()
+            : const LoginPage(),
       ),
     );
   }
-}
-
-class _HomePage extends StatelessWidget {
-  const _HomePage({this.isOffline = false});
-  final bool isOffline;
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.appName)),
-        body: Center(
-          child: Text(
-            isOffline
-                ? 'تعذر تحميل الإعدادات، تحقق من الاتصال'
-                : AppLocalizations.of(context)!.welcome,
-          ),
-        ),
-      );
-}
-
-class _MaintenancePage extends StatelessWidget {
-  const _MaintenancePage();
-
-  @override
-  Widget build(BuildContext context) => const Scaffold(
-        body: Center(child: Text('التطبيق تحت الصيانة حاليًا')),
-      );
 }

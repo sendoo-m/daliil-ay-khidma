@@ -30,4 +30,6 @@ final class TokenStore {
       _storage.delete(key: _refreshKey),
     ]);
   }
+
+  Future<bool> get hasSession async => (await readRefresh()) != null;
 }

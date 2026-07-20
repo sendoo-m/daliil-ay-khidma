@@ -52,3 +52,13 @@ coverage.xml
 
 # OS
 Thumbs.db
+
+# Flutter generated and Firebase secrets
+mobile/**/.dart_tool/
+mobile/**/.flutter-plugins*
+mobile/**/build/
+mobile/**/android/local.properties
+mobile/**/android/app/google-services.json
+mobile/**/ios/Runner/GoogleService-Info.plist
+mobile/**/ios/Flutter/ephemeral/
+mobile/**/ios/Pods/

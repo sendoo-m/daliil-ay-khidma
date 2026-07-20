@@ -73,7 +73,8 @@ final class _AuthInterceptor extends Interceptor {
     );
     final access = response.data?['access'] as String?;
     if (access == null) return null;
-    await _tokens.save(TokenPair(access: access, refresh: refresh));
+    final rotatedRefresh = response.data?['refresh'] as String? ?? refresh;
+    await _tokens.save(TokenPair(access: access, refresh: rotatedRefresh));
     return access;
   }
 }
