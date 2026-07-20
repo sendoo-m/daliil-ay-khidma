@@ -96,13 +96,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: oldPassword, obscureText: true, decoration: const InputDecoration(labelText: 'الحالية')),
-            TextField(controller: newPassword, obscureText: true, decoration: const InputDecoration(labelText: 'الجديدة')),
+            TextField(
+              controller: oldPassword,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'الحالية'),
+            ),
+            TextField(
+              controller: newPassword,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'الجديدة'),
+            ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('تغيير')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('إلغاء'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('تغيير'),
+          ),
         ],
       ),
     );
