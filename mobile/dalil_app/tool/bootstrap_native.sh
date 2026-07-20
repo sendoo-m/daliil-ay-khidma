@@ -14,11 +14,15 @@ flutter create \
   .
 
 python3 tool/configure_deep_links.py
+python3 tool/configure_firebase.py
 
 flutter pub get
 flutter gen-l10n
-flutter analyze
-flutter test
+
+if [[ "${SKIP_CHECKS:-0}" != "1" ]]; then
+  flutter analyze
+  flutter test
+fi
 
 echo 'Native Android and iOS projects generated.'
-echo 'Continue with FIREBASE_SETUP.md before enabling push notifications.'
+echo 'Firebase client configuration installed. See FIREBASE_SETUP.md for server and signing secrets.'
