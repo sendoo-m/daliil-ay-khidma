@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
 import 'register_page.dart';
+import 'forgot_password_page.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -68,6 +69,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ),
                   child: const Text('إنشاء حساب جديد'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const ForgotPasswordPage(),
+                    ),
+                  ),
+                  child: const Text('نسيت كلمة المرور؟'),
                 ),
                 if (auth.hasError)
                   const Padding(

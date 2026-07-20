@@ -29,6 +29,8 @@ jobs:
           cache: true
       - name: Generate native projects
         run: flutter create --empty --platforms=android,ios --org=com.daliilaykhidma --project-name=dalil_app .
+      - name: Configure password-reset deep links
+        run: python3 tool/configure_deep_links.py
       - run: flutter pub get
       - run: flutter gen-l10n
       - name: Normalize generated and source formatting
@@ -52,6 +54,8 @@ jobs:
           cache: true
       - name: Generate native project
         run: flutter create --empty --platforms=ios --org=com.daliilaykhidma --project-name=dalil_app .
+      - name: Configure password-reset deep links
+        run: python3 tool/configure_deep_links.py
       - run: flutter pub get
       - run: flutter gen-l10n
       - name: Build iOS
