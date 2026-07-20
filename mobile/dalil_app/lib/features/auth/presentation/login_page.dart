@@ -63,7 +63,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(builder: (_) => const RegisterPage()),
+                    MaterialPageRoute<void>(
+                      builder: (_) => const RegisterPage(),
+                    ),
                   ),
                   child: const Text('إنشاء حساب جديد'),
                 ),

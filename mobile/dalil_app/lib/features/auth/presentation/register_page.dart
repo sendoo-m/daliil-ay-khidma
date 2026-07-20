@@ -19,7 +19,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   @override
   void dispose() {
-    for (final controller in [_username, _email, _password, _firstName, _lastName]) {
+    for (final controller in [
+      _username,
+      _email,
+      _password,
+      _firstName,
+      _lastName,
+    ]) {
       controller.dispose();
     }
     super.dispose();

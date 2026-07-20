@@ -18,7 +18,9 @@ class _BusinessDetailPageState extends ConsumerState<BusinessDetailPage> {
         future: ref.read(businessRepositoryProvider).detail(widget.slug),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
           }
           final business = snapshot.data!;
           return Scaffold(
@@ -26,12 +28,16 @@ class _BusinessDetailPageState extends ConsumerState<BusinessDetailPage> {
               title: Text(business.nameAr),
               actions: [
                 IconButton(
-                  icon: Icon(_favorite ? Icons.favorite : Icons.favorite_border),
+                  icon: Icon(
+                    _favorite ? Icons.favorite : Icons.favorite_border,
+                  ),
                   onPressed: () async {
                     final value = await ref
                         .read(businessRepositoryProvider)
                         .toggleFavorite(business.id);
-                    if (mounted) setState(() => _favorite = value);
+                    if (mounted) {
+                      setState(() => _favorite = value);
+                    }
                   },
                 ),
               ],
@@ -40,16 +46,24 @@ class _BusinessDetailPageState extends ConsumerState<BusinessDetailPage> {
               padding: const EdgeInsets.all(20),
               children: [
                 if (business.logo != null)
-                  Image.network(business.logo!, height: 180, fit: BoxFit.contain),
+                  Image.network(
+                    business.logo!,
+                    height: 180,
+                    fit: BoxFit.contain,
+                  ),
                 const SizedBox(height: 16),
-                Text(business.nameAr, style: Theme.of(context).textTheme.headlineSmall),
+                Text(
+                  business.nameAr,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
                 Text('⭐ ${business.rating.toStringAsFixed(1)}'),
                 const SizedBox(height: 16),
                 Text(business.description),
-                if (business.phone.isNotEmpty) ListTile(
-                  leading: const Icon(Icons.phone),
-                  title: Text(business.phone),
-                ),
+                if (business.phone.isNotEmpty)
+                  ListTile(
+                    leading: const Icon(Icons.phone),
+                    title: Text(business.phone),
+                  ),
               ],
             ),
           );

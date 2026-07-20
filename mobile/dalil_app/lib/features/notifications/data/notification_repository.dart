@@ -1,7 +1,12 @@
 import 'package:dio/dio.dart';
 
 final class AppNotification {
-  const AppNotification({required this.id, required this.title, required this.body, required this.isRead});
+  const AppNotification({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.isRead,
+  });
   factory AppNotification.fromJson(Map<String, dynamic> json) => AppNotification(
         id: json['id'] as int,
         title: json['title'] as String? ?? '',

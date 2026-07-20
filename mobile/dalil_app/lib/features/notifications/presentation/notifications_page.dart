@@ -11,18 +11,28 @@ class NotificationsPage extends ConsumerWidget {
         body: FutureBuilder(
           future: ref.read(notificationRepositoryProvider).list(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
             final items = snapshot.data!;
-            if (items.isEmpty) return const Center(child: Text('لا توجد إشعارات'));
+            if (items.isEmpty) {
+              return const Center(child: Text('لا توجد إشعارات'));
+            }
             return ListView.builder(
               itemCount: items.length,
               itemBuilder: (_, index) {
                 final item = items[index];
                 return ListTile(
-                  leading: Icon(item.isRead ? Icons.notifications_none : Icons.notifications_active),
+                  leading: Icon(
+                    item.isRead
+                        ? Icons.notifications_none
+                        : Icons.notifications_active,
+                  ),
                   title: Text(item.title),
                   subtitle: Text(item.body),
-                  onTap: () => ref.read(notificationRepositoryProvider).markRead(item.id),
+                  onTap: () => ref
+                      .read(notificationRepositoryProvider)
+                      .markRead(item.id),
                 );
               },
             );

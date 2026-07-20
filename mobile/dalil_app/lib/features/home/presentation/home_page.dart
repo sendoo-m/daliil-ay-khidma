@@ -19,7 +19,9 @@ class HomePage extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const NotificationsPage()),
+              MaterialPageRoute<void>(
+                builder: (_) => const NotificationsPage(),
+              ),
             ),
           ),
           IconButton(

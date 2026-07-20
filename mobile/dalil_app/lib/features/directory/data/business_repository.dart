@@ -36,7 +36,11 @@ final class BusinessRepository {
     final results = response.data?['results'] as List<dynamic>? ?? const [];
     return results
         .cast<Map<String, dynamic>>()
-        .map((item) => Business.fromJson(item['business'] as Map<String, dynamic>))
+        .map(
+          (item) => Business.fromJson(
+            item['business'] as Map<String, dynamic>,
+          ),
+        )
         .toList(growable: false);
   }
 }
