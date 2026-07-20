@@ -1,5 +1,5 @@
 """Business Owner API Views"""
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Sum, Avg
@@ -16,7 +16,9 @@ from apps.api.serializers.business_owner import (
     BusinessOwnerBusinessSerializer,
     BusinessOwnerProductSerializer,
     BusinessOwnerDealSerializer,
-    BusinessOwnerReviewSerializer
+    BusinessOwnerReviewSerializer,
+    BusinessOwnerImageSerializer,
+    BusinessOwnerProductImageSerializer,
 )
 from apps.api.pagination import StandardResultsSetPagination
 from apps.api.permissions import IsBusinessOwner
@@ -69,6 +71,31 @@ class BusinessOwnerBusinessViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
+    @action(detail=True, methods=['get', 'post'], url_path='images')
+    def images(self, request, pk=None):
+        business = self.get_object()
+        if request.method == 'GET':
+            serializer = BusinessOwnerImageSerializer(business.images.all(), many=True)
+            return Response(serializer.data)
+
+        if business.images.count() >= 10:
+            return Response(
+                {'error': 'الحد الأقصى لمعرض النشاط هو 10 صور'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = BusinessOwnerImageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(business=business)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['delete'], url_path=r'images/(?P<image_id>[^/.]+)')
+    def delete_image(self, request, image_id=None, pk=None):
+        business = self.get_object()
+        image = get_object_or_404(business.images, pk=image_id)
+        image.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class BusinessOwnerProductViewSet(viewsets.ModelViewSet):
     """Business owner product management"""
@@ -88,6 +115,31 @@ class BusinessOwnerProductViewSet(viewsets.ModelViewSet):
         # ✅ get_object_or_404 بدل .get() العادي
         business = get_object_or_404(Business, id=business_id, owner=self.request.user)
         serializer.save(business=business)
+
+    @action(detail=True, methods=['get', 'post'], url_path='images')
+    def images(self, request, business_pk=None, pk=None):
+        product = self.get_object()
+        if request.method == 'GET':
+            serializer = BusinessOwnerProductImageSerializer(product.images.all(), many=True)
+            return Response(serializer.data)
+
+        if product.images.count() >= 10:
+            return Response(
+                {'error': 'الحد الأقصى للمنتج هو 10 صور'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = BusinessOwnerProductImageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(product=product)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['delete'], url_path=r'images/(?P<image_id>[^/.]+)')
+    def delete_image(self, request, image_id=None, business_pk=None, pk=None):
+        product = self.get_object()
+        image = get_object_or_404(product.images, pk=image_id)
+        image.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class BusinessOwnerDealViewSet(viewsets.ModelViewSet):

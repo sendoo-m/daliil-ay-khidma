@@ -69,6 +69,38 @@ MOBILE_PASSWORD_RESET_URL=daliil://reset-password
 - صاحب النشاط: المسارات التي تبدأ بـ `business-owner/` وبيانات أنشطته فقط.
 - المدير: المسارات التي تبدأ بـ `admin/`.
 
+## فصل العرض العام عن الإدارة
+
+المسارات العامة التالية للقراءة فقط، ولا تقبل POST أو PUT أو PATCH أو DELETE:
+
+```text
+businesses/
+products/
+deals/
+```
+
+إنشاء وتعديل وحذف بيانات صاحب النشاط يتم فقط من خلال:
+
+```text
+business-owner/businesses/
+business-owner/businesses/{business_id}/products/
+business-owner/businesses/{business_id}/deals/
+```
+
+## رفع الصور
+
+تقبل الواجهات صور JPEG وPNG وWebP بحد أقصى 5 ميجابايت للصورة، وبحد أقصى 10 صور لكل معرض.
+
+```text
+GET/POST business-owner/businesses/{business_id}/images/
+DELETE   business-owner/businesses/{business_id}/images/{image_id}/
+
+GET/POST business-owner/businesses/{business_id}/products/{product_id}/images/
+DELETE   business-owner/businesses/{business_id}/products/{product_id}/images/{image_id}/
+```
+
+ترسل الصور باستخدام `multipart/form-data` في حقل اسمه `image`.
+
 ## استجابات الأخطاء
 
 أخطاء DRF القياسية ترجع بالشكل التالي:

@@ -3,10 +3,31 @@ from rest_framework import serializers
 from django.utils import timezone
 
 # Import models from their respective apps
-from apps.directory.models import Business
-from apps.products.models import Product
+from apps.directory.models import Business, BusinessImage
+from apps.products.models import Product, ProductImage
 from apps.deals.models import Deal
 from apps.reviews.models import Review
+from apps.api.validators import validate_image_upload
+
+
+class BusinessOwnerImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BusinessImage
+        exclude = ['business']
+        read_only_fields = ['uploaded_at']
+
+    def validate_image(self, value):
+        return validate_image_upload(value)
+
+
+class BusinessOwnerProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        exclude = ['product']
+        read_only_fields = ['uploaded_at']
+
+    def validate_image(self, value):
+        return validate_image_upload(value)
 
 
 class BusinessOwnerStatsSerializer(serializers.Serializer):
@@ -48,6 +69,12 @@ class BusinessOwnerBusinessSerializer(serializers.ModelSerializer):
     def get_average_rating(self, obj):
         return obj.get_average_rating()
 
+    def validate_logo(self, value):
+        return validate_image_upload(value)
+
+    def validate_cover_image(self, value):
+        return validate_image_upload(value)
+
 
 class BusinessOwnerProductSerializer(serializers.ModelSerializer):
     """Product serializer for owner"""
@@ -83,6 +110,9 @@ class BusinessOwnerDealSerializer(serializers.ModelSerializer):
         if obj.max_uses and obj.max_uses > 0:
             return round((obj.used_count / obj.max_uses) * 100, 2)
         return 0
+
+    def validate_image(self, value):
+        return validate_image_upload(value)
 
 
 class BusinessOwnerReviewSerializer(serializers.ModelSerializer):

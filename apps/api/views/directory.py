@@ -4,15 +4,10 @@ Directory API Views
 ViewSets for Location & Business
 """
 
-"""
-Directory API Views
-===================
-"""
-
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 
 from apps.directory.models import (
@@ -24,7 +19,6 @@ from apps.api.serializers.directory import (
     CategorySerializer, BusinessListSerializer, BusinessDetailSerializer,
     BusinessImageSerializer, FavoriteSerializer
 )
-from apps.api.permissions import IsOwnerOrReadOnly
 from apps.api.pagination import StandardResultsSetPagination
 
 
@@ -74,9 +68,9 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['order', 'name_en']
 
 
-class BusinessViewSet(viewsets.ModelViewSet):
-    """Business ViewSet"""
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+class BusinessViewSet(viewsets.ReadOnlyModelViewSet):
+    """Public read-only business directory."""
+    permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['business_type', 'category', 'district', 'is_verified', 'is_featured']
@@ -92,18 +86,12 @@ class BusinessViewSet(viewsets.ModelViewSet):
             'category', 'district__city__governorate'
         ).prefetch_related('images')
 
-        if not self.request.user.is_authenticated:
-            queryset = queryset.filter(is_verified=True)
-
-        return queryset
+        return queryset.filter(is_verified=True)
 
     def get_serializer_class(self):
         if self.action == 'list':
             return BusinessListSerializer
         return BusinessDetailSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
 
     @action(detail=True, methods=['post'])
     def increment_view(self, request, slug=None):
@@ -146,16 +134,6 @@ class BusinessViewSet(viewsets.ModelViewSet):
         if page is not None:
             return self.get_paginated_response(self.get_serializer(page, many=True).data)
         return Response(self.get_serializer(businesses, many=True).data)
-
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
-    def my_businesses(self, request):
-        """✅ هنا مكانها الصح — مع pagination"""
-        businesses = Business.objects.filter(owner=request.user).select_related('category')
-        page = self.paginate_queryset(businesses)
-        if page is not None:
-            return self.get_paginated_response(self.get_serializer(page, many=True).data)
-        return Response(self.get_serializer(businesses, many=True).data)
-
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     """Favorite ViewSet"""

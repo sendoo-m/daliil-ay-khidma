@@ -2,10 +2,14 @@
 
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from io import BytesIO
+from PIL import Image
 from urllib.parse import parse_qs, urlparse
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.test import APIClient
+from apps.api.validators import validate_image_upload
 
 
 User = get_user_model()
@@ -151,3 +155,39 @@ class MobileApiV2RolePermissionTests(TestCase):
         response = self.client.get('/api/v2/admin/users/')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_public_catalogues_reject_write_operations(self):
+        self.client.force_authenticate(self.business_owner)
+
+        for endpoint in ('businesses', 'products', 'deals'):
+            response = self.client.post(f'/api/v2/{endpoint}/', {}, format='json')
+            self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class MobileApiV2ImageValidationTests(TestCase):
+    def test_valid_png_is_accepted(self):
+        content = BytesIO()
+        Image.new('RGB', (20, 20), color='blue').save(content, format='PNG')
+        upload = SimpleUploadedFile('image.png', content.getvalue(), content_type='image/png')
+
+        self.assertIs(validate_image_upload(upload), upload)
+
+    def test_unsupported_image_type_is_rejected(self):
+        upload = SimpleUploadedFile(
+            'image.svg',
+            b'<svg xmlns="http://www.w3.org/2000/svg"></svg>',
+            content_type='image/svg+xml',
+        )
+
+        with self.assertRaises(serializers.ValidationError):
+            validate_image_upload(upload)
+
+    def test_image_larger_than_five_mb_is_rejected(self):
+        upload = SimpleUploadedFile(
+            'large.png',
+            b'0' * (5 * 1024 * 1024 + 1),
+            content_type='image/png',
+        )
+
+        with self.assertRaises(serializers.ValidationError):
+            validate_image_upload(upload)

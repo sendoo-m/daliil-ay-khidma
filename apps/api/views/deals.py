@@ -1,17 +1,9 @@
-"""
-Deals API Views
-===============
-ViewSets for Deals & Offers
-"""
-"""
-Deals API Views
-===============
-"""
+"""Public deals API views."""
 
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 
@@ -22,10 +14,9 @@ from apps.api.serializers.deals import (
 from apps.api.pagination import StandardResultsSetPagination
 
 
-class DealViewSet(viewsets.ModelViewSet):
-    """Deal ViewSet"""
-    # ✅ أُزيل IsBusinessOwner من هنا — يكفي has_object_permission
-    permission_classes = [IsAuthenticatedOrReadOnly]
+class DealViewSet(viewsets.ReadOnlyModelViewSet):
+    """Public read-only deals catalogue with authenticated claiming."""
+    permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['deal_type', 'business', 'is_active', 'is_featured']
@@ -55,14 +46,6 @@ class DealViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return DealListSerializer
         return DealDetailSerializer
-
-    def check_object_permissions(self, request, obj):
-        """✅ التحقق من الملكية عند التعديل/الحذف"""
-        super().check_object_permissions(request, obj)
-        if request.method not in ('GET', 'HEAD', 'OPTIONS'):
-            if not request.user.is_staff and obj.business.owner != request.user:
-                from rest_framework.exceptions import PermissionDenied
-                raise PermissionDenied("ليس لديك صلاحية تعديل هذا العرض")
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def claim(self, request, slug=None):
