@@ -8,6 +8,33 @@ final class AuthRepository {
   final Dio _dio;
   final TokenStore _tokens;
 
+  Future<void> register({
+    required String username,
+    required String email,
+    required String password,
+    required String firstName,
+    required String lastName,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      'auth/register/',
+      data: {
+        'username': username.trim(),
+        'email': email.trim(),
+        'password': password,
+        'password_confirm': password,
+        'first_name': firstName.trim(),
+        'last_name': lastName.trim(),
+      },
+    );
+    final tokens = response.data?['tokens'] as Map<String, dynamic>;
+    await _tokens.save(
+      TokenPair(
+        access: tokens['access'] as String,
+        refresh: tokens['refresh'] as String,
+      ),
+    );
+  }
+
   Future<void> login({
     required String username,
     required String password,

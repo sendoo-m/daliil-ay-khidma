@@ -6,6 +6,8 @@ final class Business {
     required this.slug,
     required this.rating,
     this.logo,
+    this.description = '',
+    this.phone = '',
   });
 
   factory Business.fromJson(Map<String, dynamic> json) => Business(
@@ -15,6 +17,8 @@ final class Business {
         slug: json['slug'] as String? ?? '',
         rating: double.tryParse('${json['average_rating'] ?? 0}') ?? 0,
         logo: json['logo'] as String?,
+        description: json['description_ar'] as String? ?? '',
+        phone: json['phone'] as String? ?? '',
       );
 
   final int id;
@@ -23,4 +27,6 @@ final class Business {
   final String slug;
   final double rating;
   final String? logo;
+  final String description;
+  final String phone;
 }

@@ -10,6 +10,7 @@ import '../features/directory/data/business_repository.dart';
 import '../features/home/data/home_repository.dart';
 import '../features/app_config/data/app_config_repository.dart';
 import '../features/notifications/data/device_repository.dart';
+import '../features/notifications/data/notification_repository.dart';
 
 final tokenStoreProvider = Provider(
   (_) => TokenStore(const FlutterSecureStorage()),
@@ -20,6 +21,9 @@ final appConfigRepositoryProvider = Provider(
 );
 final deviceRepositoryProvider = Provider(
   (ref) => DeviceRepository(ref.watch(apiClientProvider).dio),
+);
+final notificationRepositoryProvider = Provider(
+  (ref) => NotificationRepository(ref.watch(apiClientProvider).dio),
 );
 final pushServiceProvider = Provider(
   (ref) => PushService(ref.watch(deviceRepositoryProvider)),
