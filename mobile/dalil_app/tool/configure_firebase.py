@@ -61,6 +61,13 @@ def install_ios() -> None:
 
 
 if __name__ == "__main__":
-    install_android()
-    install_ios()
+    generated = False
+    if (ROOT / "android").is_dir():
+        install_android()
+        generated = True
+    if (ROOT / "ios").is_dir():
+        install_ios()
+        generated = True
+    if not generated:
+        raise SystemExit("Generate an Android or iOS project before configuring Firebase")
     print("Firebase client configuration installed for Android and iOS.")
