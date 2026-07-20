@@ -101,6 +101,40 @@ DELETE   business-owner/businesses/{business_id}/products/{product_id}/images/{i
 
 ترسل الصور باستخدام `multipart/form-data` في حقل اسمه `image`.
 
+## الصفحة الرئيسية والبحث
+
+يجمع endpoint الصفحة الرئيسية أقسام التطبيق الأساسية في طلب واحد:
+
+```text
+GET home/
+```
+
+ويعيد التصنيفات، الأنشطة المميزة، المنتجات المميزة، العروض المميزة والمحافظات.
+
+يدعم دليل الأنشطة معاملات البحث التالية:
+
+```text
+GET businesses/?search=مطعم
+GET businesses/?governorate=1&city=2&district=3
+GET businesses/?category=4&business_type=shop&min_rating=4
+GET businesses/?ordering=-average_rating
+```
+
+وتدعم المنتجات السعر والموقع والتصنيف:
+
+```text
+GET products/?category=4&min_price=100&max_price=500
+GET products/?governorate=1&city=2&district=3
+```
+
+البحث عن أقرب الأنشطة:
+
+```text
+GET businesses/nearby/?latitude=30.0444&longitude=31.2357&radius_km=20
+```
+
+نطاق البحث الجغرافي المسموح من أكبر من صفر وحتى 100 كم، ويعيد بحد أقصى 20 نشاطًا مرتبة حسب `distance_km`.
+
 ## استجابات الأخطاء
 
 أخطاء DRF القياسية ترجع بالشكل التالي:

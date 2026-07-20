@@ -191,3 +191,39 @@ class MobileApiV2ImageValidationTests(TestCase):
 
         with self.assertRaises(serializers.ValidationError):
             validate_image_upload(upload)
+
+
+class MobileApiV2DiscoveryTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_home_endpoint_returns_all_mobile_sections(self):
+        response = self.client.get('/api/v2/home/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            set(response.data),
+            {
+                'categories', 'featured_businesses', 'featured_products',
+                'featured_deals', 'governorates',
+            },
+        )
+
+    def test_nearby_requires_valid_coordinates(self):
+        missing = self.client.get('/api/v2/businesses/nearby/')
+        invalid = self.client.get(
+            '/api/v2/businesses/nearby/',
+            {'latitude': 100, 'longitude': 31},
+        )
+
+        self.assertEqual(missing.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(invalid.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_nearby_accepts_valid_coordinates(self):
+        response = self.client.get(
+            '/api/v2/businesses/nearby/',
+            {'latitude': 30.0444, 'longitude': 31.2357, 'radius_km': 20},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])

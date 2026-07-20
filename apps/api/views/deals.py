@@ -12,6 +12,7 @@ from apps.api.serializers.deals import (
     DealListSerializer, DealDetailSerializer, DealClaimSerializer
 )
 from apps.api.pagination import StandardResultsSetPagination
+from apps.api.filters import DealFilter
 
 
 class DealViewSet(viewsets.ReadOnlyModelViewSet):
@@ -19,7 +20,7 @@ class DealViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['deal_type', 'business', 'is_active', 'is_featured']
+    filterset_class = DealFilter
     search_fields = ['title_en', 'title_ar', 'description_en', 'description_ar']
     ordering_fields = ['start_date', 'end_date', 'view_count', 'created_at']
     ordering = ['-is_featured', '-created_at']

@@ -18,6 +18,7 @@ from apps.api.views.auth import (
     register, get_user_profile, update_user_profile, change_password,
     logout, request_password_reset, confirm_password_reset,
 )
+from apps.api.views.home import MobileHomeView
 
 app_name = 'api_v2'
 
@@ -66,6 +67,7 @@ urlpatterns = [
     path('auth/logout/',          logout,                              name='logout'),
     path('auth/password-reset/',  request_password_reset,              name='password_reset'),
     path('auth/password-reset/confirm/', confirm_password_reset,       name='password_reset_confirm'),
+    path('home/',                 MobileHomeView.as_view(),             name='home'),
 
     # ── Routers ────────────────────────────────────────
     path('', include(router.urls)),

@@ -4,9 +4,12 @@ Directory API Views
 ViewSets for Location & Business
 """
 
+from math import asin, cos, radians, sin, sqrt
+
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -20,6 +23,7 @@ from apps.api.serializers.directory import (
     BusinessImageSerializer, FavoriteSerializer
 )
 from apps.api.pagination import StandardResultsSetPagination
+from apps.api.filters import BusinessFilter
 
 
 class GovernorateViewSet(viewsets.ReadOnlyModelViewSet):
@@ -73,9 +77,12 @@ class BusinessViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['business_type', 'category', 'district', 'is_verified', 'is_featured']
-    search_fields = ['name_en', 'name_ar', 'description_en', 'description_ar']
-    ordering_fields = ['view_count', 'created_at', 'name_en']
+    filterset_class = BusinessFilter
+    search_fields = [
+        'name_en', 'name_ar', 'description_en', 'description_ar',
+        'address_en', 'address_ar', 'phone',
+    ]
+    ordering_fields = ['view_count', 'average_rating', 'created_at', 'name_en']
     ordering = ['-is_featured', '-created_at']
     lookup_field = 'slug'
 
@@ -134,6 +141,51 @@ class BusinessViewSet(viewsets.ReadOnlyModelViewSet):
         if page is not None:
             return self.get_paginated_response(self.get_serializer(page, many=True).data)
         return Response(self.get_serializer(businesses, many=True).data)
+
+    @action(detail=False, methods=['get'])
+    def nearby(self, request):
+        """Return the nearest verified businesses within a radius."""
+        try:
+            latitude = float(request.query_params['latitude'])
+            longitude = float(request.query_params['longitude'])
+            radius_km = float(request.query_params.get('radius_km', 10))
+        except (KeyError, TypeError, ValueError):
+            raise ValidationError({
+                'coordinates': 'latitude وlongitude مطلوبان ويجب أن يكونا أرقامًا'
+            })
+
+        if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+            raise ValidationError({'coordinates': 'الإحداثيات خارج النطاق الصحيح'})
+        if not 0 < radius_km <= 100:
+            raise ValidationError({'radius_km': 'نطاق البحث يجب أن يكون بين 0 و100 كم'})
+
+        latitude_delta = radius_km / 111.0
+        longitude_scale = max(cos(radians(latitude)), 0.01)
+        longitude_delta = radius_km / (111.0 * longitude_scale)
+        candidates = self.filter_queryset(self.get_queryset()).filter(
+            latitude__isnull=False,
+            longitude__isnull=False,
+            latitude__range=(latitude - latitude_delta, latitude + latitude_delta),
+            longitude__range=(longitude - longitude_delta, longitude + longitude_delta),
+        )[:200]
+
+        nearby_businesses = []
+        for business in candidates:
+            lat_delta = radians(float(business.latitude) - latitude)
+            lng_delta = radians(float(business.longitude) - longitude)
+            value = sin(lat_delta / 2) ** 2 + cos(radians(latitude)) * cos(
+                radians(float(business.latitude))
+            ) * sin(lng_delta / 2) ** 2
+            distance = 6371.0 * 2 * asin(sqrt(value))
+            if distance <= radius_km:
+                business.distance_km = distance
+                nearby_businesses.append(business)
+
+        nearby_businesses.sort(key=lambda business: business.distance_km)
+        serializer = BusinessListSerializer(
+            nearby_businesses[:20], many=True, context={'request': request}
+        )
+        return Response(serializer.data)
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     """Favorite ViewSet"""

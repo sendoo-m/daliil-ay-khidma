@@ -14,13 +14,14 @@ from apps.products.models import Product
 from apps.api.serializers.products import (
     ProductListSerializer, ProductDetailSerializer,
 )
+from apps.api.filters import ProductFilter
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     """Public read-only products and services catalogue."""
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['product_type', 'business', 'is_available', 'is_featured']
+    filterset_class = ProductFilter
     search_fields = ['name_en', 'name_ar', 'description_en', 'description_ar']
     ordering_fields = ['price', 'view_count', 'created_at']
     ordering = ['-is_featured', '-created_at']

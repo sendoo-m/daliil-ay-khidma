@@ -75,6 +75,8 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['slug']
     
     def get_business_count(self, obj):
+        if hasattr(obj, 'public_business_count'):
+            return obj.public_business_count
         # Use business_set which is the correct related_name
         return obj.business_set.filter(is_active=True, is_verified=True).count()
 
@@ -101,6 +103,7 @@ class BusinessListSerializer(serializers.ModelSerializer):
     is_shop = serializers.ReadOnlyField()
     is_craft = serializers.ReadOnlyField()
     is_public_service = serializers.ReadOnlyField()
+    distance_km = serializers.SerializerMethodField()
     
     class Meta:
         model = Business
@@ -110,8 +113,12 @@ class BusinessListSerializer(serializers.ModelSerializer):
             'is_shop', 'is_craft', 'is_public_service',
             'logo', 'category', 'district',
             'phone', 'average_rating', 'total_reviews',
-            'is_verified', 'is_featured', 'view_count'
+            'is_verified', 'is_featured', 'view_count', 'distance_km'
         ]
+
+    def get_distance_km(self, obj):
+        distance = getattr(obj, 'distance_km', None)
+        return round(distance, 2) if distance is not None else None
 
 
 class BusinessDetailSerializer(serializers.ModelSerializer):
