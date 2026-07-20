@@ -45,12 +45,21 @@ class HomePage extends ConsumerWidget {
               Wrap(
                 spacing: 8,
                 children: data.categories
-                    .map((item) => Chip(label: Text('${item['name_ar'] ?? ''}')))
+                    .map(
+                      (item) => Chip(
+                        label: Text('${item['name_ar'] ?? ''}'),
+                      ),
+                    )
                     .toList(),
               ),
               const SizedBox(height: 20),
-              Text('أنشطة مميزة', style: Theme.of(context).textTheme.titleLarge),
-              ...data.businesses.map((item) => BusinessCard(business: item)),
+              Text(
+                'أنشطة مميزة',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              ...data.businesses.map(
+                (item) => BusinessCard(business: item),
+              ),
             ],
           ),
         ),

@@ -8,7 +8,10 @@ final class AuthRepository {
   final Dio _dio;
   final TokenStore _tokens;
 
-  Future<void> login({required String username, required String password}) async {
+  Future<void> login({
+    required String username,
+    required String password,
+  }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       'auth/login/',
       data: {'username': username.trim(), 'password': password},

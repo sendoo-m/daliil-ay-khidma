@@ -35,7 +35,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     return const Center(child: Text('تعذر تنفيذ البحث'));
                   }
                   final items = snapshot.data ?? const [];
-                  if (items.isEmpty) return const Center(child: Text('لا توجد نتائج'));
+                  if (items.isEmpty) {
+                    return const Center(child: Text('لا توجد نتائج'));
+                  }
                   return ListView.builder(
                     padding: const EdgeInsets.all(12),
                     itemCount: items.length,
