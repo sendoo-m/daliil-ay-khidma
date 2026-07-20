@@ -22,6 +22,30 @@ final class AuthController extends StateNotifier<AsyncValue<bool>> {
     }
   }
 
+  Future<bool> register({
+    required String username,
+    required String email,
+    required String password,
+    required String firstName,
+    required String lastName,
+  }) async {
+    state = const AsyncLoading();
+    try {
+      await _repository.register(
+        username: username,
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+      );
+      state = const AsyncData(true);
+      return true;
+    } catch (error, stack) {
+      state = AsyncError(error, stack);
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     await _repository.logout();
     state = const AsyncData(false);
