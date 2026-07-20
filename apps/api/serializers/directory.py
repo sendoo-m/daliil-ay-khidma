@@ -113,7 +113,8 @@ class BusinessListSerializer(serializers.ModelSerializer):
             'is_shop', 'is_craft', 'is_public_service',
             'logo', 'category', 'district',
             'phone', 'average_rating', 'total_reviews',
-            'is_verified', 'is_featured', 'view_count', 'distance_km'
+            'is_verified', 'is_featured', 'view_count',
+            'latitude', 'longitude', 'distance_km'
         ]
 
     def get_distance_km(self, obj) -> float | None:
