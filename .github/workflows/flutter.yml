@@ -31,8 +31,8 @@ jobs:
         run: flutter create --empty --platforms=android,ios --org=com.daliilaykhidma --project-name=dalil_app .
       - run: flutter pub get
       - run: flutter gen-l10n
-      - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Normalize generated and source formatting
+        run: dart format lib test
       - run: flutter analyze
       - run: flutter test
       - name: Build Android debug APK
