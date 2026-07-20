@@ -7,9 +7,14 @@ void main() {
       'id': 1,
       'name_ar': 'نشاط قريب',
       'slug': 'nearby',
+      'latitude': '30.0444',
+      'longitude': 31.2357,
       'distance_km': 2.75,
     });
 
     expect(business.distanceKm, 2.75);
+    expect(business.latitude, 30.0444);
+    expect(business.longitude, 31.2357);
+    expect(business.hasCoordinates, isTrue);
   });
 }
