@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db import transaction
 from django.utils import timezone
 
 from apps.deals.models import Deal, DealClaim
@@ -29,7 +30,8 @@ class DealViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         now = timezone.now()
         qs = Deal.objects.filter(
-            business__is_active=True
+            business__is_active=True,
+            business__is_verified=True,
         ).select_related('business')
 
         # ✅ الأدمن والمالك يشوف كل العروض
@@ -51,33 +53,29 @@ class DealViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def claim(self, request, slug=None):
         """Claim a deal"""
-        deal = self.get_object()
+        public_deal = self.get_object()
 
-        if not deal.is_valid:
-            return Response(
-                {'error': 'العرض غير متاح حالياً'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        with transaction.atomic():
+            deal = Deal.objects.select_for_update().get(pk=public_deal.pk)
+            if not deal.is_valid:
+                return Response(
+                    {'error': 'العرض غير متاح حالياً'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        user_claims = DealClaim.objects.filter(deal=deal, user=request.user).count()
+            user_claims = DealClaim.objects.filter(deal=deal, user=request.user).count()
+            if deal.max_uses_per_user and user_claims >= deal.max_uses_per_user:
+                return Response(
+                    {'error': 'وصلت للحد الأقصى من المطالبات لهذا العرض'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        if deal.max_uses_per_user and user_claims >= deal.max_uses_per_user:
-            return Response(
-                {'error': 'وصلت للحد الأقصى من المطالبات لهذا العرض'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            claim = DealClaim.objects.create(deal=deal, user=request.user)
+            deal.current_uses += 1
+            deal.save(update_fields=['current_uses'])
 
-        claim = DealClaim.objects.create(deal=deal, user=request.user)
-
-        if deal.increment_uses():
-            serializer = DealClaimSerializer(claim)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            claim.delete()
-            return Response(
-                {'error': 'العرض وصل للحد الأقصى من الاستخدامات'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer = DealClaimSerializer(claim)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
     def increment_view(self, request, slug=None):

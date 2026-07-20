@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
 
 from apps.directory.models import (
     Governorate, City, District, Category,
@@ -195,7 +196,9 @@ class FavoriteViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Favorite.objects.filter(
-            user=self.request.user
+            user=self.request.user,
+            business__is_active=True,
+            business__is_verified=True,
         ).select_related('business')
 
     def perform_create(self, serializer):
@@ -210,16 +213,22 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        business = get_object_or_404(
+            Business,
+            pk=business_id,
+            is_active=True,
+            is_verified=True,
+        )
         favorite = Favorite.objects.filter(
             user=request.user,
-            business_id=business_id
+            business=business,
         ).first()
 
         if favorite:
             favorite.delete()
             return Response({'status': 'removed', 'is_favorite': False})
 
-        Favorite.objects.create(user=request.user, business_id=business_id)
+        Favorite.objects.create(user=request.user, business=business)
         return Response({'status': 'added', 'is_favorite': True})
 
 

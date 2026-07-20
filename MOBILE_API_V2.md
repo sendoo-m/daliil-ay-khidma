@@ -135,6 +135,55 @@ GET businesses/nearby/?latitude=30.0444&longitude=31.2357&radius_km=20
 
 نطاق البحث الجغرافي المسموح من أكبر من صفر وحتى 100 كم، ويعيد بحد أقصى 20 نشاطًا مرتبة حسب `distance_km`.
 
+## تفاعلات المستخدم
+
+### المفضلة
+
+```text
+GET  favorites/
+POST favorites/toggle/
+```
+
+```json
+{
+  "business_id": 123
+}
+```
+
+لا يمكن إضافة نشاط غير منشور أو غير معتمد إلى المفضلة.
+
+### التقييمات
+
+```text
+GET    reviews/?business=123
+POST   reviews/
+PATCH  reviews/{review_id}/
+DELETE reviews/{review_id}/
+POST   reviews/{review_id}/like/
+POST   reviews/{review_id}/report/
+```
+
+التقييم الجديد يكون قيد مراجعة الإدارة، ولكل مستخدم تقييم واحد فقط لكل نشاط. الإعجاب يعمل بالتبديل، ولا يمكن للمستخدم الإعجاب بتقييمه الشخصي.
+
+بيانات البلاغ:
+
+```json
+{
+  "reason": "سبب البلاغ"
+}
+```
+
+يسمح ببلاغ واحد فقط من المستخدم نفسه على التقييم.
+
+### المطالبة بالعروض
+
+```text
+POST deals/{deal_slug}/claim/
+GET  deal-claims/
+```
+
+تُنفّذ المطالبة داخل transaction وقفل قاعدة بيانات لمنع تجاوز الحد الكلي للعرض أو حد الاستخدام لكل مستخدم.
+
 ## استجابات الأخطاء
 
 أخطاء DRF القياسية ترجع بالشكل التالي:

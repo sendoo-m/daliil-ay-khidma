@@ -38,7 +38,7 @@ class Review(models.Model):
     
     # حالة التقييم
     is_approved = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name='معتمد؟',
         help_text='هل التقييم معتمد للعرض؟',
     )
@@ -134,3 +134,44 @@ class ReviewReply(models.Model):
     
     def __str__(self):
         return f"Reply to: {self.review}"
+
+
+class ReviewLike(models.Model):
+    """إعجاب مستخدم بتقييم واحد."""
+
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='review_likes',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['review', 'user'],
+                name='unique_review_like_per_user',
+            )
+        ]
+
+
+class ReviewReport(models.Model):
+    """بلاغ مستخدم عن تقييم غير مناسب."""
+
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='reports')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='review_reports',
+    )
+    reason = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['review', 'user'],
+                name='unique_review_report_per_user',
+            )
+        ]

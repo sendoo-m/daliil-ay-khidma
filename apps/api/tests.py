@@ -4,12 +4,17 @@ from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.utils import timezone
+from datetime import timedelta
 from io import BytesIO
 from PIL import Image
 from urllib.parse import parse_qs, urlparse
 from rest_framework import serializers, status
 from rest_framework.test import APIClient
 from apps.api.validators import validate_image_upload
+from apps.deals.models import Deal, DealClaim
+from apps.directory.models import Business, Category, City, District, Favorite, Governorate
+from apps.reviews.models import Review, ReviewLike, ReviewReport
 
 
 User = get_user_model()
@@ -227,3 +232,116 @@ class MobileApiV2DiscoveryTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
+
+
+class MobileApiV2InteractionTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.owner = User.objects.create_user(
+            username='interaction-owner', email='interaction-owner@example.com',
+            phone='01000000010', password='StrongPass123!', is_business_owner=True,
+        )
+        self.user = User.objects.create_user(
+            username='interaction-user', email='interaction-user@example.com',
+            phone='01000000011', password='StrongPass123!',
+        )
+        self.other_user = User.objects.create_user(
+            username='interaction-other', email='interaction-other@example.com',
+            phone='01000000012', password='StrongPass123!',
+        )
+        governorate = Governorate.objects.create(name_en='Cairo Test', name_ar='القاهرة اختبار')
+        city = City.objects.create(
+            governorate=governorate, name_en='City Test', name_ar='مدينة اختبار'
+        )
+        district = District.objects.create(city=city, name_en='District Test', name_ar='حي اختبار')
+        category = Category.objects.create(name_en='Category Test', name_ar='تصنيف اختبار')
+        self.business = Business.objects.create(
+            owner=self.owner,
+            category=category,
+            district=district,
+            name_en='Published Business',
+            name_ar='نشاط منشور',
+            is_active=True,
+            is_verified=True,
+        )
+        self.hidden_business = Business.objects.create(
+            owner=self.owner,
+            category=category,
+            district=district,
+            name_en='Hidden Business',
+            name_ar='نشاط مخفي',
+            is_active=False,
+            is_verified=False,
+        )
+
+    def test_favorite_toggle_rejects_hidden_business(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(
+            '/api/v2/favorites/toggle/',
+            {'business_id': self.hidden_business.id},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(Favorite.objects.filter(user=self.user).exists())
+
+    def test_new_review_waits_for_admin_approval(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(
+            '/api/v2/reviews/',
+            {'business': self.business.id, 'rating': 5, 'comment': 'ممتاز'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertFalse(Review.objects.get(user=self.user).is_approved)
+
+    def test_review_like_toggles_and_report_is_not_duplicated(self):
+        review = Review.objects.create(
+            business=self.business,
+            user=self.user,
+            rating=5,
+            comment='تقييم منشور',
+            is_approved=True,
+        )
+        self.client.force_authenticate(self.other_user)
+
+        like = self.client.post(f'/api/v2/reviews/{review.id}/like/')
+        unlike = self.client.post(f'/api/v2/reviews/{review.id}/like/')
+        first_report = self.client.post(
+            f'/api/v2/reviews/{review.id}/report/', {'reason': 'محتوى غير مناسب'}
+        )
+        second_report = self.client.post(
+            f'/api/v2/reviews/{review.id}/report/', {'reason': 'بلاغ مكرر'}
+        )
+
+        self.assertTrue(like.data['is_liked'])
+        self.assertFalse(unlike.data['is_liked'])
+        self.assertFalse(ReviewLike.objects.filter(review=review).exists())
+        self.assertEqual(first_report.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(second_report.data['status'], 'already_reported')
+        self.assertEqual(ReviewReport.objects.filter(review=review).count(), 1)
+
+    def test_deal_claim_never_exceeds_total_limit(self):
+        deal = Deal.objects.create(
+            business=self.business,
+            title_en='Limited Deal',
+            title_ar='عرض محدود',
+            description_en='Limited',
+            description_ar='محدود',
+            start_date=timezone.now() - timedelta(hours=1),
+            end_date=timezone.now() + timedelta(days=1),
+            max_uses=1,
+            max_uses_per_user=1,
+        )
+
+        self.client.force_authenticate(self.user)
+        first = self.client.post(f'/api/v2/deals/{deal.slug}/claim/')
+        self.client.force_authenticate(self.other_user)
+        second = self.client.post(f'/api/v2/deals/{deal.slug}/claim/')
+
+        deal.refresh_from_db()
+        self.assertEqual(first.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(second.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(deal.current_uses, 1)
+        self.assertEqual(DealClaim.objects.filter(deal=deal).count(), 1)

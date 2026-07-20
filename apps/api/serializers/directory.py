@@ -161,3 +161,13 @@ class FavoriteSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ['id', 'business', 'business_id', 'created_at']
         read_only_fields = ['created_at']
+
+    def validate_business_id(self, value):
+        business = Business.objects.filter(pk=value).first()
+        if business is None or not (business.is_active and business.is_verified):
+            raise serializers.ValidationError('النشاط غير موجود أو غير منشور')
+
+        request = self.context.get('request')
+        if request and Favorite.objects.filter(user=request.user, business_id=value).exists():
+            raise serializers.ValidationError('النشاط موجود بالفعل في المفضلة')
+        return value
