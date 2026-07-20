@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 
 final class AppConfig {
@@ -23,7 +25,10 @@ final class AppConfigRepository {
   Future<AppConfig> fetch() async {
     final response = await _dio.get<Map<String, dynamic>>(
       'app-config/',
-      queryParameters: {'platform': 'android', 'version': '0.1.0'},
+      queryParameters: {
+        'platform': Platform.isIOS ? 'ios' : 'android',
+        'version': '0.1.0',
+      },
     );
     return AppConfig.fromJson(response.data ?? const {});
   }
