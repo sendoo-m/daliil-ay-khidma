@@ -36,6 +36,8 @@ jobs:
         run: flutter create --empty --platforms=android,ios --org=com.daliilaykhidma --project-name=dalil_app .
       - name: Configure password-reset deep links
         run: python3 tool/configure_deep_links.py
+      - name: Configure Firebase clients
+        run: python3 tool/configure_firebase.py
       - run: flutter pub get
       - run: flutter gen-l10n
       - name: Normalize generated and source formatting
@@ -44,6 +46,20 @@ jobs:
       - run: flutter test
       - name: Build Android debug APK
         run: flutter build apk --debug --dart-define=API_BASE_URL=https://example.invalid
+      - name: Upload Android debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: daliil-android-debug
+          path: mobile/dalil_app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+      - name: Upload generated native projects
+        uses: actions/upload-artifact@v4
+        with:
+          name: daliil-native-projects
+          path: |
+            mobile/dalil_app/android
+            mobile/dalil_app/ios
+          if-no-files-found: error
 
   ios:
     name: Build iOS without signing
@@ -61,6 +77,8 @@ jobs:
         run: flutter create --empty --platforms=ios --org=com.daliilaykhidma --project-name=dalil_app .
       - name: Configure password-reset deep links
         run: python3 tool/configure_deep_links.py
+      - name: Configure Firebase clients
+        run: python3 tool/configure_firebase.py
       - run: flutter pub get
       - run: flutter gen-l10n
       - name: Build iOS
