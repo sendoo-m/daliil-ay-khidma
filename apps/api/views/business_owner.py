@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django.db.models import Sum, Avg
 from django.shortcuts import get_object_or_404   # ✅ مضاف
 from django.utils import timezone
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 
 from apps.directory.models import Business
 from apps.products.models import Product
@@ -27,6 +28,7 @@ from apps.api.permissions import IsBusinessOwner
 class BusinessOwnerDashboardViewSet(viewsets.ViewSet):
     """Business owner dashboard"""
     permission_classes = [IsBusinessOwner]
+    serializer_class = BusinessOwnerStatsSerializer
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -64,6 +66,8 @@ class BusinessOwnerBusinessViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Business.objects.none()
         return Business.objects.filter(
             owner=self.request.user
         ).select_related('category')
@@ -89,6 +93,7 @@ class BusinessOwnerBusinessViewSet(viewsets.ModelViewSet):
         serializer.save(business=business)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(parameters=[OpenApiParameter('image_id', int, OpenApiParameter.PATH)])
     @action(detail=True, methods=['delete'], url_path=r'images/(?P<image_id>[^/.]+)')
     def delete_image(self, request, image_id=None, pk=None):
         business = self.get_object()
@@ -104,6 +109,8 @@ class BusinessOwnerProductViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Product.objects.none()
         business_id = self.kwargs.get('business_pk')
         return Product.objects.filter(
             business_id=business_id,
@@ -134,6 +141,7 @@ class BusinessOwnerProductViewSet(viewsets.ModelViewSet):
         serializer.save(product=product)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(parameters=[OpenApiParameter('image_id', int, OpenApiParameter.PATH)])
     @action(detail=True, methods=['delete'], url_path=r'images/(?P<image_id>[^/.]+)')
     def delete_image(self, request, image_id=None, business_pk=None, pk=None):
         product = self.get_object()
@@ -149,6 +157,8 @@ class BusinessOwnerDealViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Deal.objects.none()
         business_id = self.kwargs.get('business_pk')
         return Deal.objects.filter(
             business_id=business_id,
@@ -169,6 +179,8 @@ class BusinessOwnerReviewViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Review.objects.none()
         business_id = self.kwargs.get('business_pk')
         return Review.objects.filter(
             business_id=business_id,

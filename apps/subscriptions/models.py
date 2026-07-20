@@ -355,12 +355,12 @@ class Subscription(models.Model):
     # Properties
     # ========================================
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
         """التحقق من نشاط الاشتراك"""
         return self.status == 'active' and self.end_date > timezone.now()
     
     @property
-    def days_remaining(self):
+    def days_remaining(self) -> int:
         """عدد الأيام المتبقية"""
         if self.is_active:
             delta = self.end_date - timezone.now()
@@ -368,7 +368,7 @@ class Subscription(models.Model):
         return 0
     
     @property
-    def is_expiring_soon(self):
+    def is_expiring_soon(self) -> bool:
         """هل سينتهي قريباً؟ (7 أيام)"""
         return self.is_active and self.days_remaining <= 7
     

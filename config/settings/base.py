@@ -259,6 +259,18 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '300/hour',
+        'user': '3000/hour',
+        'login': '10/minute',
+        'registration': '5/hour',
+        'password_reset': '5/hour',
+    },
     
     # Pagination
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -320,6 +332,7 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Daliil Ay Khidma API',
     'DESCRIPTION': 'RESTful API for Business Directory Platform',
     'VERSION': '2.0.0',
+    'SCHEMA_PATH_PREFIX_INSERT': '/api/v2',
     'SERVE_INCLUDE_SCHEMA': False,
     
     # API info

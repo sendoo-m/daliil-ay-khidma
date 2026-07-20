@@ -57,16 +57,16 @@ class BusinessOwnerBusinessSerializer(serializers.ModelSerializer):
         exclude = ['owner']  # Owner is determined from request.user
         read_only_fields = ['slug', 'view_count', 'click_count', 'created_at', 'updated_at']
     
-    def get_products_count(self, obj):
+    def get_products_count(self, obj) -> int:
         return obj.products.count()
     
-    def get_deals_count(self, obj):
+    def get_deals_count(self, obj) -> int:
         return obj.deals.count()
     
-    def get_reviews_count(self, obj):
+    def get_reviews_count(self, obj) -> int:
         return obj.reviews.filter(is_approved=True).count()
     
-    def get_average_rating(self, obj):
+    def get_average_rating(self, obj) -> float:
         return obj.get_average_rating()
 
     def validate_logo(self, value):
@@ -100,13 +100,13 @@ class BusinessOwnerDealSerializer(serializers.ModelSerializer):
         exclude = ['business']  # Business is determined from URL
         read_only_fields = ['slug', 'used_count', 'created_at', 'updated_at']
     
-    def get_days_remaining(self, obj):
+    def get_days_remaining(self, obj) -> int | None:
         if obj.end_date:
             delta = obj.end_date - timezone.now().date()
             return delta.days if delta.days > 0 else 0
         return None
     
-    def get_usage_percentage(self, obj):
+    def get_usage_percentage(self, obj) -> float:
         if obj.max_uses and obj.max_uses > 0:
             return round((obj.used_count / obj.max_uses) * 100, 2)
         return 0

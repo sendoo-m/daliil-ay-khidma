@@ -3,6 +3,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
+from drf_spectacular.views import (
+    SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView,
+)
 
 from apps.api.views.admin import (
     AdminDashboardViewSet, AdminUserViewSet, AdminBusinessViewSet,
@@ -14,7 +17,7 @@ from apps.api.views.business_owner import (
 )
 from apps.api.views import directory, deals, products, reviews, subscriptions
 from apps.api.views.auth import (
-    CustomTokenObtainPairView, TokenRefreshView,
+    CustomTokenObtainPairView, MobileTokenRefreshView,
     register, get_user_profile, update_user_profile, change_password,
     logout, request_password_reset, confirm_password_reset,
 )
@@ -67,7 +70,7 @@ router.register(r'notifications', NotificationViewSet, basename='notifications')
 urlpatterns = [
     # ── Auth ───────────────────────────────────────────
     path('auth/login/',           CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('auth/refresh/',         TokenRefreshView.as_view(),          name='token_refresh'),
+    path('auth/refresh/',         MobileTokenRefreshView.as_view(),    name='token_refresh'),
     path('auth/register/',        register,                            name='register'),
     path('auth/profile/',         get_user_profile,                    name='profile'),
     path('auth/profile/update/',  update_user_profile,                 name='profile_update'),
@@ -78,11 +81,12 @@ urlpatterns = [
     path('home/',                 MobileHomeView.as_view(),             name='home'),
     path('app-config/',           MobileAppConfigView.as_view(),        name='app_config'),
     path('admin/notifications/send/', AdminSendNotificationView.as_view(), name='admin_send_notification'),
+    path('schema/', SpectacularAPIView.as_view(urlconf='apps.api.urls_v2'), name='schema'),
+    path('docs/', SpectacularSwaggerView.as_view(url_name='api_v2:schema'), name='swagger'),
+    path('redoc/', SpectacularRedocView.as_view(url_name='api_v2:schema'), name='redoc'),
 
     # ── Routers ────────────────────────────────────────
     path('', include(router.urls)),
     path('', include(business_router.urls)),
 
-    # ── Dashboard API ──────────────────────────────────
-    path('dashboard/', include('apps.dashboard.api.urls')),
 ]

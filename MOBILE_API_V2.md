@@ -6,6 +6,24 @@
 /api/v2/
 ```
 
+التوثيق التفاعلي:
+
+```text
+Swagger: /api/v2/docs/
+ReDoc:   /api/v2/redoc/
+Schema:  /api/v2/schema/
+```
+
+تطبق الخدمة الحدود الافتراضية التالية:
+
+```text
+Anonymous:      300 request/hour
+Authenticated: 3000 request/hour
+Login/refresh: 10 request/minute
+Registration:  5 request/hour
+Password reset: 5 request/hour
+```
+
 ## المصادقة
 
 ترسل الطلبات المحمية Access Token في الترويسة:

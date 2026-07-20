@@ -56,7 +56,7 @@ class DistrictSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['slug']
     
-    def get_governorate(self, obj):
+    def get_governorate(self, obj) -> dict:
         return GovernorateSerializer(obj.governorate).data
 
 
@@ -74,7 +74,7 @@ class CategorySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['slug']
     
-    def get_business_count(self, obj):
+    def get_business_count(self, obj) -> int:
         if hasattr(obj, 'public_business_count'):
             return obj.public_business_count
         # Use business_set which is the correct related_name
@@ -116,7 +116,7 @@ class BusinessListSerializer(serializers.ModelSerializer):
             'is_verified', 'is_featured', 'view_count', 'distance_km'
         ]
 
-    def get_distance_km(self, obj):
+    def get_distance_km(self, obj) -> float | None:
         distance = getattr(obj, 'distance_km', None)
         return round(distance, 2) if distance is not None else None
 
@@ -141,12 +141,12 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['slug', 'owner', 'view_count', 'click_count']
     
-    def get_city(self, obj):
+    def get_city(self, obj) -> dict | None:
         if obj.city:
             return CitySerializer(obj.city).data
         return None
     
-    def get_governorate(self, obj):
+    def get_governorate(self, obj) -> dict | None:
         if obj.governorate:
             return GovernorateSerializer(obj.governorate).data
         return None

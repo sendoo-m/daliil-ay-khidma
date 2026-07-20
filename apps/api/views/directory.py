@@ -195,6 +195,8 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Favorite.objects.none()
         return Favorite.objects.filter(
             user=self.request.user,
             business__is_active=True,

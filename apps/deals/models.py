@@ -296,7 +296,7 @@ class Deal(models.Model):
         return self.terms_ar if lang == 'ar' else self.terms_en
     
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """هل العرض ساري الآن؟"""
         now = timezone.now()
         return (
@@ -306,17 +306,17 @@ class Deal(models.Model):
         )
     
     @property
-    def is_expired(self):
+    def is_expired(self) -> bool:
         """هل انتهى العرض؟"""
         return timezone.now() > self.end_date
     
     @property
-    def is_upcoming(self):
+    def is_upcoming(self) -> bool:
         """هل العرض قادم؟"""
         return timezone.now() < self.start_date
     
     @property
-    def days_remaining(self):
+    def days_remaining(self) -> int:
         """عدد الأيام المتبقية"""
         if self.is_valid:
             delta = self.end_date - timezone.now()
@@ -324,14 +324,14 @@ class Deal(models.Model):
         return 0
     
     @property
-    def remaining_uses(self):
+    def remaining_uses(self) -> int | None:
         """عدد الاستخدامات المتبقية"""
         if self.max_uses is None:
             return None  # Unlimited
         return max(0, self.max_uses - self.current_uses)
     
     @property
-    def savings_amount(self):
+    def savings_amount(self) -> float:
         """مبلغ التوفير"""
         if self.original_price and self.final_price:
             return self.original_price - self.final_price

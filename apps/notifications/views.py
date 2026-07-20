@@ -6,6 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 
 from apps.api.pagination import StandardResultsSetPagination
 from apps.api.permissions import IsAdminUser
@@ -28,6 +30,7 @@ def version_tuple(value):
 class MobileAppConfigView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(responses=OpenApiTypes.OBJECT)
     def get(self, request):
         config = SiteSettings.get_settings()
         platform = request.query_params.get('platform', 'android')
@@ -73,6 +76,8 @@ class DeviceRegistrationViewSet(
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return DeviceRegistration.objects.none()
         return DeviceRegistration.objects.filter(user=self.request.user)
 
     def perform_destroy(self, instance):
@@ -91,6 +96,8 @@ class NotificationViewSet(
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Notification.objects.none()
         return Notification.objects.filter(user=self.request.user)
 
     @action(detail=True, methods=['post'])
@@ -114,6 +121,7 @@ class NotificationViewSet(
 class AdminSendNotificationView(APIView):
     permission_classes = [IsAdminUser]
 
+    @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request):
         user_ids = request.data.get('user_ids', [])
         send_to_all = request.data.get('send_to_all', False)

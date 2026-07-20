@@ -22,7 +22,7 @@ try:
             fields = '__all__'
             read_only_fields = ['user', 'is_approved', 'approved_at', 'approved_by', 'created_at', 'updated_at']
 
-        def get_is_liked(self, obj):
+        def get_is_liked(self, obj) -> bool:
             request = self.context.get('request')
             return bool(request) and request.user.is_authenticated and bool(
                 obj.likes.filter(user=request.user).exists()

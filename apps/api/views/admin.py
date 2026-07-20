@@ -27,6 +27,12 @@ User = get_user_model()
 class AdminDashboardViewSet(viewsets.ViewSet):
     """Admin dashboard statistics"""
     permission_classes = [IsAdminUser]
+    serializer_class = DashboardStatsSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'analytics':
+            return AdminAnalyticsSerializer
+        return DashboardStatsSerializer
 
     @action(detail=False, methods=['get'])
     def stats(self, request):

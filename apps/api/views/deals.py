@@ -111,6 +111,8 @@ class DealClaimViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['-claimed_at']
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return DealClaim.objects.none()
         return DealClaim.objects.filter(
             user=self.request.user
         ).select_related('deal', 'deal__business')

@@ -52,8 +52,8 @@ class NotificationSerializer(serializers.ModelSerializer):
             )[:2]
         return 'ar'
 
-    def get_title(self, obj):
+    def get_title(self, obj) -> str:
         return obj.title_en if self._language() == 'en' and obj.title_en else obj.title_ar
 
-    def get_body(self, obj):
+    def get_body(self, obj) -> str:
         return obj.body_en if self._language() == 'en' and obj.body_en else obj.body_ar

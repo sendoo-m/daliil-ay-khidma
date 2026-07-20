@@ -54,10 +54,10 @@ class AdminUserSerializer(serializers.ModelSerializer):
             'businesses_count', 'reviews_count'
         ]
     
-    def get_businesses_count(self, obj):
+    def get_businesses_count(self, obj) -> int:
         return obj.businesses.count()
     
-    def get_reviews_count(self, obj):
+    def get_reviews_count(self, obj) -> int:
         return obj.reviews.count()
 
 
@@ -81,8 +81,8 @@ class AdminCategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
     
-    def get_businesses_count(self, obj):
-        return obj.businesses.count()
+    def get_businesses_count(self, obj) -> int:
+        return obj.business_set.count()
 
 
 class AdminProductSerializer(serializers.ModelSerializer):
@@ -106,7 +106,7 @@ class AdminDealSerializer(serializers.ModelSerializer):
         model = Deal
         fields = '__all__'
     
-    def get_days_remaining(self, obj):
+    def get_days_remaining(self, obj) -> int | None:
         if obj.end_date:
             delta = obj.end_date - timezone.now().date()
             return delta.days if delta.days > 0 else 0

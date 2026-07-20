@@ -420,22 +420,22 @@ class Business(models.Model):
         return self.get_business_type_display()
     
     @property
-    def is_shop(self):
+    def is_shop(self) -> bool:
         """Check if business is a shop"""
         return self.business_type == 'shop'
     
     @property
-    def is_craft(self):
+    def is_craft(self) -> bool:
         """Check if business is a craft/trade service"""
         return self.business_type == 'craft'
     
     @property
-    def is_public_service(self):
+    def is_public_service(self) -> bool:
         """Check if business is a public service"""
         return self.business_type == 'public'
     
     @property
-    def business_type_icon(self):
+    def business_type_icon(self) -> str:
         """Get icon for business type"""
         icons = {
             'shop': '🏪',

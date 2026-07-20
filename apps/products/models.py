@@ -227,7 +227,7 @@ class Product(models.Model):
         return self.delivery_time_ar if lang == 'ar' else self.delivery_time_en
     
     @property
-    def discount_percentage(self):
+    def discount_percentage(self) -> float:
         """حساب نسبة الخصم"""
         if self.old_price and self.old_price > self.price:
             discount = ((self.old_price - self.price) / self.old_price) * 100
@@ -235,12 +235,12 @@ class Product(models.Model):
         return 0
     
     @property
-    def has_discount(self):
+    def has_discount(self) -> bool:
         """هل يوجد خصم؟"""
-        return self.old_price and self.old_price > self.price
+        return bool(self.old_price and self.old_price > self.price)
     
     @property
-    def is_in_stock(self):
+    def is_in_stock(self) -> bool:
         """هل المنتج متوفر في المخزون؟"""
         if self.stock_quantity is None:
             return True  # Unlimited stock

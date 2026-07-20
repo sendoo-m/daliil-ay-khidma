@@ -5,6 +5,8 @@ from django.utils import timezone
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 
 from apps.deals.models import Deal
 from apps.directory.models import Business, Category, Governorate
@@ -23,6 +25,7 @@ class MobileHomeView(APIView):
 
     permission_classes = [AllowAny]
 
+    @extend_schema(responses=OpenApiTypes.OBJECT)
     def get(self, request):
         now = timezone.now()
         categories = Category.objects.filter(is_active=True).annotate(

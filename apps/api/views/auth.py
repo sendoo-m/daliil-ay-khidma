@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
@@ -20,6 +20,11 @@ from django.core.mail import send_mail
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from apps.directory.models import Business
+from apps.api.throttles import (
+    LoginRateThrottle, PasswordResetRateThrottle, RegistrationRateThrottle,
+)
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 
 
 User = get_user_model()
@@ -88,13 +93,20 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Custom token obtain view"""
     serializer_class = CustomTokenObtainPairSerializer
+    throttle_classes = [LoginRateThrottle]
+
+
+class MobileTokenRefreshView(TokenRefreshView):
+    throttle_classes = [LoginRateThrottle]
 
 
 # ══════════════════════════════════════════
 # REGISTER
 # ══════════════════════════════════════════
+@extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([RegistrationRateThrottle])
 def register(request):
     """Register new user"""
     username         = request.data.get('username', '').strip()
@@ -177,6 +189,7 @@ def register(request):
 # ══════════════════════════════════════════
 # PROFILE
 # ══════════════════════════════════════════
+@extend_schema(responses=OpenApiTypes.OBJECT)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
@@ -184,6 +197,7 @@ def get_user_profile(request):
     return Response(build_user_data(request.user))
 
 
+@extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def update_user_profile(request):
@@ -214,6 +228,7 @@ def update_user_profile(request):
 # ══════════════════════════════════════════
 # CHANGE PASSWORD
 # ══════════════════════════════════════════
+@extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def change_password(request):
@@ -267,6 +282,7 @@ def change_password(request):
 # ══════════════════════════════════════════
 # LOGOUT
 # ══════════════════════════════════════════
+@extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
@@ -299,8 +315,10 @@ def logout(request):
 # ══════════════════════════════════════════
 # PASSWORD RESET
 # ══════════════════════════════════════════
+@extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([PasswordResetRateThrottle])
 def request_password_reset(request):
     """إرسال رابط الاستعادة دون كشف ما إذا كان البريد مسجلاً."""
     email = request.data.get('email', '').strip().lower()
@@ -333,8 +351,10 @@ def request_password_reset(request):
     })
 
 
+@extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([PasswordResetRateThrottle])
 def confirm_password_reset(request):
     """التحقق من رمز الاستعادة وحفظ كلمة المرور الجديدة."""
     uid = request.data.get('uid', '').strip()
