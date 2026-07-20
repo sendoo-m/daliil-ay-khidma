@@ -8,6 +8,8 @@ final class Business {
     this.logo,
     this.description = '',
     this.phone = '',
+    this.latitude,
+    this.longitude,
     this.distanceKm,
   });
 
@@ -20,6 +22,8 @@ final class Business {
         logo: json['logo'] as String?,
         description: json['description_ar'] as String? ?? '',
         phone: json['phone'] as String? ?? '',
+        latitude: _coordinate(json['latitude']),
+        longitude: _coordinate(json['longitude']),
         distanceKm: (json['distance_km'] as num?)?.toDouble(),
       );
 
@@ -31,5 +35,14 @@ final class Business {
   final String? logo;
   final String description;
   final String phone;
+  final double? latitude;
+  final double? longitude;
   final double? distanceKm;
+
+  bool get hasCoordinates => latitude != null && longitude != null;
+}
+
+double? _coordinate(Object? value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse('$value');
 }
