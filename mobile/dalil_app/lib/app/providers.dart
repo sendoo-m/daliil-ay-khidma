@@ -13,6 +13,7 @@ import '../features/app_config/data/app_config_repository.dart';
 import '../features/notifications/data/device_repository.dart';
 import '../features/notifications/data/notification_repository.dart';
 import '../features/reviews/data/review_repository.dart';
+import '../features/profile/data/profile_repository.dart';
 
 final tokenStoreProvider = Provider(
   (_) => TokenStore(const FlutterSecureStorage()),
@@ -29,6 +30,12 @@ final notificationRepositoryProvider = Provider(
 );
 final reviewRepositoryProvider = Provider(
   (ref) => ReviewRepository(ref.watch(apiClientProvider).dio),
+);
+final profileRepositoryProvider = Provider(
+  (ref) => ProfileRepository(
+    ref.watch(apiClientProvider).dio,
+    ref.watch(tokenStoreProvider),
+  ),
 );
 final pushServiceProvider = Provider(
   (ref) => PushService(ref.watch(deviceRepositoryProvider)),
