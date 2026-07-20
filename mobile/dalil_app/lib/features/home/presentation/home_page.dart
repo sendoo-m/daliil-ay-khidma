@@ -8,6 +8,7 @@ import '../../directory/presentation/favorites_page.dart';
 import '../../notifications/presentation/notifications_page.dart';
 import '../../catalog/presentation/catalog_detail_pages.dart';
 import '../../profile/presentation/profile_page.dart';
+import '../../location/presentation/nearby_page.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -19,6 +20,14 @@ class HomePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('دليل أي خدمة'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.near_me_outlined),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const NearbyPage(),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () => Navigator.of(context).push(

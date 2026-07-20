@@ -15,6 +15,7 @@ import '../features/notifications/data/device_repository.dart';
 import '../features/notifications/data/notification_repository.dart';
 import '../features/reviews/data/review_repository.dart';
 import '../features/profile/data/profile_repository.dart';
+import '../features/location/data/location_service.dart';
 
 final tokenStoreProvider = Provider(
   (_) => TokenStore(const FlutterSecureStorage()),
@@ -38,6 +39,7 @@ final profileRepositoryProvider = Provider(
     ref.watch(tokenStoreProvider),
   ),
 );
+final locationServiceProvider = Provider((_) => LocationService());
 final pushServiceProvider = Provider(
   (ref) => PushService(ref.watch(deviceRepositoryProvider)),
 );

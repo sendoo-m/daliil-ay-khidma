@@ -43,4 +43,23 @@ final class BusinessRepository {
         )
         .toList(growable: false);
   }
+
+  Future<List<Business>> nearby({
+    required double latitude,
+    required double longitude,
+    required double radiusKm,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      'businesses/nearby/',
+      queryParameters: {
+        'latitude': latitude,
+        'longitude': longitude,
+        'radius_km': radiusKm,
+      },
+    );
+    return (response.data ?? const [])
+        .cast<Map<String, dynamic>>()
+        .map(Business.fromJson)
+        .toList(growable: false);
+  }
 }

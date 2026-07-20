@@ -12,6 +12,17 @@ ET.register_namespace('android', ANDROID)
 manifest_path = Path('android/app/src/main/AndroidManifest.xml')
 if manifest_path.exists():
     tree = ET.parse(manifest_path)
+    root = tree.getroot()
+    permission_name = f'{{{ANDROID}}}name'
+    permissions = {
+        item.get(permission_name) for item in root.findall('uses-permission')
+    }
+    for permission in (
+        'android.permission.ACCESS_FINE_LOCATION',
+        'android.permission.ACCESS_COARSE_LOCATION',
+    ):
+        if permission not in permissions:
+            root.insert(0, ET.Element('uses-permission', {permission_name: permission}))
     activity = tree.find('.//activity')
     if activity is not None and not any(
         item.find(f"data[@{{{ANDROID}}}scheme='daliil']") is not None
@@ -48,6 +59,10 @@ if plist_path.exists():
     with plist_path.open('rb') as source:
         plist = plistlib.load(source)
     url_types = plist.setdefault('CFBundleURLTypes', [])
+    plist.setdefault(
+        'NSLocationWhenInUseUsageDescription',
+        'نستخدم موقعك فقط لعرض الأنشطة القريبة منك.',
+    )
     if not any('daliil' in item.get('CFBundleURLSchemes', []) for item in url_types):
         url_types.append(
             {
