@@ -28,7 +28,7 @@ jobs:
           channel: stable
           cache: true
       - name: Generate native projects
-        run: flutter create --platforms=android,ios --org=com.daliilaykhidma --project-name=dalil_app .
+        run: flutter create --empty --platforms=android,ios --org=com.daliilaykhidma --project-name=dalil_app .
       - run: flutter pub get
       - run: flutter gen-l10n
       - name: Verify formatting
@@ -51,7 +51,7 @@ jobs:
           channel: stable
           cache: true
       - name: Generate native project
-        run: flutter create --platforms=ios --org=com.daliilaykhidma --project-name=dalil_app .
+        run: flutter create --empty --platforms=ios --org=com.daliilaykhidma --project-name=dalil_app .
       - run: flutter pub get
       - run: flutter gen-l10n
       - name: Build iOS

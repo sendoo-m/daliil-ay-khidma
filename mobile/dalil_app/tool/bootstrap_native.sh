@@ -7,6 +7,7 @@ if ! command -v flutter >/dev/null 2>&1; then
 fi
 
 flutter create \
+  --empty \
   --platforms=android,ios \
   --org=com.daliilaykhidma \
   --project-name=dalil_app \
