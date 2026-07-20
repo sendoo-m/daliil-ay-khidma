@@ -34,7 +34,7 @@ class BusinessOwnerBusinessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
         exclude = ['owner']  # Owner is determined from request.user
-        read_only_fields = ['slug', 'views_count', 'clicks_count', 'created_at', 'updated_at']
+        read_only_fields = ['slug', 'view_count', 'click_count', 'created_at', 'updated_at']
     
     def get_products_count(self, obj):
         return obj.products.count()

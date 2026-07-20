@@ -24,6 +24,7 @@ urlpatterns = [
 
     # API
     path('api/v1/', include('apps.api.urls', namespace='api')),
+    path('api/v2/', include('apps.api.urls_v2', namespace='api_v2')),
     path('api/dashboard/', include('apps.dashboard.api.urls')),
 
 ]
@@ -35,7 +36,7 @@ urlpatterns += static(settings.MEDIA_URL,   document_root=settings.MEDIA_ROOT)
 
 
 # Debug Toolbar
-if settings.DEBUG:
+if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
     import debug_toolbar
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),

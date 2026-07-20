@@ -1,5 +1,6 @@
 # config/settings/development.py
 from .base import *
+import sys
 
 
 DEBUG = True
@@ -8,13 +9,13 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 
-# Debug Toolbar
-INSTALLED_APPS += [
-    'debug_toolbar',
-]
+# لا تُحمّل أدوات التطوير أثناء الاختبارات.
+if 'test' not in sys.argv:
+    INSTALLED_APPS += [
+        'debug_toolbar',
+    ]
 
-
-MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
 
 INTERNAL_IPS = [

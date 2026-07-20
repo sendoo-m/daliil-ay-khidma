@@ -19,11 +19,12 @@ from apps.api.serializers.business_owner import (
     BusinessOwnerReviewSerializer
 )
 from apps.api.pagination import StandardResultsSetPagination
+from apps.api.permissions import IsBusinessOwner
 
 
 class BusinessOwnerDashboardViewSet(viewsets.ViewSet):
     """Business owner dashboard"""
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsBusinessOwner]
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -46,8 +47,8 @@ class BusinessOwnerDashboardViewSet(viewsets.ViewSet):
                 business__owner=user,
                 is_approved=True
             ).aggregate(Avg('rating'))['rating__avg'] or 0,
-            'total_views':        businesses.aggregate(Sum('views_count'))['views_count__sum'] or 0,
-            'total_clicks':       businesses.aggregate(Sum('clicks_count'))['clicks_count__sum'] or 0,
+            'total_views':        businesses.aggregate(Sum('view_count'))['view_count__sum'] or 0,
+            'total_clicks':       businesses.aggregate(Sum('click_count'))['click_count__sum'] or 0,
         }
 
         serializer = BusinessOwnerStatsSerializer(stats)
@@ -57,7 +58,7 @@ class BusinessOwnerDashboardViewSet(viewsets.ViewSet):
 class BusinessOwnerBusinessViewSet(viewsets.ModelViewSet):
     """Business owner business management"""
     serializer_class = BusinessOwnerBusinessSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsBusinessOwner]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -72,7 +73,7 @@ class BusinessOwnerBusinessViewSet(viewsets.ModelViewSet):
 class BusinessOwnerProductViewSet(viewsets.ModelViewSet):
     """Business owner product management"""
     serializer_class = BusinessOwnerProductSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsBusinessOwner]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -92,7 +93,7 @@ class BusinessOwnerProductViewSet(viewsets.ModelViewSet):
 class BusinessOwnerDealViewSet(viewsets.ModelViewSet):
     """Business owner deal management"""
     serializer_class = BusinessOwnerDealSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsBusinessOwner]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -112,7 +113,7 @@ class BusinessOwnerDealViewSet(viewsets.ModelViewSet):
 class BusinessOwnerReviewViewSet(viewsets.ReadOnlyModelViewSet):
     """Business owner review viewing (read-only)"""
     serializer_class = BusinessOwnerReviewSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsBusinessOwner]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
