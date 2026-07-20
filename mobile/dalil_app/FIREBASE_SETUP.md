@@ -1,8 +1,8 @@
 # Firebase setup
 
-The backend device-registration API is ready. Native Firebase configuration
-must be generated from the Firebase project that owns the production apps.
-Never commit service account credentials or native Firebase configuration.
+The app is connected to Firebase project `gen-lang-client-0048255023` through
+`lib/firebase_options.dart`. The backend device-registration API is ready.
+Never commit service account credentials, APNs keys, or signing credentials.
 
 ## 1. Generate Android and iOS projects
 
@@ -28,9 +28,8 @@ flutterfire configure \
   --ios-bundle-id=com.daliilaykhidma.dalilApp
 ```
 
-This generates the platform configuration and `lib/firebase_options.dart`.
-Initialize Firebase with `DefaultFirebaseOptions.currentPlatform` if the team
-chooses to keep that generated Dart file in source control.
+Re-run this command whenever a Firebase app identifier or Firebase project is
+changed. It regenerates the platform configuration and Dart options.
 
 ## 3. Platform capabilities
 
