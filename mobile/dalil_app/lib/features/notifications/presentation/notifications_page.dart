@@ -29,3 +29,4 @@ class NotificationsPage extends ConsumerWidget {
           },
         ),
       );
+}
