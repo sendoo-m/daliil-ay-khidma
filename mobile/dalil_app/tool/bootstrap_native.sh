@@ -13,6 +13,8 @@ flutter create \
   --project-name=dalil_app \
   .
 
+python3 tool/configure_deep_links.py
+
 flutter pub get
 flutter gen-l10n
 flutter analyze

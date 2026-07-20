@@ -5,6 +5,7 @@ import '../core/auth/token_store.dart';
 import '../core/network/api_client.dart';
 import '../core/notifications/push_service.dart';
 import '../features/auth/data/auth_repository.dart';
+import '../features/auth/data/password_reset_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/catalog/data/catalog_repository.dart';
 import '../features/directory/data/business_repository.dart';
@@ -45,6 +46,9 @@ final authRepositoryProvider = Provider(
     ref.watch(apiClientProvider).dio,
     ref.watch(tokenStoreProvider),
   ),
+);
+final passwordResetRepositoryProvider = Provider(
+  (ref) => PasswordResetRepository(ref.watch(apiClientProvider).dio),
 );
 final authControllerProvider = StateNotifierProvider<AuthController, AsyncValue<bool>>(
   (ref) => AuthController(
