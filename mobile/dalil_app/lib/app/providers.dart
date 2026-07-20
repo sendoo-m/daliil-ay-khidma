@@ -6,6 +6,7 @@ import '../core/network/api_client.dart';
 import '../core/notifications/push_service.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
+import '../features/catalog/data/catalog_repository.dart';
 import '../features/directory/data/business_repository.dart';
 import '../features/home/data/home_repository.dart';
 import '../features/app_config/data/app_config_repository.dart';
@@ -50,6 +51,9 @@ final homeRepositoryProvider = Provider(
 final homeProvider = FutureProvider((ref) => ref.watch(homeRepositoryProvider).fetch());
 final businessRepositoryProvider = Provider(
   (ref) => BusinessRepository(ref.watch(apiClientProvider).dio),
+);
+final catalogRepositoryProvider = Provider(
+  (ref) => CatalogRepository(ref.watch(apiClientProvider).dio),
 );
 final appConfigProvider = FutureProvider(
   (ref) => ref.watch(appConfigRepositoryProvider).fetch(),
