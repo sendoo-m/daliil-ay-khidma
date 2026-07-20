@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/providers.dart';
 import '../../directory/presentation/business_card.dart';
 import '../../directory/presentation/search_page.dart';
+import '../../directory/presentation/favorites_page.dart';
 import '../../notifications/presentation/notifications_page.dart';
 
 class HomePage extends ConsumerWidget {
@@ -16,6 +17,14 @@ class HomePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('دليل أي خدمة'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite_outline),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const FavoritesPage(),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () => Navigator.of(context).push(
