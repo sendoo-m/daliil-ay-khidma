@@ -286,6 +286,13 @@ def logout(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    device_token = request.data.get('device_token', '').strip()
+    if device_token:
+        from apps.notifications.models import DeviceRegistration
+        DeviceRegistration.objects.filter(
+            user=request.user, token=device_token
+        ).update(is_active=False)
+
     return Response({'message': 'تم تسجيل الخروج بنجاح'})
 
 

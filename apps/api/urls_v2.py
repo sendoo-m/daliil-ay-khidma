@@ -19,6 +19,12 @@ from apps.api.views.auth import (
     logout, request_password_reset, confirm_password_reset,
 )
 from apps.api.views.home import MobileHomeView
+from apps.notifications.views import (
+    AdminSendNotificationView,
+    DeviceRegistrationViewSet,
+    MobileAppConfigView,
+    NotificationViewSet,
+)
 
 app_name = 'api_v2'
 
@@ -55,6 +61,8 @@ router.register(r'deal-claims',        deals.DealClaimViewSet,              base
 router.register(r'reviews',            reviews.ReviewViewSet,               basename='reviews')
 router.register(r'subscriptions',      subscriptions.SubscriptionViewSet,   basename='subscriptions')
 router.register(r'subscription-plans', subscriptions.SubscriptionPlanViewSet, basename='subscription-plans')
+router.register(r'devices', DeviceRegistrationViewSet, basename='devices')
+router.register(r'notifications', NotificationViewSet, basename='notifications')
 
 urlpatterns = [
     # ── Auth ───────────────────────────────────────────
@@ -68,6 +76,8 @@ urlpatterns = [
     path('auth/password-reset/',  request_password_reset,              name='password_reset'),
     path('auth/password-reset/confirm/', confirm_password_reset,       name='password_reset_confirm'),
     path('home/',                 MobileHomeView.as_view(),             name='home'),
+    path('app-config/',           MobileAppConfigView.as_view(),        name='app_config'),
+    path('admin/notifications/send/', AdminSendNotificationView.as_view(), name='admin_send_notification'),
 
     # ── Routers ────────────────────────────────────────
     path('', include(router.urls)),

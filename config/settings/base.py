@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'apps.services',
     'apps.search',
     'apps.dashboard',
+    'apps.notifications',
 ]
 
 
@@ -305,6 +306,11 @@ MOBILE_PASSWORD_RESET_URL = config(
     'MOBILE_PASSWORD_RESET_URL',
     default='daliil://reset-password',
 )
+
+PUSH_NOTIFICATIONS_ENABLED = config(
+    'PUSH_NOTIFICATIONS_ENABLED', default=False, cast=bool
+)
+FIREBASE_CREDENTIALS_PATH = config('FIREBASE_CREDENTIALS_PATH', default='')
 
 
 # ========================================

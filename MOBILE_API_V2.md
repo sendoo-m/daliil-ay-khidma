@@ -184,6 +184,80 @@ GET  deal-claims/
 
 تُنفّذ المطالبة داخل transaction وقفل قاعدة بيانات لمنع تجاوز الحد الكلي للعرض أو حد الاستخدام لكل مستخدم.
 
+## إعدادات التطبيق والتحديثات
+
+```text
+GET app-config/?platform=android&version=1.0.0
+GET app-config/?platform=ios&version=1.0.0
+```
+
+يعيد حالة الصيانة، السماح بالتسجيل والتقييمات، بيانات الدعم، أحدث إصدار، أقل إصدار مسموح، رابط المتجر، وحقلي `update_available` و`update_required`.
+
+## تسجيل أجهزة الموبايل
+
+```text
+GET    devices/
+POST   devices/
+DELETE devices/{device_id}/
+```
+
+مثال التسجيل:
+
+```json
+{
+  "token": "firebase-device-token",
+  "platform": "android",
+  "device_id": "device-uuid",
+  "app_version": "1.0.0",
+  "language": "ar"
+}
+```
+
+عند تغير صاحب Token يتم نقله تلقائيًا إلى المستخدم الحالي، وعند الحذف يصبح الجهاز غير نشط. يمكن إرسال `device_token` مع طلب تسجيل الخروج لتعطيل الجهاز.
+
+## صندوق الإشعارات
+
+```text
+GET    notifications/
+GET    notifications/unread-count/
+POST   notifications/{notification_id}/read/
+POST   notifications/read-all/
+DELETE notifications/{notification_id}/
+```
+
+يدعم المحتوى العربية والإنجليزية، ويمكن تمرير `language=en` أو ترويسة `Accept-Language`.
+
+إرسال المدير:
+
+```text
+POST admin/notifications/send/
+```
+
+```json
+{
+  "user_ids": [1, 2],
+  "title_ar": "عرض جديد",
+  "title_en": "New deal",
+  "body_ar": "يوجد عرض جديد بالقرب منك",
+  "body_en": "A new deal is available near you",
+  "notification_type": "deal",
+  "data": {"deal_id": 10}
+}
+```
+
+يمكن للمدير استخدام `send_to_all: true` بدل `user_ids`.
+
+## إعداد Firebase
+
+صندوق الإشعارات يعمل دون Firebase. لتفعيل Push Notifications اضبط:
+
+```env
+PUSH_NOTIFICATIONS_ENABLED=True
+FIREBASE_CREDENTIALS_PATH=/secure/path/firebase-service-account.json
+```
+
+يجب ألا يُرفع ملف حساب Firebase الخدمي إلى GitHub.
+
 ## استجابات الأخطاء
 
 أخطاء DRF القياسية ترجع بالشكل التالي:

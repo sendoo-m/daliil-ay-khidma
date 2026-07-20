@@ -32,6 +32,17 @@ class SiteSettings(models.Model):
     google_analytics_id = models.CharField(max_length=50, blank=True)
     google_maps_key     = models.CharField(max_length=100, blank=True)
 
+    # ── إعدادات تطبيق الموبايل ─────────────────
+    android_min_version = models.CharField(max_length=20, default='1.0.0')
+    android_latest_version = models.CharField(max_length=20, default='1.0.0')
+    android_store_url = models.URLField(blank=True)
+    ios_min_version = models.CharField(max_length=20, default='1.0.0')
+    ios_latest_version = models.CharField(max_length=20, default='1.0.0')
+    ios_store_url = models.URLField(blank=True)
+    force_update = models.BooleanField(default=False)
+    notifications_enabled = models.BooleanField(default=True)
+    support_url = models.URLField(blank=True)
+
     class Meta:
         verbose_name = "إعدادات الموقع"
 

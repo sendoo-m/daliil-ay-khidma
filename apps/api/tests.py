@@ -15,6 +15,8 @@ from apps.api.validators import validate_image_upload
 from apps.deals.models import Deal, DealClaim
 from apps.directory.models import Business, Category, City, District, Favorite, Governorate
 from apps.reviews.models import Review, ReviewLike, ReviewReport
+from apps.core.models import SiteSettings
+from apps.notifications.models import DeviceRegistration, Notification
 
 
 User = get_user_model()
@@ -345,3 +347,90 @@ class MobileApiV2InteractionTests(TestCase):
         self.assertEqual(second.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(deal.current_uses, 1)
         self.assertEqual(DealClaim.objects.filter(deal=deal).count(), 1)
+
+
+class MobileApiV2NotificationTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username='notification-user', email='notification@example.com',
+            phone='01000000020', password='StrongPass123!',
+        )
+        self.other_user = User.objects.create_user(
+            username='notification-other', email='notification-other@example.com',
+            phone='01000000021', password='StrongPass123!',
+        )
+        self.admin = User.objects.create_superuser(
+            username='notification-admin', email='notification-admin@example.com',
+            phone='01000000022', password='StrongPass123!',
+        )
+
+    def test_app_config_reports_available_and_required_updates(self):
+        config = SiteSettings.get_settings()
+        config.android_min_version = '2.0.0'
+        config.android_latest_version = '2.5.0'
+        config.force_update = True
+        config.save()
+
+        response = self.client.get(
+            '/api/v2/app-config/', {'platform': 'android', 'version': '1.5.0'}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['update_available'])
+        self.assertTrue(response.data['update_required'])
+
+    def test_device_registration_is_scoped_to_current_user(self):
+        self.client.force_authenticate(self.user)
+        created = self.client.post(
+            '/api/v2/devices/',
+            {
+                'token': 'firebase-token-1', 'platform': 'android',
+                'device_id': 'device-1', 'app_version': '1.0.0', 'language': 'ar',
+            },
+            format='json',
+        )
+
+        self.assertEqual(created.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(DeviceRegistration.objects.get().user, self.user)
+
+        self.client.force_authenticate(self.other_user)
+        listing = self.client.get('/api/v2/devices/')
+        self.assertEqual(listing.data['results'], [])
+
+    def test_notification_inbox_read_all_and_user_isolation(self):
+        Notification.objects.create(
+            user=self.user, title_ar='عنوان', body_ar='رسالة'
+        )
+        Notification.objects.create(
+            user=self.other_user, title_ar='خاص', body_ar='لمستخدم آخر'
+        )
+        self.client.force_authenticate(self.user)
+
+        inbox = self.client.get('/api/v2/notifications/')
+        unread = self.client.get('/api/v2/notifications/unread-count/')
+        read_all = self.client.post('/api/v2/notifications/read-all/')
+
+        self.assertEqual(inbox.data['count'], 1)
+        self.assertEqual(unread.data['count'], 1)
+        self.assertEqual(read_all.data['updated'], 1)
+        self.assertFalse(Notification.objects.filter(user=self.user, is_read=False).exists())
+
+    def test_admin_can_create_targeted_notification(self):
+        self.client.force_authenticate(self.admin)
+        response = self.client.post(
+            '/api/v2/admin/notifications/send/',
+            {
+                'user_ids': [self.user.id],
+                'title_ar': 'عرض جديد',
+                'body_ar': 'يوجد عرض جديد بالقرب منك',
+                'notification_type': 'deal',
+                'data': {'deal_id': 10},
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['created'], 1)
+        self.assertTrue(Notification.objects.filter(user=self.user).exists())
+        self.assertFalse(Notification.objects.filter(user=self.other_user).exists())
