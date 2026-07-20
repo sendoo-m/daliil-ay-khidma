@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../../reviews/presentation/reviews_page.dart';
 
 class BusinessDetailPage extends ConsumerStatefulWidget {
   const BusinessDetailPage({required this.slug, super.key});
@@ -59,6 +60,15 @@ class _BusinessDetailPageState extends ConsumerState<BusinessDetailPage> {
                 Text('⭐ ${business.rating.toStringAsFixed(1)}'),
                 const SizedBox(height: 16),
                 Text(business.description),
+                ListTile(
+                  leading: const Icon(Icons.reviews_outlined),
+                  title: const Text('عرض التقييمات'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ReviewsPage(businessId: business.id),
+                    ),
+                  ),
+                ),
                 if (business.phone.isNotEmpty)
                   ListTile(
                     leading: const Icon(Icons.phone),
