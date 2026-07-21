@@ -21,6 +21,19 @@ DATABASES = {
     }
 }
 
+# Serve collected static files (including Django admin CSS) from Render.
+# WhiteNoise must run directly after Django's SecurityMiddleware.
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
 # Security settings
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
