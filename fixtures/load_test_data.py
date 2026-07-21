@@ -16,7 +16,7 @@ import random
 
 # Setup Django
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+# Respect DJANGO_SETTINGS_MODULE from the deployment environment.\n# Local runs still default to development settings.\nos.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
 django.setup()
 
 from django.contrib.auth import get_user_model
