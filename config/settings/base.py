@@ -188,7 +188,6 @@ LANGUAGE_COOKIE_AGE = 365 * 24 * 60 * 60  # 1 year
 TIME_ZONE = 'Africa/Cairo'
 
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 
