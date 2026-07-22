@@ -269,7 +269,7 @@
                             <img src="{{ business.cover_image.url }}"
                                  alt="{% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}">
                         {% else %}
-                            <img src="{% static 'images/shop-placeholder.jpg' %}"
+                            <img src="{% static 'images/shop-placeholder.svg' %}"
                                  alt="{% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}">
                         {% endif %}
 
@@ -347,7 +347,7 @@
                         <img src="{{ business.cover_image.url }}"
                              alt="{% if LANGUAGE_CODE == 'ar' %}{{ business.name_ar }}{% else %}{{ business.name_en|default:business.name_ar }}{% endif %}">
                     {% else %}
-                        <img src="{% static 'images/shop-placeholder.jpg' %}" alt="">
+                        <img src="{% static 'images/shop-placeholder.svg' %}" alt="">
                     {% endif %}
                 </div>
                 <div class="shop-list-body">
