@@ -1,7 +1,8 @@
 from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import include, path, re_path
+from django.views.static import serve
 
 from apps.core.admin_views import demo_data_admin
 
@@ -30,7 +31,18 @@ urlpatterns = [
 
 # Static & Media
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# ``django.conf.urls.static.static`` adds media routes only while DEBUG=True.
+# Use an explicit, narrowly scoped route so Render can serve uploaded/demo
+# images while DEBUG=False. Replace this with object storage for permanent
+# production uploads.
+urlpatterns += [
+    re_path(
+        r"^media/(?P<path>.*)$",
+        serve,
+        {"document_root": settings.MEDIA_ROOT},
+    ),
+]
 
 
 # Debug Toolbar
