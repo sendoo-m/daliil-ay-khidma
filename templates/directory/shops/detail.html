@@ -310,9 +310,11 @@
                                 <div class="product-img">
                                     {% if product.image %}
                                         <img src="{{ product.image.url }}"
-                                             alt="{% if LANGUAGE_CODE == 'ar' %}{{ product.name_ar }}{% else %}{{ product.name_en }}{% endif %}">
+                                             alt="{% if LANGUAGE_CODE == 'ar' %}{{ product.name_ar }}{% else %}{{ product.name_en }}{% endif %}"
+                                             onerror="this.onerror=null;this.src='{% static 'images/product-placeholder.svg' %}';">
                                     {% else %}
-                                        <img src="{% static 'images/product-placeholder.jpg' %}" alt="">
+                                        <img src="{% static 'images/product-placeholder.svg' %}"
+                                             alt="{% if LANGUAGE_CODE == 'ar' %}صورة افتراضية للمنتج{% else %}Product placeholder{% endif %}">
                                     {% endif %}
                                 </div>
                                 <div class="product-body">
