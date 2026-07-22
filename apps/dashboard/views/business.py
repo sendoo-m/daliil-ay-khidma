@@ -60,6 +60,37 @@ from apps.dashboard.forms.business_create import BusinessCreateForm, BusinessIma
 from apps.directory.models.location import Governorate
 
 
+BUSINESS_FORM_SECTIONS = {
+    1: {
+        'business_type', 'name_ar', 'name_en', 'category',
+        'description_ar', 'description_en', 'logo', 'cover_image',
+    },
+    2: {
+        'governorate', 'city', 'district', 'address_ar', 'address_en',
+        'latitude', 'longitude', 'location_url',
+    },
+    3: {
+        'phone', 'whatsapp', 'email', 'website',
+        'working_hours_ar', 'working_hours_en',
+    },
+    4: {'facebook', 'instagram', 'twitter', 'tiktok'},
+}
+
+
+def _business_form_error_section(form, formset):
+    """إرجاع أول مرحلة تحتوي خطأ حتى يفتحها المعالج تلقائياً."""
+    error_fields = set(form.errors)
+    for section, fields in BUSINESS_FORM_SECTIONS.items():
+        if error_fields & fields:
+            return section
+
+    # أخطاء الصور أو الـ management form تخص مرحلة معرض الصور.
+    if formset.non_form_errors() or any(form_errors for form_errors in formset.errors):
+        return 5
+
+    return 1
+
+
 @login_required
 def business_create(request, business_type='shop'):
     """إنشاء محل جديد - shop أو craft"""
@@ -79,7 +110,10 @@ def business_create(request, business_type='shop'):
                                       business_type=business_type, user=request.user)
         formset  = BusinessImageFormSet(request.POST, request.FILES)
 
-        if form.is_valid() and formset.is_valid():
+        form_is_valid = form.is_valid()
+        formset_is_valid = formset.is_valid()
+
+        if form_is_valid and formset_is_valid:
             business              = form.save(commit=False)
             business.owner        = request.user
             business.business_type = business_type
@@ -91,9 +125,13 @@ def business_create(request, business_type='shop'):
 
             messages.success(request, f'✅ تم إضافة "{business.name_ar}" بنجاح!')
             return redirect('dashboard:business_detail', slug=business.slug)
+
+        error_section = _business_form_error_section(form, formset)
+        messages.error(request, 'تعذر حفظ المحل. راجع الأخطاء الموضحة في النموذج.')
     else:
         form    = BusinessCreateForm(business_type=business_type, user=request.user)
         formset = BusinessImageFormSet()
+        error_section = 1
 
     return render(request, 'dashboard/business/form.html', {
         'form':          form,
@@ -102,6 +140,7 @@ def business_create(request, business_type='shop'):
         'title':         titles[business_type],
         'governorates':  Governorate.objects.filter(is_active=True).order_by('name_ar'),
         'action':        'create',
+        'error_section': error_section,
     })
 
 
@@ -115,14 +154,21 @@ def business_update(request, slug):
                                      instance=business, user=request.user)
         formset = BusinessImageFormSet(request.POST, request.FILES, instance=business)
 
-        if form.is_valid() and formset.is_valid():
+        form_is_valid = form.is_valid()
+        formset_is_valid = formset.is_valid()
+
+        if form_is_valid and formset_is_valid:
             form.save()
             formset.save()
             messages.success(request, f'✅ تم تحديث "{business.name_ar}" بنجاح!')
             return redirect('dashboard:business_detail', slug=business.slug)
+
+        error_section = _business_form_error_section(form, formset)
+        messages.error(request, 'تعذر حفظ التعديلات. راجع الأخطاء الموضحة في النموذج.')
     else:
         form    = BusinessCreateForm(instance=business, user=request.user)
         formset = BusinessImageFormSet(instance=business)
+        error_section = 1
 
     return render(request, 'dashboard/business/form.html', {
         'form':          form,
@@ -132,6 +178,7 @@ def business_update(request, slug):
         'title':         {'ar': f'تعديل: {business.name_ar}', 'icon': '✏️'},
         'governorates':  Governorate.objects.filter(is_active=True).order_by('name_ar'),
         'action':        'update',
+        'error_section': error_section,
     })
 
 
@@ -223,4 +270,3 @@ def business_delete(request, slug):
 #     }
     
 #     return render(request, 'dashboard/business/form.html', context)
-
