@@ -208,7 +208,39 @@
 </div>
 
 
-<form method="post" enctype="multipart/form-data" id="businessForm" novalidate>
+{% if form.errors or formset.errors or formset.non_form_errors %}
+<div class="alert alert-danger shadow-sm" role="alert" id="businessFormErrors">
+    <h6 class="alert-heading fw-bold mb-2">
+        <i class="fas fa-exclamation-circle me-1"></i>
+        لم يتم حفظ المحل — يرجى تصحيح الآتي:
+    </h6>
+    <ul class="mb-0">
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        {% for field in form.visible_fields %}
+            {% for error in field.errors %}
+                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        {% for error in formset.non_form_errors %}
+            <li><strong>معرض الصور:</strong> {{ error }}</li>
+        {% endfor %}
+        {% for image_form in formset.forms %}
+            {% for field in image_form.visible_fields %}
+                {% for error in field.errors %}
+                    <li><strong>الصورة {{ forloop.parentloop.parentloop.counter }} — {{ field.label }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for error in image_form.non_field_errors %}
+                <li><strong>الصورة {{ forloop.parentloop.counter }}:</strong> {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" id="businessForm" novalidate data-error-section="{{ error_section|default:1 }}">
     {% csrf_token %}
     {{ form.business_type }}
     {{ formset.management_form }}
@@ -598,6 +630,13 @@ function prevSection(current) { if (current > 1) showSection(current - 1); }
         container.appendChild(div);
     });
 })();
+
+// عند فشل الحفظ افتح أول مرحلة تحتوي خطأ بدلاً من العودة للمرحلة الأولى دائماً.
+const submittedForm = document.getElementById('businessForm');
+const errorSection = Number.parseInt(submittedForm.dataset.errorSection || '1', 10);
+if (document.getElementById('businessFormErrors')) {
+    showSection(errorSection);
+}
 
 
 // =========================================
