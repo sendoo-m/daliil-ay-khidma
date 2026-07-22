@@ -1,5 +1,9 @@
 from io import StringIO
+import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 from tempfile import TemporaryDirectory
 
 from django.contrib.auth import get_user_model
@@ -14,6 +18,52 @@ from apps.notifications.models import Notification
 from apps.products.models import Product
 from apps.reviews.models import Review
 from apps.subscriptions.models import Subscription
+
+
+class ProductionMediaStorageTests(TestCase):
+    def _default_storage_backend(self, cloudinary_url=""):
+        env = os.environ.copy()
+        env.update(
+            {
+                "DJANGO_SETTINGS_MODULE": "config.settings.production",
+                "SECRET_KEY": "test-only-secret-key",
+                "ALLOWED_HOSTS": "testserver",
+                "DB_NAME": "test",
+                "DB_USER": "test",
+                "DB_PASSWORD": "test",
+                "CLOUDINARY_URL": cloudinary_url,
+            }
+        )
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                (
+                    "import json; from django.conf import settings; "
+                    "print(json.dumps(settings.STORAGES['default']['BACKEND']))"
+                ),
+            ],
+            cwd=Path(__file__).resolve().parents[2],
+            env=env,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return json.loads(result.stdout.strip())
+
+    def test_cloudinary_is_used_when_render_secret_exists(self):
+        backend = self._default_storage_backend(
+            "cloudinary://1234567890:test-secret@test-cloud"
+        )
+        self.assertEqual(
+            backend, "cloudinary_storage.storage.MediaCloudinaryStorage"
+        )
+
+    def test_local_storage_remains_the_safe_fallback(self):
+        self.assertEqual(
+            self._default_storage_backend(),
+            "django.core.files.storage.FileSystemStorage",
+        )
 
 
 class SeedDemoDataCommandTests(TestCase):
