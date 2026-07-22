@@ -1,4 +1,4 @@
-{% extends "dashboard/admin/base.html" %}
+{% extends "dashboard/base.html" %}
 {% load static %}
 
 {% block title %}{{ title.icon }} {{ title.ar }}{% endblock %}
@@ -688,7 +688,7 @@ document.getElementById('id_governorate')?.addEventListener('change', function()
 
     if (!govId) return;
 
-    fetch(`/dashboard/ajax/get-cities/?governorate_id=${govId}`)
+    fetch(`{% url 'dashboard:ajax_cities' %}?governorate_id=${encodeURIComponent(govId)}`)
         .then(r => r.json())
         .then(data => {
             data.cities.forEach(c => {
@@ -704,7 +704,7 @@ document.getElementById('id_city')?.addEventListener('change', function() {
     districtSelect.innerHTML = '<option value="">-- اختر الحي --</option>';
     if (!cityId) return;
 
-    fetch(`/dashboard/ajax/get-districts/?city_id=${cityId}`)
+    fetch(`{% url 'dashboard:ajax_districts' %}?city_id=${encodeURIComponent(cityId)}`)
         .then(r => r.json())
         .then(data => {
             data.districts.forEach(d => {
