@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'django_filters',
     'crispy_forms',
     'crispy_bootstrap5',
+    'cloudinary',
+    'cloudinary_storage',
     'django_cleanup.apps.CleanupConfig',
     
     # Local apps - Core
