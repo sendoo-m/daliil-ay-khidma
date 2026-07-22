@@ -55,10 +55,12 @@ class Command(BaseCommand):
                 return
 
         if self._demo_exists():
+            restored_images = self._repair_demo_images()
             self.stdout.write(
                 self.style.WARNING(
                     "الداتا التجريبية موجودة بالفعل؛ لم يتم تكرارها. "
-                    "استخدم --reset لإعادة إنشائها."
+                    f"تمت استعادة {restored_images} من ملفات الصور المفقودة. "
+                    "استخدم --reset لإعادة إنشاء جميع الداتا."
                 )
             )
             self._print_summary()
@@ -596,6 +598,64 @@ class Command(BaseCommand):
                 self._svg(deal.title_en, colors[index % len(colors)]),
                 save=True,
             )
+
+    def _restore_image(self, field, title, color, width=1200, height=600):
+        """Restore one missing demo file while preserving its database path."""
+        if not field.name or field.storage.exists(field.name):
+            return 0
+        field.storage.save(field.name, self._svg(title, color, width, height))
+        return 1
+
+    def _repair_demo_images(self):
+        """Recreate media files lost after a restart on ephemeral hosting."""
+        colors = ["#0f766e", "#2563eb", "#7c3aed", "#db2777", "#ea580c", "#0891b2"]
+        restored = 0
+
+        categories = Category.objects.filter(
+            slug__startswith=DEMO_SLUG_PREFIX
+        ).order_by("order", "pk")
+        for index, category in enumerate(categories):
+            restored += self._restore_image(
+                category.image, category.name_en, colors[index % len(colors)], 800, 500
+            )
+
+        businesses = Business.objects.filter(
+            slug__startswith=DEMO_SLUG_PREFIX
+        ).order_by("pk")
+        for index, business in enumerate(businesses):
+            color = colors[index % len(colors)]
+            restored += self._restore_image(
+                business.logo, business.name_en, color, 500, 500
+            )
+            restored += self._restore_image(
+                business.cover_image, business.name_en, color
+            )
+            for image in business.images.all().order_by("order", "pk"):
+                restored += self._restore_image(
+                    image.image,
+                    f"{business.name_en} Gallery {image.order + 1}",
+                    color,
+                )
+
+        products = Product.objects.filter(slug__startswith=DEMO_SLUG_PREFIX).order_by(
+            "pk"
+        )
+        for index, product in enumerate(products):
+            for image in product.images.all().order_by("pk"):
+                restored += self._restore_image(
+                    image.image,
+                    product.name_en,
+                    colors[index % len(colors)],
+                    800,
+                    600,
+                )
+
+        deals = Deal.objects.filter(slug__startswith="demo-deal-").order_by("pk")
+        for index, deal in enumerate(deals):
+            restored += self._restore_image(
+                deal.image, deal.title_en, colors[index % len(colors)]
+            )
+        return restored
 
     def _print_summary(self):
         counts = {
