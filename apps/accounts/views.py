@@ -22,6 +22,7 @@ from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.urls import reverse_lazy
 
+from .forms import RegistrationForm
 from .models import User
 
 
@@ -133,63 +134,33 @@ class LogoutView(DjangoLogoutView):
 class RegisterView(View):
     """صفحة التسجيل"""
     template_name = 'accounts/register.html'
-    
+
     def get(self, request):
         # If already logged in, redirect
         if request.user.is_authenticated:
-            return redirect('dashboard:home')
-        
-        return render(request, self.template_name)
-    
+            return redirect('dashboard:index')
+
+        return render(
+            request,
+            self.template_name,
+            {'form': RegistrationForm()},
+        )
+
     def post(self, request):
-        username = request.POST.get('username', '').strip()
-        email = request.POST.get('email', '').strip()
-        password1 = request.POST.get('password1', '')
-        password2 = request.POST.get('password2', '')
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        
-        # Validation
-        if not all([username, email, password1, password2]):
-            messages.error(request, 'الرجاء إكمال جميع الحقول المطلوبة')
-            return render(request, self.template_name)
-        
-        if password1 != password2:
-            messages.error(request, 'كلمات المرور غير متطابقة')
-            return render(request, self.template_name)
-        
-        if len(password1) < 8:
-            messages.error(request, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل')
-            return render(request, self.template_name)
-        
-        # Check if username exists
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'اسم المستخدم موجود بالفعل')
-            return render(request, self.template_name)
-        
-        # Check if email exists
-        if User.objects.filter(email=email).exists():
-            messages.error(request, 'البريد الإلكتروني مسجل بالفعل')
-            return render(request, self.template_name)
-        
-        try:
-            # Create user
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=password1,
-                first_name=first_name,
-                last_name=last_name
-            )
-            
+        form = RegistrationForm(request.POST)
+
+        if form.is_valid():
+            user = form.save()
+
             # Log the user in
             login(request, user)
-            messages.success(request, f'مرحباً بك {user.get_full_name() or user.username}! تم إنشاء حسابك بنجاح')
-            return redirect('dashboard:home')
-            
-        except Exception as e:
-            messages.error(request, f'حدث خطأ أثناء إنشاء الحساب: {str(e)}')
-            return render(request, self.template_name)
+            messages.success(
+                request,
+                f'مرحباً بك {user.get_full_name() or user.username}! تم إنشاء حسابك بنجاح',
+            )
+            return redirect('dashboard:index')
+
+        return render(request, self.template_name, {'form': form})
 
 
 # ========================================
