@@ -3,6 +3,7 @@ from io import StringIO
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import TestCase
+from django.urls import reverse
 
 from apps.categories.models import Category
 from apps.deals.models import Deal
@@ -55,3 +56,66 @@ class SeedDemoDataCommandTests(TestCase):
         )
         self.assertFalse(Business.objects.filter(slug__startswith="demo-").exists())
         self.assertTrue(Category.objects.filter(pk=real_category.pk).exists())
+
+
+class DemoDataAdminTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        User = get_user_model()
+        cls.superuser = User.objects.create_superuser(
+            username="admin_demo_test",
+            email="admin@example.com",
+            phone="01000000001",
+            password="StrongPass123!",
+        )
+        cls.staff_user = User.objects.create_user(
+            username="staff_demo_test",
+            phone="01000000002",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+        cls.url = reverse("admin_demo_data")
+
+    def test_page_requires_login(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("admin:login"), response.url)
+
+    def test_page_rejects_non_superuser_staff(self):
+        self.client.force_login(self.staff_user)
+        self.assertEqual(self.client.get(self.url).status_code, 403)
+
+    def test_superuser_can_open_page(self):
+        self.client.force_login(self.superuser)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "إدارة الداتا التجريبية")
+
+    def test_superuser_can_create_demo_data(self):
+        self.client.force_login(self.superuser)
+        response = self.client.post(self.url, {"action": "create"}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Business.objects.filter(slug__startswith="demo-").exists())
+        self.assertContains(response, "تم تنفيذ العملية بنجاح")
+
+    def test_clear_requires_exact_confirmation(self):
+        call_command("seed_demo_data", stdout=StringIO())
+        self.client.force_login(self.superuser)
+        response = self.client.post(
+            self.url,
+            {"action": "clear", "confirmation": "wrong"},
+            follow=True,
+        )
+        self.assertTrue(Business.objects.filter(slug__startswith="demo-").exists())
+        self.assertContains(response, "اكتب عبارة التأكيد")
+
+    def test_superuser_can_clear_demo_data(self):
+        call_command("seed_demo_data", stdout=StringIO())
+        self.client.force_login(self.superuser)
+        response = self.client.post(
+            self.url,
+            {"action": "clear", "confirmation": "DELETE_DEMO_DATA"},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Business.objects.filter(slug__startswith="demo-").exists())
