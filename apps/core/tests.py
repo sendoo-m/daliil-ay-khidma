@@ -1,8 +1,10 @@
 from io import StringIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from apps.categories.models import Category
@@ -56,6 +58,27 @@ class SeedDemoDataCommandTests(TestCase):
         )
         self.assertFalse(Business.objects.filter(slug__startswith="demo-").exists())
         self.assertTrue(Category.objects.filter(pk=real_category.pk).exists())
+
+    def test_repeated_seed_restores_missing_media_without_recreating_records(self):
+        with TemporaryDirectory() as media_root, override_settings(
+            MEDIA_ROOT=media_root
+        ):
+            call_command("seed_demo_data", stdout=StringIO())
+            business = Business.objects.filter(slug__startswith="demo-").first()
+            logo_path = Path(business.logo.path)
+            business_count = Business.objects.filter(slug__startswith="demo-").count()
+            self.assertTrue(logo_path.exists())
+
+            logo_path.unlink()
+            output = StringIO()
+            call_command("seed_demo_data", stdout=output)
+
+            self.assertTrue(logo_path.exists())
+            self.assertEqual(
+                Business.objects.filter(slug__startswith="demo-").count(),
+                business_count,
+            )
+            self.assertIn("تمت استعادة 1 من ملفات الصور المفقودة", output.getvalue())
 
 
 class DemoDataAdminTests(TestCase):
