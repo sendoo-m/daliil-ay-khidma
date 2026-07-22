@@ -38,8 +38,8 @@ class LoginView(View):
         # If already logged in, redirect based on role
         if request.user.is_authenticated:
             if request.user.is_staff or request.user.is_superuser:
-                return redirect('dashboard:home')
-            return redirect('dashboard:home')
+                return redirect('dashboard:index')
+            return redirect('dashboard:index')
         
         return render(request, self.template_name)
     
@@ -64,9 +64,9 @@ class LoginView(View):
             if next_url:
                 return redirect(next_url)
             elif user.is_staff or user.is_superuser:
-                return redirect('dashboard:home')
+                return redirect('dashboard:index')
             else:
-                return redirect('dashboard:home')
+                return redirect('dashboard:index')
         else:
             # Authentication failed
             messages.error(request, 'اسم المستخدم أو كلمة المرور غير صحيحة')
@@ -82,8 +82,8 @@ def login_view(request):
     # If already logged in, redirect based on role
     if request.user.is_authenticated:
         if request.user.is_staff or request.user.is_superuser:
-            return redirect('dashboard:home')
-        return redirect('dashboard:home')
+            return redirect('dashboard:index')
+        return redirect('dashboard:index')
     
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -106,9 +106,9 @@ def login_view(request):
             if next_url:
                 return redirect(next_url)
             elif user.is_staff or user.is_superuser:
-                return redirect('dashboard:home')
+                return redirect('dashboard:index')
             else:
-                return redirect('dashboard:home')
+                return redirect('dashboard:index')
         else:
             # Authentication failed
             messages.error(request, 'اسم المستخدم أو كلمة المرور غير صحيحة')
