@@ -24,7 +24,7 @@ class RegisterViewTests(TestCase):
             {
                 'username': 'new-user',
                 'email': 'new-user@example.com',
-                'phone': '0500000000',
+                'phone': '01000000003',
                 'password1': 'A-strong-password-2026',
                 'password2': 'A-strong-password-2026',
             },
@@ -32,9 +32,13 @@ class RegisterViewTests(TestCase):
 
         user = User.objects.get(username='new-user')
         self.assertEqual(user.email, 'new-user@example.com')
-        self.assertEqual(user.phone, '0500000000')
+        self.assertEqual(user.phone, '01000000003')
         self.assertEqual(self.client.session.get('_auth_user_id'), str(user.pk))
-        self.assertRedirects(response, reverse('dashboard:index'))
+        self.assertRedirects(
+            response,
+            reverse('dashboard:index'),
+            fetch_redirect_response=False,
+        )
 
     def test_invalid_registration_redisplays_bound_form_errors(self):
         response = self.client.post(
@@ -42,7 +46,7 @@ class RegisterViewTests(TestCase):
             {
                 'username': 'new-user',
                 'email': 'not-an-email',
-                'phone': '0500000000',
+                'phone': '01000000004',
                 'password1': 'different-password-1',
                 'password2': 'different-password-2',
             },
