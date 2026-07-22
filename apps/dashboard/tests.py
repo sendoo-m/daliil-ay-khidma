@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from apps.accounts.models import User
+from apps.directory.models import Business
 from apps.directory.models.location import City, Governorate
 
 
@@ -37,6 +38,25 @@ class OwnerDashboardAccessTests(TestCase):
             reverse('dashboard:index'),
             fetch_redirect_response=False,
         )
+
+    def test_invalid_business_submission_explains_errors_and_keeps_data(self):
+        response = self.client.post(
+            reverse('dashboard:business_create'),
+            {
+                'name_ar': 'محل سيظل في النموذج',
+                'name_en': 'Retained business name',
+                'images-TOTAL_FORMS': '0',
+                'images-INITIAL_FORMS': '0',
+                'images-MIN_NUM_FORMS': '0',
+                'images-MAX_NUM_FORMS': '10',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'لم يتم حفظ المحل')
+        self.assertContains(response, 'محل سيظل في النموذج')
+        self.assertContains(response, 'data-error-section="1"')
+        self.assertFalse(Business.objects.filter(owner=self.owner).exists())
 
 
 class DashboardLocationAjaxTests(TestCase):
