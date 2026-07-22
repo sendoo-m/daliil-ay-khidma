@@ -130,12 +130,12 @@ class BusinessImageForm(forms.ModelForm):
     """فورم صورة واحدة من الـ gallery"""
     class Meta:
         model   = BusinessImage
-        fields  = ['image', 'caption_ar', 'caption_en', 'order']
+        # الترتيب قيمة داخلية يحددها النظام تلقائياً حسب موضع الصورة.
+        fields  = ['image', 'caption_ar', 'caption_en']
         widgets = {
             'image':      forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'caption_ar': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'وصف الصورة', 'dir': 'rtl'}),
             'caption_en': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Image caption'}),
-            'order':      forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 
