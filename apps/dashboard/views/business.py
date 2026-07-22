@@ -91,6 +91,26 @@ def _business_form_error_section(form, formset):
     return 1
 
 
+def _save_business_images(formset, business):
+    """حفظ صور المعرض ومنح الصور الجديدة ترتيباً تلقائياً."""
+    formset.instance = business
+    images = formset.save(commit=False)
+
+    for deleted_image in formset.deleted_objects:
+        deleted_image.delete()
+
+    next_order = business.images.order_by('-order').values_list('order', flat=True).first()
+    next_order = (next_order if next_order is not None else -1) + 1
+
+    for image in images:
+        if image.pk is None:
+            image.order = next_order
+            next_order += 1
+        image.save()
+
+    formset.save_m2m()
+
+
 @login_required
 def business_create(request, business_type='shop'):
     """إنشاء محل جديد - shop أو craft"""
@@ -119,9 +139,8 @@ def business_create(request, business_type='shop'):
             business.business_type = business_type
             business.save()
 
-            # حفظ الصور
-            formset.instance = business
-            formset.save()
+            # حفظ الصور وترتيبها تلقائياً حسب إضافتها
+            _save_business_images(formset, business)
 
             messages.success(request, f'✅ تم إضافة "{business.name_ar}" بنجاح!')
             return redirect('dashboard:business_detail', slug=business.slug)
@@ -159,7 +178,7 @@ def business_update(request, slug):
 
         if form_is_valid and formset_is_valid:
             form.save()
-            formset.save()
+            _save_business_images(formset, business)
             messages.success(request, f'✅ تم تحديث "{business.name_ar}" بنجاح!')
             return redirect('dashboard:business_detail', slug=business.slug)
 
