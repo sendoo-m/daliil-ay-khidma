@@ -7,7 +7,8 @@ from django.urls import reverse
 from apps.accounts.models import User
 from apps.dashboard.forms.business_create import BusinessImageFormSet
 from apps.directory.models import Business
-from apps.directory.models.location import City, Governorate
+from apps.categories.models import Category
+from apps.directory.models.location import City, District, Governorate
 
 
 class OwnerDashboardAccessTests(TestCase):
@@ -80,6 +81,63 @@ class OwnerDashboardAccessTests(TestCase):
 
         self.assertTrue(formset.is_valid(), formset.errors)
         self.assertNotIn('order', formset.forms[0].fields)
+
+    def test_owner_can_open_business_detail_page(self):
+        governorate = Governorate.objects.create(
+            name_en='Cairo',
+            name_ar='القاهرة',
+        )
+        city = City.objects.create(
+            governorate=governorate,
+            name_en='Nasr City',
+            name_ar='مدينة نصر',
+        )
+        district = District.objects.create(
+            city=city,
+            name_en='First District',
+            name_ar='الحي الأول',
+        )
+        category = Category.objects.create(
+            name_en='Travel',
+            name_ar='السفر',
+        )
+        business = Business.objects.create(
+            owner=self.owner,
+            business_type='shop',
+            name_en='Sendoo Travel',
+            name_ar='سندو ترافيل',
+            category=category,
+            district=district,
+            phone='01000000001',
+            address_en='Test address',
+            address_ar='عنوان اختباري',
+            description_en='Test description',
+            description_ar='وصف اختباري',
+        )
+
+        response = self.client.get(
+            reverse('dashboard:business_detail', kwargs={'slug': business.slug}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'dashboard/business/detail.html')
+        self.assertTemplateUsed(response, 'dashboard/base.html')
+        self.assertContains(response, 'سندو ترافيل')
+        self.assertContains(
+            response,
+            reverse('dashboard:business_update', kwargs={'slug': business.slug}),
+        )
+
+        other_owner = User.objects.create_user(
+            username='other-shop-owner',
+            phone='01000000002',
+            password='A-strong-password-2026',
+        )
+        self.client.force_login(other_owner)
+        forbidden_response = self.client.get(
+            reverse('dashboard:business_detail', kwargs={'slug': business.slug}),
+        )
+        self.assertEqual(forbidden_response.status_code, 404)
 
 
 class DashboardLocationAjaxTests(TestCase):
