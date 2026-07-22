@@ -26,8 +26,14 @@ DATABASES = {
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 STORAGES = {
+    # Keep production bootable until CLOUDINARY_URL is added to Render.
+    # Once present, every new ImageField/FileField upload is stored permanently.
     'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        'BACKEND': (
+            'cloudinary_storage.storage.MediaCloudinaryStorage'
+            if config('CLOUDINARY_URL', default='')
+            else 'django.core.files.storage.FileSystemStorage'
+        ),
     },
     'staticfiles': {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
