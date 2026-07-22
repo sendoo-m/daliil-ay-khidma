@@ -1,9 +1,11 @@
 """Tests for the browser-based dashboard access and location flow."""
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
 from apps.accounts.models import User
+from apps.dashboard.forms.business_create import BusinessImageFormSet
 from apps.directory.models import Business
 from apps.directory.models.location import City, Governorate
 
@@ -57,6 +59,27 @@ class OwnerDashboardAccessTests(TestCase):
         self.assertContains(response, 'محل سيظل في النموذج')
         self.assertContains(response, 'data-error-section="1"')
         self.assertFalse(Business.objects.filter(owner=self.owner).exists())
+
+    def test_gallery_image_does_not_require_display_order(self):
+        image = SimpleUploadedFile(
+            'gallery.gif',
+            b'GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;',
+            content_type='image/gif',
+        )
+        formset = BusinessImageFormSet(
+            data={
+                'images-TOTAL_FORMS': '1',
+                'images-INITIAL_FORMS': '0',
+                'images-MIN_NUM_FORMS': '0',
+                'images-MAX_NUM_FORMS': '10',
+                'images-0-caption_ar': 'واجهة المحل',
+                'images-0-caption_en': 'Business front',
+            },
+            files={'images-0-image': image},
+        )
+
+        self.assertTrue(formset.is_valid(), formset.errors)
+        self.assertNotIn('order', formset.forms[0].fields)
 
 
 class DashboardLocationAjaxTests(TestCase):
