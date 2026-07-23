@@ -234,8 +234,9 @@ class _HeroImage extends StatelessWidget {
           : Image.network(
               image,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) =>
-                  const Center(child: Icon(Icons.storefront_outlined, size: 72)),
+              errorBuilder: (_, __, ___) => const Center(
+                child: Icon(Icons.storefront_outlined, size: 72),
+              ),
             ),
     );
   }
