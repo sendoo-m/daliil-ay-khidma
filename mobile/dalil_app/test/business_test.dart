@@ -14,4 +14,33 @@ void main() {
     expect(business.id, 7);
     expect(business.rating, 4.75);
   });
+
+  test('parses business detail contacts, location and active gallery', () {
+    final business = Business.fromJson({
+      'id': 9,
+      'name_ar': 'متجر النور',
+      'name_en': 'Al Noor',
+      'slug': 'al-noor',
+      'average_rating': '4.20',
+      'total_reviews': 8,
+      'whatsapp': '01000000000',
+      'address_ar': 'شارع التحرير',
+      'category': {'name_ar': 'إلكترونيات'},
+      'district': {'name_ar': 'وسط البلد'},
+      'city': {'name_ar': 'القاهرة'},
+      'governorate': {'name_ar': 'القاهرة'},
+      'latitude': '30.044400',
+      'longitude': '31.235700',
+      'images': [
+        {'image': 'https://example.com/1.jpg', 'is_active': true},
+        {'image': 'https://example.com/2.jpg', 'is_active': false},
+      ],
+    });
+
+    expect(business.whatsapp, '01000000000');
+    expect(business.categoryName, 'إلكترونيات');
+    expect(business.area, 'وسط البلد، القاهرة');
+    expect(business.hasCoordinates, isTrue);
+    expect(business.images, hasLength(1));
+  });
 }
