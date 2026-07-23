@@ -6,6 +6,7 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
@@ -56,7 +57,7 @@ class ProductionMediaStorageTests(TestCase):
         backend = self._default_storage_backend(
             "cloudinary://1234567890:test-secret@test-cloud"
         )
-        self.assertEqual(backend, "cloudinary_storage.storage.MediaCloudinaryStorage")
+        self.assertEqual(backend, "apps.core.storage.BoundedMediaCloudinaryStorage")
 
     def test_local_storage_remains_the_safe_fallback(self):
         self.assertEqual(
@@ -66,6 +67,18 @@ class ProductionMediaStorageTests(TestCase):
 
 
 class SeedDemoDataCommandTests(TestCase):
+    def test_seed_keeps_records_when_image_storage_is_unavailable(self):
+        stderr = StringIO()
+        with patch(
+            "django.core.files.storage.FileSystemStorage.save",
+            side_effect=TimeoutError("storage timeout"),
+        ):
+            call_command("seed_demo_data", stdout=StringIO(), stderr=stderr)
+
+        self.assertEqual(Business.objects.filter(slug__startswith="demo-").count(), 22)
+        self.assertEqual(Product.objects.filter(slug__startswith="demo-").count(), 52)
+        self.assertIn("تم إنشاء البيانات بدون صور", stderr.getvalue())
+
     def test_seed_is_comprehensive_and_idempotent(self):
         output = StringIO()
         call_command("seed_demo_data", stdout=output)

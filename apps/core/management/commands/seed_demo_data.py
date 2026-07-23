@@ -1,5 +1,6 @@
 """Create a complete, repeatable demo dataset for design and journey testing."""
 
+import logging
 from datetime import time, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -31,6 +32,7 @@ DEMO_PREFIX = "demo_"
 DEMO_SLUG_PREFIX = "demo-"
 DEMO_PASSWORD = "Demo@12345"
 DEMO_ASSET_DIR = Path(__file__).resolve().parents[2] / "demo_assets"
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -50,6 +52,12 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
+        # Upload at most one copy of each shared demo asset per command run.
+        # If the remote storage is unavailable, database seeding must still finish.
+        self._shared_image_names = {}
+        self._uploaded_shared_images = set()
+        self._image_upload_failed = False
+
         if options["clear"] or options["reset"]:
             self._clear_demo_data()
             if options["clear"]:
@@ -890,144 +898,172 @@ class Command(BaseCommand):
             return self._asset_content(asset_name), "webp"
         return self._svg(title, color, width, height), "svg"
 
-    def _add_images(self, categories, businesses, products, deals):
-        colors = ["#0f766e", "#2563eb", "#7c3aed", "#db2777", "#ea580c", "#0891b2"]
-        for index, category in enumerate(categories.values()):
-            content, extension = self._image_content(
-                f"{category.slug} {category.name_en} {category.name_ar}",
-                colors[index % len(colors)],
-                800,
-                500,
-            )
-            category.image.save(
-                f"{category.slug}.{extension}",
+    def _shared_image_name(self, field, title):
+        """Upload a small shared asset set instead of one file per demo record."""
+        asset_name = self._photo_for(title)
+        cache_key = asset_name or "generic.svg"
+
+        if cache_key in self._shared_image_names:
+            return self._shared_image_names[cache_key]
+        if self._image_upload_failed:
+            return None
+
+        field_name = field.name or ""
+        existing_name = field_name if field_name.startswith("demo/shared/") else ""
+        if existing_name:
+            try:
+                if field.storage.exists(existing_name):
+                    self._shared_image_names[cache_key] = existing_name
+                    return existing_name
+            except Exception:
+                logger.exception(
+                    "Demo image check failed; continuing without demo image repair"
+                )
+                self.stderr.write(
+                    self.style.WARNING(
+                        "تعذر فحص الصور التجريبية؛ تم الاحتفاظ بالبيانات الحالية."
+                    )
+                )
+                self._image_upload_failed = True
+                return None
+
+        if asset_name:
+            content = self._asset_content(asset_name)
+        else:
+            content = self._svg("Daliil Ay Khidma", "#0f766e")
+
+        try:
+            stored_name = field.storage.save(
+                existing_name or f"demo/shared/{cache_key}",
                 content,
-                save=True,
             )
-        for index, business in enumerate(businesses):
-            color = colors[index % len(colors)]
+        except Exception:
+            # Images improve the demo but are not allowed to roll back all records.
+            # The bounded Cloudinary timeout keeps this inside Gunicorn's deadline.
+            logger.exception("Demo image upload failed; continuing without demo images")
+            self.stderr.write(
+                self.style.WARNING(
+                    "تعذر رفع الصور التجريبية؛ تم إنشاء البيانات بدون صور."
+                )
+            )
+            self._image_upload_failed = True
+            return None
+
+        self._shared_image_names[cache_key] = stored_name
+        self._uploaded_shared_images.add(cache_key)
+        return stored_name
+
+    @staticmethod
+    def _assign_image(instance, field_name, stored_name, *, save=True):
+        """Assign an already uploaded shared file without uploading it again."""
+        if not stored_name:
+            return
+        setattr(instance, field_name, stored_name)
+        if save:
+            instance.save(update_fields=[field_name])
+
+    def _add_images(self, categories, businesses, products, deals):
+        for category in categories.values():
+            title = f"{category.slug} {category.name_en} {category.name_ar}"
+            self._assign_image(
+                category,
+                "image",
+                self._shared_image_name(category.image, title),
+            )
+        for business in businesses:
             image_title = (
                 f"{business.slug} {business.name_en} {business.name_ar} "
                 f"{business.category.slug}"
             )
-            logo_content, logo_extension = self._image_content(
-                image_title, color, 500, 500
-            )
-            business.logo.save(
-                f"{business.slug}-logo.{logo_extension}",
-                logo_content,
-                save=False,
-            )
-            cover_content, cover_extension = self._image_content(
-                image_title, color, 1200, 600
-            )
-            business.cover_image.save(
-                f"{business.slug}-cover.{cover_extension}",
-                cover_content,
-                save=True,
-            )
+            stored_name = self._shared_image_name(business.logo, image_title)
+            if stored_name:
+                business.logo = stored_name
+                business.cover_image = stored_name
+                business.save(update_fields=["logo", "cover_image"])
             for image_order in range(2):
-                image = BusinessImage(
+                BusinessImage.objects.create(
                     business=business,
                     caption_ar="صورة تجريبية من معرض الأعمال",
                     caption_en="Demo gallery image",
                     order=image_order,
+                    image=stored_name or "",
                 )
-                gallery_content, gallery_extension = self._image_content(
-                    image_title, color, 1200, 600
-                )
-                image.image.save(
-                    f"{business.slug}-gallery-{image_order + 1}.{gallery_extension}",
-                    gallery_content,
-                    save=True,
-                )
-        for index, product in enumerate(products):
+        for product in products:
+            title = f"{product.name_en} {product.name_ar} {product.business.name_en}"
             image = ProductImage(
                 product=product,
                 alt_text_ar=product.name_ar,
                 alt_text_en=product.name_en,
                 is_primary=True,
             )
-            product_content, product_extension = self._image_content(
-                f"{product.name_en} {product.name_ar} {product.business.name_en}",
-                colors[index % len(colors)],
-                800,
-                600,
+            image.image = self._shared_image_name(image.image, title) or ""
+            image.save()
+        for deal in deals:
+            self._assign_image(
+                deal,
+                "image",
+                self._shared_image_name(deal.image, deal.title_en),
             )
-            image.image.save(
-                f"{product.slug}.{product_extension}",
-                product_content,
-                save=True,
-            )
-        for index, deal in enumerate(deals):
-            deal.image.save(
-                f"{deal.slug}.svg",
-                self._svg(deal.title_en, colors[index % len(colors)]),
-                save=True,
-            )
-
-    def _restore_image(self, field, title, color, width=1200, height=600):
-        """Restore one missing demo file while preserving its database path."""
-        if not field.name or field.storage.exists(field.name):
-            return 0
-        content, _extension = self._image_content(title, color, width, height)
-        field.storage.save(field.name, content)
-        return 1
 
     def _repair_demo_images(self):
-        """Recreate media files lost after a restart on ephemeral hosting."""
-        colors = ["#0f766e", "#2563eb", "#7c3aed", "#db2777", "#ea580c", "#0891b2"]
+        """Relink existing demo records to the small shared persistent asset set."""
         restored = 0
 
         categories = Category.objects.filter(
             slug__startswith=DEMO_SLUG_PREFIX
         ).order_by("order", "pk")
-        for index, category in enumerate(categories):
-            restored += self._restore_image(
-                category.image,
-                f"{category.slug} {category.name_en} {category.name_ar}",
-                colors[index % len(colors)],
-                800,
-                500,
-            )
+        for category in categories:
+            title = f"{category.slug} {category.name_en} {category.name_ar}"
+            name = self._shared_image_name(category.image, title)
+            if name and category.image.name != name:
+                self._assign_image(category, "image", name)
+                restored += 1
 
         businesses = Business.objects.filter(
             slug__startswith=DEMO_SLUG_PREFIX
         ).order_by("pk")
-        for index, business in enumerate(businesses):
-            color = colors[index % len(colors)]
+        for business in businesses:
             image_title = (
                 f"{business.slug} {business.name_en} {business.name_ar} "
                 f"{business.category.slug}"
             )
-            restored += self._restore_image(business.logo, image_title, color, 500, 500)
-            restored += self._restore_image(business.cover_image, image_title, color)
+            name = self._shared_image_name(business.logo, image_title)
+            if name:
+                changed = []
+                if business.logo.name != name:
+                    business.logo = name
+                    changed.append("logo")
+                if business.cover_image.name != name:
+                    business.cover_image = name
+                    changed.append("cover_image")
+                if changed:
+                    business.save(update_fields=changed)
+                    restored += len(changed)
             for image in business.images.all().order_by("order", "pk"):
-                restored += self._restore_image(
-                    image.image,
-                    image_title,
-                    color,
-                )
+                if name and image.image.name != name:
+                    self._assign_image(image, "image", name)
+                    restored += 1
 
         products = Product.objects.filter(slug__startswith=DEMO_SLUG_PREFIX).order_by(
             "pk"
         )
-        for index, product in enumerate(products):
+        for product in products:
             for image in product.images.all().order_by("pk"):
-                restored += self._restore_image(
+                name = self._shared_image_name(
                     image.image,
                     f"{product.name_en} {product.name_ar} {product.business.name_en}",
-                    colors[index % len(colors)],
-                    800,
-                    600,
                 )
+                if name and image.image.name != name:
+                    self._assign_image(image, "image", name)
+                    restored += 1
 
         deals = Deal.objects.filter(slug__startswith="demo-deal-").order_by("pk")
-        for index, deal in enumerate(deals):
-            restored += self._restore_image(
-                deal.image, deal.title_en, colors[index % len(colors)]
-            )
-        return restored
+        for deal in deals:
+            name = self._shared_image_name(deal.image, deal.title_en)
+            if name and deal.image.name != name:
+                self._assign_image(deal, "image", name)
+                restored += 1
+        return restored + len(self._uploaded_shared_images)
 
     def _print_summary(self):
         counts = {

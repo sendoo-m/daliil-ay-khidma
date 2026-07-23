@@ -30,7 +30,7 @@ STORAGES = {
     # Once present, every new ImageField/FileField upload is stored permanently.
     'default': {
         'BACKEND': (
-            'cloudinary_storage.storage.MediaCloudinaryStorage'
+            'apps.core.storage.BoundedMediaCloudinaryStorage'
             if config('CLOUDINARY_URL', default='')
             else 'django.core.files.storage.FileSystemStorage'
         ),
@@ -39,6 +39,13 @@ STORAGES = {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
     },
 }
+
+# Keep admin uploads below Gunicorn's request deadline if Cloudinary is slow.
+CLOUDINARY_UPLOAD_TIMEOUT = config(
+    'CLOUDINARY_UPLOAD_TIMEOUT',
+    default=8,
+    cast=int,
+)
 
 # Log unhandled request errors to Render's stdout without enabling DEBUG.
 # Django includes the exception traceback, but does not log request bodies here.
