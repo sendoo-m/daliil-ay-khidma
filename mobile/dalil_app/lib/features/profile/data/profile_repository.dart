@@ -9,6 +9,11 @@ final class UserProfile {
     required this.lastName,
     required this.email,
     required this.phone,
+    required this.bio,
+    required this.city,
+    required this.profilePicture,
+    required this.emailVerified,
+    required this.dateJoined,
   });
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
         username: json['username'] as String? ?? '',
@@ -16,12 +21,22 @@ final class UserProfile {
         lastName: json['last_name'] as String? ?? '',
         email: json['email'] as String? ?? '',
         phone: json['phone'] as String? ?? '',
+        bio: json['bio'] as String? ?? '',
+        city: json['city'] as String? ?? '',
+        profilePicture: json['profile_picture'] as String?,
+        emailVerified: json['email_verified'] as bool? ?? false,
+        dateJoined: DateTime.tryParse(json['date_joined'] as String? ?? ''),
       );
   final String username;
   final String firstName;
   final String lastName;
   final String email;
   final String phone;
+  final String bio;
+  final String city;
+  final String? profilePicture;
+  final bool emailVerified;
+  final DateTime? dateJoined;
 }
 
 final class ProfileRepository {
@@ -39,6 +54,8 @@ final class ProfileRepository {
     required String lastName,
     required String email,
     required String phone,
+    required String bio,
+    required String city,
   }) async {
     final response = await _dio.patch<Map<String, dynamic>>(
       'auth/profile/update/',
@@ -47,6 +64,8 @@ final class ProfileRepository {
         'last_name': lastName.trim(),
         'email': email.trim(),
         'phone': phone.trim(),
+        'bio': bio.trim(),
+        'city': city.trim(),
       },
     );
     return UserProfile.fromJson(
