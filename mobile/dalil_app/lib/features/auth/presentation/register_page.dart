@@ -86,6 +86,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           firstName: _firstName.text,
           lastName: _lastName.text,
         );
-    if (ok && mounted) Navigator.of(context).pop();
+    if (ok && mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 }

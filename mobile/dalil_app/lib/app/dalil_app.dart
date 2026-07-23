@@ -6,9 +6,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/app_localizations.dart';
-import '../features/auth/presentation/login_page.dart';
-import '../features/home/presentation/home_page.dart';
 import '../features/auth/presentation/reset_password_page.dart';
+import 'app_theme.dart';
+import 'main_shell.dart';
 import 'providers.dart';
 
 class DalilApp extends ConsumerStatefulWidget {
@@ -66,19 +66,52 @@ class _DalilAppState extends ConsumerState<DalilApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF006C51)),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
       home: auth.when(
-        loading: () => const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
-        error: (_, __) => const LoginPage(),
-        data: (isAuthenticated) => isAuthenticated
-            ? const HomePage()
-            : const LoginPage(),
+        loading: () => const _SplashScreen(),
+        error: (_, __) => const MainShell(),
+        data: (_) => const MainShell(),
       ),
     );
   }
+}
+
+class _SplashScreen extends StatelessWidget {
+  const _SplashScreen();
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 82,
+                height: 82,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const Icon(
+                  Icons.place_outlined,
+                  size: 44,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'دليل أي خدمة',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+              ),
+              const SizedBox(height: 20),
+              const SizedBox.square(
+                dimension: 22,
+                child: CircularProgressIndicator(strokeWidth: 2.5),
+              ),
+            ],
+          ),
+        ),
+      );
 }

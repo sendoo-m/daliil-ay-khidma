@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../../auth/presentation/login_page.dart';
 
 class ProductDetailPage extends ConsumerWidget {
   const ProductDetailPage({required this.slug, super.key});
@@ -26,6 +27,16 @@ class DealDetailPage extends ConsumerWidget {
           icon: const Icon(Icons.redeem),
           label: const Text('المطالبة بالعرض'),
           onPressed: () async {
+            final isAuthenticated =
+                ref.read(authControllerProvider).valueOrNull ?? false;
+            if (!isAuthenticated) {
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const LoginPage(),
+                ),
+              );
+              return;
+            }
             final message = await ref.read(catalogRepositoryProvider).claimDeal(slug);
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(

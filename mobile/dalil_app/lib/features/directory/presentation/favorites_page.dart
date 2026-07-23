@@ -5,11 +5,15 @@ import '../../../app/providers.dart';
 import 'business_card.dart';
 
 class FavoritesPage extends ConsumerWidget {
-  const FavoritesPage({super.key});
+  const FavoritesPage({this.embedded = false, super.key});
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-        appBar: AppBar(title: const Text('المفضلة')),
+        appBar: AppBar(
+          automaticallyImplyLeading: !embedded,
+          title: const Text('المفضلة'),
+        ),
         body: FutureBuilder(
           future: ref.read(businessRepositoryProvider).favorites(),
           builder: (context, snapshot) {

@@ -93,8 +93,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref
+    final ok = await ref
         .read(authControllerProvider.notifier)
         .login(_username.text, _password.text);
+    if (ok && mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
   }
 }
