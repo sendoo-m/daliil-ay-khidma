@@ -40,15 +40,32 @@ final class CatalogRepository {
         .toList(growable: false);
   }
 
-  Future<Map<String, dynamic>> dealDetail(String slug) async {
-    final response = await _dio.get<Map<String, dynamic>>('deals/$slug/');
-    return response.data!;
+  Future<List<DealSummary>> deals({
+    String search = '',
+    String ordering = '-created_at',
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      'deals/',
+      queryParameters: {
+        if (search.trim().isNotEmpty) 'search': search.trim(),
+        'ordering': ordering,
+        'page_size': 50,
+      },
+    );
+    final results = response.data?['results'] as List<dynamic>? ?? const [];
+    return results
+        .whereType<Map<String, dynamic>>()
+        .map(DealSummary.fromJson)
+        .toList(growable: false);
   }
 
-  Future<String> claimDeal(String slug) async {
+  Future<DealDetail> dealDetail(String slug) async {
+    final response = await _dio.get<Map<String, dynamic>>('deals/$slug/');
+    return DealDetail.fromJson(response.data!);
+  }
+
+  Future<DealClaimResult> claimDeal(String slug) async {
     final response = await _dio.post<Map<String, dynamic>>('deals/$slug/claim/');
-    return response.data?['code'] as String? ??
-        response.data?['claim_code'] as String? ??
-        'تمت المطالبة بالعرض';
+    return DealClaimResult.fromJson(response.data!);
   }
 }

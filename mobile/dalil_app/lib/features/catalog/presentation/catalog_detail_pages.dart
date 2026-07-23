@@ -434,66 +434,331 @@ class DealDetailPage extends ConsumerWidget {
   final String slug;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => _JsonDealPage(
-        future: ref.read(catalogRepositoryProvider).dealDetail(slug),
-        onClaim: () async {
-          final isAuthenticated =
-              ref.read(authControllerProvider).valueOrNull ?? false;
-          if (!isAuthenticated) {
-            await Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const LoginPage()),
-            );
-            return;
-          }
-          final message =
-              await ref.read(catalogRepositoryProvider).claimDeal(slug);
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(message)),
-            );
-          }
-        },
-      );
+  Widget build(BuildContext context, WidgetRef ref) =>
+      _DealDetailView(slug: slug);
 }
 
-class _JsonDealPage extends StatelessWidget {
-  const _JsonDealPage({required this.future, required this.onClaim});
-  final Future<Map<String, dynamic>> future;
-  final VoidCallback onClaim;
+class _DealDetailView extends ConsumerStatefulWidget {
+  const _DealDetailView({required this.slug});
+  final String slug;
 
   @override
-  Widget build(BuildContext context) => FutureBuilder<Map<String, dynamic>>(
-        future: future,
+  ConsumerState<_DealDetailView> createState() => _DealDetailViewState();
+}
+
+class _DealDetailViewState extends ConsumerState<_DealDetailView> {
+  late Future<DealDetail> _future;
+  bool _claiming = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  void _load() {
+    _future = ref.read(catalogRepositoryProvider).dealDetail(widget.slug);
+  }
+
+  Future<void> _claim(DealDetail deal) async {
+    final isAuthenticated =
+        ref.read(authControllerProvider).valueOrNull ?? false;
+    if (!isAuthenticated) {
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+      );
+      if (!mounted ||
+          !(ref.read(authControllerProvider).valueOrNull ?? false)) {
+        return;
+      }
+    }
+    setState(() => _claiming = true);
+    try {
+      final claim =
+          await ref.read(catalogRepositoryProvider).claimDeal(widget.slug);
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          icon: const Icon(Icons.verified_outlined, size: 48),
+          title: const Text('تم حجز العرض'),
+          content: Text(
+            'احتفظ برقم المطالبة وأظهره للمحل عند الاستفادة من العرض.\n\n'
+            'رقم المطالبة: ${claim.id}',
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('تم'),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'تعذر حجز العرض. ربما وصلت للحد المسموح أو انتهى العرض.',
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _claiming = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<DealDetail>(
+        future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          final item = snapshot.data!;
+          if (snapshot.hasError || !snapshot.hasData) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: _ErrorState(
+                onRetry: () => setState(_load),
+              ),
+            );
+          }
+          final deal = snapshot.data!;
+          final summary = deal.summary;
           return Scaffold(
-            appBar: AppBar(title: Text('${item['title_ar'] ?? ''}')),
+            appBar: AppBar(title: const Text('تفاصيل العرض')),
             body: ListView(
-              padding: const EdgeInsets.all(20),
               children: [
-                if (item['image'] != null)
-                  Image.network('${item['image']}', height: 200),
-                const SizedBox(height: 16),
-                Text(
-                  '${item['title_ar'] ?? ''}',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 12),
-                Text('${item['description_ar'] ?? ''}'),
-                const SizedBox(height: 20),
-                FilledButton.icon(
-                  icon: const Icon(Icons.redeem),
-                  label: const Text('المطالبة بالعرض'),
-                  onPressed: onClaim,
+                _DealHero(deal: deal),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 120),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        summary.title,
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                ),
+                      ),
+                      const SizedBox(height: 12),
+                      _DealPrice(deal: deal),
+                      const SizedBox(height: 14),
+                      _DealStatus(deal: deal),
+                      if (deal.description.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        _Section(
+                          title: 'تفاصيل العرض',
+                          icon: Icons.description_outlined,
+                          child: Text(deal.description),
+                        ),
+                      ],
+                      if (deal.terms.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        _Section(
+                          title: 'الشروط والأحكام',
+                          icon: Icons.rule_outlined,
+                          child: Text(deal.terms),
+                        ),
+                      ],
+                      if (summary.businessName.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        Card(
+                          child: ListTile(
+                            leading: const CircleAvatar(
+                              child: Icon(Icons.storefront_outlined),
+                            ),
+                            title: const Text('مقدم من'),
+                            subtitle: Text(summary.businessName),
+                            trailing: summary.businessSlug.isEmpty
+                                ? null
+                                : const Icon(Icons.chevron_left),
+                            onTap: summary.businessSlug.isEmpty
+                                ? null
+                                : () => Navigator.of(context).push(
+                                      MaterialPageRoute<void>(
+                                        builder: (_) => BusinessDetailPage(
+                                          slug: summary.businessSlug,
+                                        ),
+                                      ),
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ],
             ),
+            bottomNavigationBar: SafeArea(
+              minimum: const EdgeInsets.all(16),
+              child: FilledButton.icon(
+                onPressed: deal.canClaim && !_claiming
+                    ? () => _claim(deal)
+                    : null,
+                icon: _claiming
+                    ? const SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.redeem),
+                label: Text(
+                  deal.isExpired
+                      ? 'انتهى العرض'
+                      : deal.isUpcoming
+                          ? 'العرض يبدأ قريبًا'
+                          : 'احجز العرض الآن',
+                ),
+              ),
+            ),
           );
         },
+      );
+}
+
+class _DealHero extends StatelessWidget {
+  const _DealHero({required this.deal});
+  final DealDetail deal;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+        children: [
+          SizedBox(
+            height: 245,
+            width: double.infinity,
+            child: deal.summary.image == null || deal.summary.image!.isEmpty
+                ? ColoredBox(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    child: const Icon(Icons.local_offer_outlined, size: 72),
+                  )
+                : Image.network(
+                    deal.summary.image!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => ColoredBox(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: const Icon(Icons.local_offer_outlined, size: 72),
+                    ),
+                  ),
+          ),
+          PositionedDirectional(
+            start: 16,
+            bottom: 16,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: Text(
+                  deal.summary.typeLabel,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+}
+
+class _DealPrice extends StatelessWidget {
+  const _DealPrice({required this.deal});
+  final DealDetail deal;
+
+  @override
+  Widget build(BuildContext context) {
+    final summary = deal.summary;
+    if (!summary.hasPrice) return Text(summary.typeLabel);
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 10,
+      runSpacing: 6,
+      children: [
+        Text(
+          _money(summary.finalPrice!),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w900,
+              ),
+        ),
+        if (summary.hasDiscount)
+          Text(
+            _money(summary.originalPrice!),
+            style: const TextStyle(
+              decoration: TextDecoration.lineThrough,
+              fontSize: 16,
+            ),
+          ),
+        if (deal.savingsAmount > 0)
+          Chip(label: Text('وفّر ${_money(deal.savingsAmount)}')),
+      ],
+    );
+  }
+}
+
+class _DealStatus extends StatelessWidget {
+  const _DealStatus({required this.deal});
+  final DealDetail deal;
+
+  @override
+  Widget build(BuildContext context) {
+    final endDate = deal.endDate;
+    final dateFormat = DateFormat('d MMMM y', 'ar');
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Wrap(
+          spacing: 18,
+          runSpacing: 12,
+          children: [
+            _StatusItem(
+              icon: Icons.schedule,
+              text: deal.isExpired
+                  ? 'انتهى العرض'
+                  : 'متبقي ${deal.summary.daysRemaining} يوم',
+            ),
+            if (endDate != null)
+              _StatusItem(
+                icon: Icons.event_outlined,
+                text: 'حتى ${dateFormat.format(endDate.toLocal())}',
+              ),
+            if (deal.summary.isLimited)
+              _StatusItem(
+                icon: Icons.confirmation_number_outlined,
+                text: 'متاح ${deal.summary.remainingUses} استخدام',
+              ),
+            _StatusItem(
+              icon: Icons.person_outline,
+              text: 'بحد أقصى ${deal.maxUsesPerUser} للمستخدم',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusItem extends StatelessWidget {
+  const _StatusItem({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 19, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 6),
+          Text(text),
+        ],
       );
 }
