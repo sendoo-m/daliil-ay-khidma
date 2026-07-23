@@ -15,6 +15,8 @@
     .demo-data-stat strong { display: block; font-size: 24px; margin-bottom: 5px; }
     .demo-data-panel { border: 1px solid var(--hairline-color); border-radius: 6px; margin-top: 20px; max-width: 850px; padding: 20px; }
     .demo-data-panel h2 { margin-top: 0; }
+    .demo-data-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .demo-data-actions form { margin: 0; }
     .demo-data-danger { border-color: var(--delete-button-bg); }
     .demo-data-confirm { display: block; margin: 12px 0; max-width: 360px; padding: 9px; width: 100%; }
     .demo-data-note { color: var(--body-quiet-color); }
@@ -35,12 +37,33 @@
 
 <section class="demo-data-panel">
     <h2>إنشاء الداتا التجريبية</h2>
-    <p>ينشئ مجموعة البيانات الشاملة. إذا كانت موجودة بالفعل فلن يكررها.</p>
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="create">
-        <button type="submit" class="button default">إنشاء الداتا التجريبية</button>
-    </form>
+    <p>الإنشاء العادي لا يكرر الداتا الموجودة. استخدم إعادة الإنشاء لتطبيق الحزمة الكاملة الحالية: 33 قسمًا، و22 نشاطًا، و52 منتجًا وخدمة.</p>
+    <div class="demo-data-actions">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create">
+            <button type="submit" class="button">إنشاء الحزمة إذا لم تكن موجودة</button>
+        </form>
+        <form method="post" onsubmit="return confirm('سيتم حذف الداتا التجريبية القديمة وإعادة إنشائها بالحزمة الحالية. هل تريد المتابعة؟');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reset">
+            <button type="submit" class="button default">إعادة إنشاء الحزمة كاملة</button>
+        </form>
+    </div>
+</section>
+
+<section class="demo-data-panel">
+    <h2>إنشاء وإصلاح الصور</h2>
+    <p>كل زر يعالج نوعًا واحدًا فقط لتقليل زمن الطلب. المواقع لا تحتوي حقول صور في النظام الحالي.</p>
+    <div class="demo-data-actions">
+        {% for action, label in image_actions %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{{ action }}">
+            <button type="submit" class="button">{{ label }}</button>
+        </form>
+        {% endfor %}
+    </div>
 </section>
 
 <section class="demo-data-panel demo-data-danger">
