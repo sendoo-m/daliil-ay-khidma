@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 
+import 'catalog_models.dart';
+
 final class CatalogRepository {
   CatalogRepository(this._dio);
   final Dio _dio;
@@ -7,6 +9,35 @@ final class CatalogRepository {
   Future<Map<String, dynamic>> productDetail(String slug) async {
     final response = await _dio.get<Map<String, dynamic>>('products/$slug/');
     return response.data!;
+  }
+
+  Future<List<ProductSummary>> searchProducts(
+    String query, {
+    int? categoryId,
+    int? governorateId,
+    String? productType,
+    double? minPrice,
+    double? maxPrice,
+    String ordering = 'price',
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      'products/',
+      queryParameters: {
+        if (query.isNotEmpty) 'search': query,
+        if (categoryId != null) 'category': categoryId,
+        if (governorateId != null) 'governorate': governorateId,
+        if (productType != null) 'product_type': productType,
+        if (minPrice != null) 'min_price': minPrice,
+        if (maxPrice != null) 'max_price': maxPrice,
+        'ordering': ordering,
+        'page_size': 50,
+      },
+    );
+    final results = response.data?['results'] as List<dynamic>? ?? const [];
+    return results
+        .cast<Map<String, dynamic>>()
+        .map(ProductSummary.fromJson)
+        .toList(growable: false);
   }
 
   Future<Map<String, dynamic>> dealDetail(String slug) async {
