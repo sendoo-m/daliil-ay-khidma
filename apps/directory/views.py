@@ -422,13 +422,16 @@ def increment_click(request, slug):
 # Search View
 # ========================================
 def business_search(request):
-    """البحث في المحلات"""
+    """بحث موحد في المنتجات والخدمات والمحلات."""
+    from apps.products.models import Product
+
     query = request.GET.get('q', '').strip()
     businesses = Business.objects.filter(
         is_active=True,
         is_verified=True
     ).select_related('category', 'district__city__governorate')
-    
+
+    products = Product.objects.none()
     if query:
         businesses = businesses.filter(
             Q(name_en__icontains=query) |
@@ -438,7 +441,25 @@ def business_search(request):
             Q(category__name_en__icontains=query) |
             Q(category__name_ar__icontains=query)
         ).distinct()
-    
+
+        products = Product.objects.filter(
+            Q(name_en__icontains=query)
+            | Q(name_ar__icontains=query)
+            | Q(description_en__icontains=query)
+            | Q(description_ar__icontains=query)
+            | Q(business__name_en__icontains=query)
+            | Q(business__name_ar__icontains=query)
+            | Q(business__category__name_en__icontains=query)
+            | Q(business__category__name_ar__icontains=query),
+            is_available=True,
+            business__is_active=True,
+            business__is_verified=True,
+        ).select_related(
+            'business',
+            'business__category',
+            'business__district__city',
+        ).prefetch_related('images').order_by('price', 'name_ar')[:24]
+
     # Pagination
     paginator = Paginator(businesses, 12)
     page = request.GET.get('page')
@@ -446,8 +467,11 @@ def business_search(request):
     
     context = {
         'businesses': businesses_page,
+        'products': products,
         'query': query,
-        'total_results': businesses.count(),
+        'business_count': paginator.count,
+        'product_count': len(products),
+        'total_results': paginator.count + len(products),
         'page_title': f'Search: {query}' if query else 'Search',
     }
     

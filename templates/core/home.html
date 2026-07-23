@@ -386,7 +386,7 @@
                         Thousands of businesses and exclusive deals in one place — fast, trusted, and completely free
                     {% endif %}
                 </p>
-                <form method="get" action="{% url 'directory:business_list' %}">
+                <form method="get" action="{% url 'directory:business_search' %}">
                     <div class="glass-search">
                         <i class="fas fa-search" style="color:#334155;"></i>
                         <input type="text" name="q"
@@ -1108,7 +1108,7 @@
                     {% endif %}
                 </p>
 
-                <form method="get" action="{% url 'directory:business_list' %}">
+                <form method="get" action="{% url 'directory:business_search' %}">
                     <div class="search-box">
                         <span class="search-icon"><i class="fas fa-search"></i></span>
                         <input type="text" name="q"
