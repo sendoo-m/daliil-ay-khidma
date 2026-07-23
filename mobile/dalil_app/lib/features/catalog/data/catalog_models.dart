@@ -144,27 +144,138 @@ final class ProductImage {
 
 final class DealSummary {
   const DealSummary({
+    required this.id,
     required this.title,
     required this.slug,
-    required this.finalPrice,
+    required this.dealType,
     required this.daysRemaining,
+    required this.isValid,
+    required this.isFeatured,
+    required this.businessName,
+    required this.businessSlug,
     this.image,
+    this.originalPrice,
+    this.finalPrice,
+    this.discountPercentage = 0,
+    this.remainingUses,
   });
   factory DealSummary.fromJson(Map<String, dynamic> json) => DealSummary(
-        title: json['title_ar'] as String? ?? '',
+        id: json['id'] as int? ?? 0,
+        title: json['title_ar'] as String? ??
+            json['title_en'] as String? ??
+            '',
         slug: json['slug'] as String? ?? '',
-        finalPrice: '${json['final_price'] ?? ''}',
+        dealType: json['deal_type'] as String? ?? 'special',
+        originalPrice: _nullableNumber(json['original_price']),
+        finalPrice: _nullableNumber(json['final_price']),
+        discountPercentage: _number(json['discount_percentage']),
         daysRemaining: json['days_remaining'] as int? ?? 0,
+        isValid: json['is_valid'] as bool? ?? true,
+        isFeatured: json['is_featured'] as bool? ?? false,
+        businessName:
+            (json['business'] as Map<String, dynamic>?)?['name_ar']
+                    as String? ??
+                '',
+        businessSlug:
+            (json['business'] as Map<String, dynamic>?)?['slug'] as String? ??
+                '',
         image: json['image'] as String?,
+        remainingUses: json['remaining_uses'] as int?,
       );
+  final int id;
   final String title;
   final String slug;
-  final String finalPrice;
+  final String dealType;
+  final double? originalPrice;
+  final double? finalPrice;
+  final double discountPercentage;
   final int daysRemaining;
+  final bool isValid;
+  final bool isFeatured;
+  final String businessName;
+  final String businessSlug;
   final String? image;
+  final int? remainingUses;
+
+  bool get hasPrice => finalPrice != null;
+  bool get hasDiscount =>
+      originalPrice != null &&
+      finalPrice != null &&
+      originalPrice! > finalPrice!;
+  bool get isLimited => remainingUses != null;
+  String get typeLabel => switch (dealType) {
+        'percentage' => 'خصم ${discountPercentage.toStringAsFixed(0)}٪',
+        'fixed' => 'خصم بقيمة ثابتة',
+        'bogo' => 'اشترِ واحدًا واحصل على آخر',
+        'bundle' => 'عرض مجموعة',
+        _ => 'عرض خاص',
+      };
+}
+
+final class DealDetail {
+  const DealDetail({
+    required this.summary,
+    required this.description,
+    required this.terms,
+    required this.startDate,
+    required this.endDate,
+    required this.isExpired,
+    required this.isUpcoming,
+    required this.savingsAmount,
+    required this.viewCount,
+    required this.maxUsesPerUser,
+  });
+
+  factory DealDetail.fromJson(Map<String, dynamic> json) => DealDetail(
+        summary: DealSummary.fromJson(json),
+        description: json['description_ar'] as String? ??
+            json['description_en'] as String? ??
+            '',
+        terms:
+            json['terms_ar'] as String? ?? json['terms_en'] as String? ?? '',
+        startDate: DateTime.tryParse('${json['start_date'] ?? ''}'),
+        endDate: DateTime.tryParse('${json['end_date'] ?? ''}'),
+        isExpired: json['is_expired'] as bool? ?? false,
+        isUpcoming: json['is_upcoming'] as bool? ?? false,
+        savingsAmount: _number(json['savings_amount']),
+        viewCount: json['view_count'] as int? ?? 0,
+        maxUsesPerUser: json['max_uses_per_user'] as int? ?? 1,
+      );
+
+  final DealSummary summary;
+  final String description;
+  final String terms;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final bool isExpired;
+  final bool isUpcoming;
+  final double savingsAmount;
+  final int viewCount;
+  final int maxUsesPerUser;
+
+  bool get canClaim =>
+      summary.isValid && !isExpired && !isUpcoming && summary.slug.isNotEmpty;
+}
+
+final class DealClaimResult {
+  const DealClaimResult({required this.id, required this.claimedAt});
+
+  factory DealClaimResult.fromJson(Map<String, dynamic> json) =>
+      DealClaimResult(
+        id: json['id'] as int? ?? 0,
+        claimedAt: DateTime.tryParse('${json['claimed_at'] ?? ''}'),
+      );
+
+  final int id;
+  final DateTime? claimedAt;
 }
 
 double _number(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse('$value') ?? 0;
+}
+
+double? _nullableNumber(Object? value) {
+  if (value == null || '$value'.isEmpty) return null;
+  return _number(value);
 }
