@@ -307,7 +307,11 @@ class _MessageState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 52, color: Theme.of(context).colorScheme.primary),
+              Icon(
+                icon,
+                size: 52,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               const SizedBox(height: 16),
               Text(message, textAlign: TextAlign.center),
               if (action != null) ...[
