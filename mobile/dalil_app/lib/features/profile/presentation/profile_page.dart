@@ -5,7 +5,8 @@ import '../../../app/providers.dart';
 import '../data/profile_repository.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({this.embedded = false, super.key});
+  final bool embedded;
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
@@ -27,7 +28,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('الملف الشخصي')),
+        appBar: AppBar(
+          automaticallyImplyLeading: !widget.embedded,
+          title: const Text('الملف الشخصي'),
+          actions: [
+            IconButton(
+              tooltip: 'تسجيل الخروج',
+              onPressed: () =>
+                  ref.read(authControllerProvider.notifier).logout(),
+              icon: const Icon(Icons.logout),
+            ),
+          ],
+        ),
         body: FutureBuilder<UserProfile>(
           future: ref.read(profileRepositoryProvider).get(),
           builder: (context, snapshot) {
