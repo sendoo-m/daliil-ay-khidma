@@ -233,14 +233,19 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('تصفية النتائج',
-                      style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    'تصفية النتائج',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 18),
                   DropdownButtonFormField<int?>(
-                    value: categoryId,
+                    initialValue: categoryId,
                     decoration: const InputDecoration(labelText: 'القسم'),
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('كل الأقسام')),
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('كل الأقسام'),
+                      ),
                       ...home.categories.map(
                         (item) => DropdownMenuItem(
                           value: item['id'] as int,
@@ -253,7 +258,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<int?>(
-                    value: governorateId,
+                    initialValue: governorateId,
                     decoration: const InputDecoration(labelText: 'المحافظة'),
                     items: [
                       const DropdownMenuItem(
@@ -273,7 +278,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   const SizedBox(height: 12),
                   if (_kind == _SearchKind.businesses) ...[
                     DropdownButtonFormField<String?>(
-                      value: businessType,
+                      initialValue: businessType,
                       decoration: const InputDecoration(labelText: 'نوع النشاط'),
                       items: const [
                         DropdownMenuItem(value: null, child: Text('الكل')),
@@ -289,7 +294,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<double?>(
-                      value: minRating,
+                      initialValue: minRating,
                       decoration:
                           const InputDecoration(labelText: 'أقل تقييم'),
                       items: const [
@@ -306,12 +311,18 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     ),
                   ] else ...[
                     DropdownButtonFormField<String?>(
-                      value: productType,
+                      initialValue: productType,
                       decoration: const InputDecoration(labelText: 'النوع'),
                       items: const [
                         DropdownMenuItem(value: null, child: Text('الكل')),
-                        DropdownMenuItem(value: 'product', child: Text('منتجات')),
-                        DropdownMenuItem(value: 'service', child: Text('خدمات')),
+                        DropdownMenuItem(
+                          value: 'product',
+                          child: Text('منتجات'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'service',
+                          child: Text('خدمات'),
+                        ),
                       ],
                       onChanged: (value) =>
                           setModalState(() => productType = value),
@@ -592,7 +603,11 @@ class _MessageState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 58, color: Theme.of(context).colorScheme.primary),
+              Icon(
+                icon,
+                size: 58,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               const SizedBox(height: 14),
               Text(title, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 6),
