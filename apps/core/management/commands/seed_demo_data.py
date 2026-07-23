@@ -49,6 +49,11 @@ class Command(BaseCommand):
             action="store_true",
             help="حذف الداتا التجريبية ثم إعادة إنشائها من البداية",
         )
+        parser.add_argument(
+            "--images-only",
+            choices=("all", "categories", "businesses", "products", "deals"),
+            help="إصلاح صور جزء محدد من الداتا الموجودة دون إعادة إنشاء السجلات",
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -58,6 +63,15 @@ class Command(BaseCommand):
         self._uploaded_shared_images = set()
         self._image_upload_failed = False
 
+        if options["images_only"]:
+            restored_images = self._repair_demo_images(options["images_only"])
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"تمت معالجة {restored_images} من روابط وملفات الصور التجريبية."
+                )
+            )
+            return
+
         if options["clear"] or options["reset"]:
             self._clear_demo_data()
             if options["clear"]:
@@ -65,7 +79,7 @@ class Command(BaseCommand):
                 return
 
         if self._demo_exists():
-            restored_images = self._repair_demo_images()
+            restored_images = self._repair_demo_images("all")
             self.stdout.write(
                 self.style.WARNING(
                     "الداتا التجريبية موجودة بالفعل؛ لم يتم تكرارها. "
@@ -1005,64 +1019,69 @@ class Command(BaseCommand):
                 self._shared_image_name(deal.image, deal.title_en),
             )
 
-    def _repair_demo_images(self):
+    def _repair_demo_images(self, scope="all"):
         """Relink existing demo records to the small shared persistent asset set."""
         restored = 0
 
-        categories = Category.objects.filter(
-            slug__startswith=DEMO_SLUG_PREFIX
-        ).order_by("order", "pk")
-        for category in categories:
-            title = f"{category.slug} {category.name_en} {category.name_ar}"
-            name = self._shared_image_name(category.image, title)
-            if name and category.image.name != name:
-                self._assign_image(category, "image", name)
-                restored += 1
-
-        businesses = Business.objects.filter(
-            slug__startswith=DEMO_SLUG_PREFIX
-        ).order_by("pk")
-        for business in businesses:
-            image_title = (
-                f"{business.slug} {business.name_en} {business.name_ar} "
-                f"{business.category.slug}"
-            )
-            name = self._shared_image_name(business.logo, image_title)
-            if name:
-                changed = []
-                if business.logo.name != name:
-                    business.logo = name
-                    changed.append("logo")
-                if business.cover_image.name != name:
-                    business.cover_image = name
-                    changed.append("cover_image")
-                if changed:
-                    business.save(update_fields=changed)
-                    restored += len(changed)
-            for image in business.images.all().order_by("order", "pk"):
-                if name and image.image.name != name:
-                    self._assign_image(image, "image", name)
+        if scope in ("all", "categories"):
+            categories = Category.objects.filter(
+                slug__startswith=DEMO_SLUG_PREFIX
+            ).order_by("order", "pk")
+            for category in categories:
+                title = f"{category.slug} {category.name_en} {category.name_ar}"
+                name = self._shared_image_name(category.image, title)
+                if name and category.image.name != name:
+                    self._assign_image(category, "image", name)
                     restored += 1
 
-        products = Product.objects.filter(slug__startswith=DEMO_SLUG_PREFIX).order_by(
-            "pk"
-        )
-        for product in products:
-            for image in product.images.all().order_by("pk"):
-                name = self._shared_image_name(
-                    image.image,
-                    f"{product.name_en} {product.name_ar} {product.business.name_en}",
+        if scope in ("all", "businesses"):
+            businesses = Business.objects.filter(
+                slug__startswith=DEMO_SLUG_PREFIX
+            ).order_by("pk")
+            for business in businesses:
+                image_title = (
+                    f"{business.slug} {business.name_en} {business.name_ar} "
+                    f"{business.category.slug}"
                 )
-                if name and image.image.name != name:
-                    self._assign_image(image, "image", name)
-                    restored += 1
+                name = self._shared_image_name(business.logo, image_title)
+                if name:
+                    changed = []
+                    if business.logo.name != name:
+                        business.logo = name
+                        changed.append("logo")
+                    if business.cover_image.name != name:
+                        business.cover_image = name
+                        changed.append("cover_image")
+                    if changed:
+                        business.save(update_fields=changed)
+                        restored += len(changed)
+                for image in business.images.all().order_by("order", "pk"):
+                    if name and image.image.name != name:
+                        self._assign_image(image, "image", name)
+                        restored += 1
 
-        deals = Deal.objects.filter(slug__startswith="demo-deal-").order_by("pk")
-        for deal in deals:
-            name = self._shared_image_name(deal.image, deal.title_en)
-            if name and deal.image.name != name:
-                self._assign_image(deal, "image", name)
-                restored += 1
+        if scope in ("all", "products"):
+            products = Product.objects.filter(
+                slug__startswith=DEMO_SLUG_PREFIX
+            ).order_by("pk")
+            for product in products:
+                for image in product.images.all().order_by("pk"):
+                    name = self._shared_image_name(
+                        image.image,
+                        f"{product.name_en} {product.name_ar} "
+                        f"{product.business.name_en}",
+                    )
+                    if name and image.image.name != name:
+                        self._assign_image(image, "image", name)
+                        restored += 1
+
+        if scope in ("all", "deals"):
+            deals = Deal.objects.filter(slug__startswith="demo-deal-").order_by("pk")
+            for deal in deals:
+                name = self._shared_image_name(deal.image, deal.title_en)
+                if name and deal.image.name != name:
+                    self._assign_image(deal, "image", name)
+                    restored += 1
         return restored + len(self._uploaded_shared_images)
 
     def _print_summary(self):
