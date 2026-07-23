@@ -21,6 +21,9 @@ final class ApiFailure {
       final errors = data['errors'];
       final message = data['message'] ?? data['error'];
       if (message is String && message.isNotEmpty) return message;
+      if (message is List && message.isNotEmpty) {
+        return message.map((item) => '$item').join('\n');
+      }
       if (errors is Map && errors.isNotEmpty) {
         final value = errors.values.first;
         if (value is List && value.isNotEmpty) return '${value.first}';
