@@ -6,10 +6,17 @@ final class BusinessRepository {
   BusinessRepository(this._dio);
   final Dio _dio;
 
-  Future<List<Business>> search(String query) async {
+  Future<List<Business>> search(
+    String query, {
+    int? categoryId,
+  }) async {
     final response = await _dio.get<Map<String, dynamic>>(
       'businesses/',
-      queryParameters: {'search': query, 'page_size': 20},
+      queryParameters: {
+        if (query.isNotEmpty) 'search': query,
+        if (categoryId != null) 'category': categoryId,
+        'page_size': 20,
+      },
     );
     final results = response.data?['results'] as List<dynamic>? ?? const [];
     return results
