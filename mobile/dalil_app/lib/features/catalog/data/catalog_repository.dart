@@ -6,9 +6,9 @@ final class CatalogRepository {
   CatalogRepository(this._dio);
   final Dio _dio;
 
-  Future<Map<String, dynamic>> productDetail(String slug) async {
+  Future<ProductDetail> productDetail(String slug) async {
     final response = await _dio.get<Map<String, dynamic>>('products/$slug/');
-    return response.data!;
+    return ProductDetail.fromJson(response.data!);
   }
 
   Future<List<ProductSummary>> searchProducts(
