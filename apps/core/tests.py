@@ -211,6 +211,43 @@ class DemoDataAdminTests(TestCase):
         self.assertTrue(Business.objects.filter(slug__startswith="demo-").exists())
         self.assertContains(response, "تم تنفيذ العملية بنجاح")
 
+    def test_superuser_can_reset_old_demo_data_to_current_catalog(self):
+        call_command("seed_demo_data", stdout=StringIO())
+        product_ids = list(
+            Product.objects.filter(slug__startswith="demo-")
+            .order_by("pk")
+            .values_list("pk", flat=True)[12:]
+        )
+        Product.objects.filter(pk__in=product_ids).delete()
+        business_ids = list(
+            Business.objects.filter(slug__startswith="demo-")
+            .order_by("pk")
+            .values_list("pk", flat=True)[6:]
+        )
+        Business.objects.filter(pk__in=business_ids).delete()
+
+        self.client.force_login(self.superuser)
+        response = self.client.post(self.url, {"action": "reset"}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Category.objects.filter(slug__startswith="demo-").count(), 33)
+        self.assertEqual(Business.objects.filter(slug__startswith="demo-").count(), 22)
+        self.assertEqual(Product.objects.filter(slug__startswith="demo-").count(), 52)
+
+    def test_superuser_can_process_each_image_group(self):
+        call_command("seed_demo_data", stdout=StringIO())
+        self.client.force_login(self.superuser)
+
+        for action in (
+            "images_categories",
+            "images_businesses",
+            "images_products",
+            "images_deals",
+        ):
+            response = self.client.post(self.url, {"action": action}, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "تم تنفيذ العملية بنجاح")
+
     def test_clear_requires_exact_confirmation(self):
         call_command("seed_demo_data", stdout=StringIO())
         self.client.force_login(self.superuser)
