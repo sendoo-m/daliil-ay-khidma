@@ -23,6 +23,7 @@ void main() {
       'slug': 'al-noor',
       'average_rating': '4.20',
       'total_reviews': 8,
+      'is_favorite': true,
       'whatsapp': '01000000000',
       'address_ar': 'شارع التحرير',
       'category': {'name_ar': 'إلكترونيات'},
@@ -42,5 +43,6 @@ void main() {
     expect(business.area, 'وسط البلد، القاهرة');
     expect(business.hasCoordinates, isTrue);
     expect(business.images, hasLength(1));
+    expect(business.isFavorite, isTrue);
   });
 }

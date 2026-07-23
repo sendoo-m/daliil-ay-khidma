@@ -16,6 +16,7 @@ try:
         business_name = serializers.CharField(source='business.name_ar', read_only=True)
         likes_count = serializers.IntegerField(read_only=True)
         is_liked = serializers.SerializerMethodField()
+        is_own = serializers.SerializerMethodField()
 
         class Meta:
             model = Review
@@ -27,6 +28,10 @@ try:
             return bool(request) and request.user.is_authenticated and bool(
                 obj.likes.filter(user=request.user).exists()
             )
+
+        def get_is_own(self, obj) -> bool:
+            request = self.context.get('request')
+            return bool(request) and request.user.is_authenticated and obj.user_id == request.user.id
 
     class ReviewCreateSerializer(serializers.ModelSerializer):
         """Review Create/Update Serializer"""

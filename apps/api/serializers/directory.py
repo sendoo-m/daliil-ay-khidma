@@ -104,6 +104,7 @@ class BusinessListSerializer(serializers.ModelSerializer):
     is_craft = serializers.ReadOnlyField()
     is_public_service = serializers.ReadOnlyField()
     distance_km = serializers.SerializerMethodField()
+    is_favorite = serializers.SerializerMethodField()
     
     class Meta:
         model = Business
@@ -114,12 +115,19 @@ class BusinessListSerializer(serializers.ModelSerializer):
             'logo', 'category', 'district',
             'phone', 'average_rating', 'total_reviews',
             'is_verified', 'is_featured', 'view_count',
-            'latitude', 'longitude', 'distance_km'
+            'latitude', 'longitude', 'distance_km', 'is_favorite'
         ]
 
     def get_distance_km(self, obj) -> float | None:
         distance = getattr(obj, 'distance_km', None)
         return round(distance, 2) if distance is not None else None
+
+    def get_is_favorite(self, obj) -> bool:
+        request = self.context.get('request')
+        return bool(request) and request.user.is_authenticated and Favorite.objects.filter(
+            user=request.user,
+            business=obj,
+        ).exists()
 
 
 class BusinessDetailSerializer(serializers.ModelSerializer):
@@ -136,6 +144,7 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
     is_shop = serializers.ReadOnlyField()
     is_craft = serializers.ReadOnlyField()
     is_public_service = serializers.ReadOnlyField()
+    is_favorite = serializers.SerializerMethodField()
     
     class Meta:
         model = Business
@@ -151,6 +160,13 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
         if obj.governorate:
             return GovernorateSerializer(obj.governorate).data
         return None
+
+    def get_is_favorite(self, obj) -> bool:
+        request = self.context.get('request')
+        return bool(request) and request.user.is_authenticated and Favorite.objects.filter(
+            user=request.user,
+            business=obj,
+        ).exists()
 
 
 class FavoriteSerializer(serializers.ModelSerializer):

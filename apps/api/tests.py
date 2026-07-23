@@ -287,6 +287,15 @@ class MobileApiV2InteractionTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertFalse(Favorite.objects.filter(user=self.user).exists())
 
+    def test_business_detail_reports_current_user_favorite_state(self):
+        Favorite.objects.create(user=self.user, business=self.business)
+        self.client.force_authenticate(self.user)
+
+        response = self.client.get(f'/api/v2/businesses/{self.business.slug}/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['is_favorite'])
+
     def test_new_review_waits_for_admin_approval(self):
         self.client.force_authenticate(self.user)
         response = self.client.post(
@@ -297,6 +306,13 @@ class MobileApiV2InteractionTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertFalse(Review.objects.get(user=self.user).is_approved)
+
+        review_list = self.client.get(
+            '/api/v2/reviews/',
+            {'business': self.business.id},
+        )
+        self.assertEqual(review_list.status_code, status.HTTP_200_OK)
+        self.assertTrue(review_list.data['results'][0]['is_own'])
 
     def test_review_like_toggles_and_report_is_not_duplicated(self):
         review = Review.objects.create(

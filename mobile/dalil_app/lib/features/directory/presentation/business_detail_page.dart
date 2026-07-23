@@ -30,7 +30,10 @@ class _BusinessDetailPageState extends ConsumerState<BusinessDetailPage> {
   }
 
   Future<Business> _load() =>
-      ref.read(businessRepositoryProvider).detail(widget.slug);
+      ref.read(businessRepositoryProvider).detail(widget.slug).then((business) {
+        _favorite = business.isFavorite;
+        return business;
+      });
 
   @override
   Widget build(BuildContext context) => FutureBuilder<Business>(
@@ -159,8 +162,12 @@ class _BusinessDetailPageState extends ConsumerState<BusinessDetailPage> {
                       trailing: const Icon(Icons.chevron_left),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) =>
-                              ReviewsPage(businessId: business.id),
+                          builder: (_) => ReviewsPage(
+                            businessId: business.id,
+                            businessName: business.displayName,
+                            averageRating: business.rating,
+                            totalReviews: business.totalReviews,
+                          ),
                         ),
                       ),
                     ),
@@ -186,7 +193,12 @@ class _BusinessDetailPageState extends ConsumerState<BusinessDetailPage> {
       final value = await ref
           .read(businessRepositoryProvider)
           .toggleFavorite(business.id);
-      if (mounted) setState(() => _favorite = value);
+      if (mounted) {
+        setState(() => _favorite = value);
+        _showMessage(
+          value ? 'تمت الإضافة إلى المفضلة' : 'تمت الإزالة من المفضلة',
+        );
+      }
     } catch (_) {
       if (mounted) _showMessage('تعذر تحديث المفضلة، حاول مرة أخرى');
     } finally {
