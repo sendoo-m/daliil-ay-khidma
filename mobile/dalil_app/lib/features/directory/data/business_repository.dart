@@ -9,13 +9,21 @@ final class BusinessRepository {
   Future<List<Business>> search(
     String query, {
     int? categoryId,
+    int? governorateId,
+    String? businessType,
+    double? minRating,
+    String ordering = '-is_featured',
   }) async {
     final response = await _dio.get<Map<String, dynamic>>(
       'businesses/',
       queryParameters: {
         if (query.isNotEmpty) 'search': query,
         if (categoryId != null) 'category': categoryId,
-        'page_size': 20,
+        if (governorateId != null) 'governorate': governorateId,
+        if (businessType != null) 'business_type': businessType,
+        if (minRating != null) 'min_rating': minRating,
+        'ordering': ordering,
+        'page_size': 50,
       },
     );
     final results = response.data?['results'] as List<dynamic>? ?? const [];

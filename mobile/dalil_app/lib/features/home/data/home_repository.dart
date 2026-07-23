@@ -7,11 +7,13 @@ final class HomeData {
   const HomeData({
     required this.businesses,
     required this.categories,
+    required this.governorates,
     required this.products,
     required this.deals,
   });
   final List<Business> businesses;
   final List<Map<String, dynamic>> categories;
+  final List<Map<String, dynamic>> governorates;
   final List<ProductSummary> products;
   final List<DealSummary> deals;
 }
@@ -29,6 +31,8 @@ final class HomeRepository {
           .map(Business.fromJson)
           .toList(growable: false),
       categories: (json['categories'] as List<dynamic>? ?? const [])
+          .cast<Map<String, dynamic>>(),
+      governorates: (json['governorates'] as List<dynamic>? ?? const [])
           .cast<Map<String, dynamic>>(),
       products: (json['featured_products'] as List<dynamic>? ?? const [])
           .cast<Map<String, dynamic>>()
