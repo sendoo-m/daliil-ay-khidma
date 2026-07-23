@@ -17,7 +17,7 @@
         <div class="col-lg-8 mx-auto">
             <h2 class="text-center mb-4">
                 <i class="fas fa-search me-2"></i>
-                {% trans "Search Businesses" %}
+                {% if LANGUAGE_CODE == 'ar' %}ابحث عن منتج أو محل أو خدمة{% else %}Search products, businesses, or services{% endif %}
             </h2>
             
             <!-- Search Form -->
@@ -27,7 +27,7 @@
                            class="form-control" 
                            name="q" 
                            value="{{ query }}"
-                           placeholder="{% trans 'Search for businesses, services...' %}"
+                           placeholder="{% if LANGUAGE_CODE == 'ar' %}مثال: هاتف ذكي، غسالة، رحلة، فندق...{% else %}Example: smartphone, washing machine, trip, hotel...{% endif %}"
                            autofocus>
                     <button class="btn btn-primary" type="submit">
                         <i class="fas fa-search"></i> {% trans "Search" %}
@@ -44,9 +44,80 @@
             {% endif %}
         </div>
     </div>
-    
+
+    {% if products %}
+    <section class="mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h3 class="h4 mb-0">
+                <i class="fas fa-tags text-primary me-2"></i>
+                {% if LANGUAGE_CODE == 'ar' %}المنتجات والخدمات{% else %}Products & Services{% endif %}
+            </h3>
+            <span class="badge bg-primary rounded-pill">{{ product_count }}</span>
+        </div>
+        <p class="text-muted">
+            {% if LANGUAGE_CODE == 'ar' %}
+                النتائج مرتبة من السعر الأقل لتسهيل المقارنة بين المحلات.
+            {% else %}
+                Results are sorted by lowest price to make store comparison easier.
+            {% endif %}
+        </p>
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <article class="card h-100 shadow-sm hover-card border-0">
+                    {% with product_image=product.images.first %}
+                        {% if product_image %}
+                        <img src="{{ product_image.image.url }}"
+                             class="card-img-top"
+                             alt="{% if LANGUAGE_CODE == 'ar' %}{{ product.name_ar }}{% else %}{{ product.name_en }}{% endif %}"
+                             style="height: 190px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 190px;">
+                            <i class="fas fa-box-open fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                    {% endwith %}
+                    <div class="card-body d-flex flex-column">
+                        <h4 class="h6 fw-bold">
+                            {% if LANGUAGE_CODE == 'ar' %}{{ product.name_ar }}{% else %}{{ product.name_en }}{% endif %}
+                        </h4>
+                        <a href="{% url 'directory:business_detail' product.business.slug %}"
+                           class="small text-decoration-none mb-2">
+                            <i class="fas fa-store me-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}{{ product.business.name_ar }}{% else %}{{ product.business.name_en }}{% endif %}
+                        </a>
+                        <div class="small text-muted mb-3">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}{{ product.business.district.city.name_ar }}{% else %}{{ product.business.district.city.name_en }}{% endif %}
+                        </div>
+                        <div class="mt-auto d-flex justify-content-between align-items-end gap-2">
+                            <div>
+                                {% if product.has_discount %}
+                                <div class="small text-muted text-decoration-line-through">{{ product.old_price }} ج.م</div>
+                                {% endif %}
+                                <strong class="fs-5 text-success">{{ product.price }} ج.م</strong>
+                            </div>
+                            <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                                {% if LANGUAGE_CODE == 'ar' %}التفاصيل{% else %}Details{% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- Results -->
     {% if businesses %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="h4 mb-0">
+            <i class="fas fa-store text-primary me-2"></i>
+            {% if LANGUAGE_CODE == 'ar' %}المحلات والأنشطة{% else %}Businesses{% endif %}
+        </h3>
+        <span class="badge bg-primary rounded-pill">{{ business_count }}</span>
+    </div>
     <div class="row">
         {% for business in businesses %}
         <div class="col-lg-4 col-md-6 mb-4">
@@ -153,7 +224,7 @@
     </nav>
     {% endif %}
     
-    {% else %}
+    {% elif not products %}
     <!-- No Results -->
     <div class="text-center py-5">
         <i class="fas fa-search fa-4x text-muted mb-3"></i>

@@ -2,6 +2,7 @@
 
 from datetime import time, timedelta
 from decimal import Decimal
+from pathlib import Path
 from xml.sax.saxutils import escape
 
 from django.contrib.auth import get_user_model
@@ -29,6 +30,7 @@ from apps.subscriptions.models import Subscription, SubscriptionPlan
 DEMO_PREFIX = "demo_"
 DEMO_SLUG_PREFIX = "demo-"
 DEMO_PASSWORD = "Demo@12345"
+DEMO_ASSET_DIR = Path(__file__).resolve().parents[2] / "demo_assets"
 
 
 class Command(BaseCommand):
@@ -214,16 +216,38 @@ class Command(BaseCommand):
         return districts
 
     def _create_categories(self):
-        data = [
+        parent_data = [
             ("medical", "Medical Services", "الخدمات الطبية", "fas fa-stethoscope"),
             ("crafts", "Home Services", "الخدمات المنزلية والحرفية", "fas fa-tools"),
             ("beauty", "Beauty", "الجمال والعناية", "fas fa-cut"),
             ("creative", "Creative Services", "الخدمات الإبداعية", "fas fa-palette"),
             ("shopping", "Shopping", "التسوق", "fas fa-store"),
             ("food", "Food and Cafes", "المطاعم والمقاهي", "fas fa-utensils"),
+            ("hotels", "Hotels and Accommodation", "الفنادق والإقامة", "fas fa-hotel"),
+            ("travel", "Travel and Trips", "السياحة والرحلات", "fas fa-plane"),
+            ("freelance", "Freelance Work", "الأعمال الحرة", "fas fa-laptop-code"),
+            (
+                "electronics",
+                "Electronics",
+                "الإلكترونيات والموبايلات",
+                "fas fa-mobile-alt",
+            ),
+            ("appliances", "Home Appliances", "الأجهزة المنزلية", "fas fa-tv"),
+            (
+                "grocery",
+                "Supermarkets",
+                "السوبر ماركت والبقالة",
+                "fas fa-shopping-basket",
+            ),
+            ("fashion", "Fashion", "الملابس والأحذية", "fas fa-tshirt"),
+            ("furniture", "Furniture", "الأثاث والمفروشات", "fas fa-couch"),
+            ("automotive", "Cars and Vehicles", "السيارات ووسائل النقل", "fas fa-car"),
+            ("education", "Education", "التعليم والتدريب", "fas fa-graduation-cap"),
+            ("realestate", "Real Estate", "العقارات", "fas fa-building"),
+            ("events", "Events", "الأفراح والمناسبات", "fas fa-calendar-star"),
         ]
         categories = {}
-        for order, (key, en, ar, icon) in enumerate(data, 1):
+        for order, (key, en, ar, icon) in enumerate(parent_data, 1):
             parent = Category.objects.create(
                 name_en=f"Demo {en}",
                 name_ar=f"{ar} (تجريبي)",
@@ -234,6 +258,96 @@ class Command(BaseCommand):
                 description_en=f"Demo category for testing {en} pages.",
             )
             categories[key] = parent
+
+        child_data = [
+            (
+                "phones",
+                "Mobile Phones",
+                "الهواتف المحمولة",
+                "electronics",
+                "fas fa-mobile-alt",
+            ),
+            (
+                "computers",
+                "Computers",
+                "الكمبيوتر واللابتوب",
+                "electronics",
+                "fas fa-laptop",
+            ),
+            (
+                "televisions",
+                "Televisions",
+                "الشاشات والتلفزيونات",
+                "appliances",
+                "fas fa-tv",
+            ),
+            ("washers", "Washing Machines", "الغسالات", "appliances", "fas fa-soap"),
+            ("resorts", "Resorts", "المنتجعات", "hotels", "fas fa-umbrella-beach"),
+            (
+                "apartments",
+                "Hotel Apartments",
+                "الشقق الفندقية",
+                "hotels",
+                "fas fa-bed",
+            ),
+            (
+                "domestic-trips",
+                "Domestic Trips",
+                "الرحلات الداخلية",
+                "travel",
+                "fas fa-bus",
+            ),
+            (
+                "international-trips",
+                "International Trips",
+                "الرحلات الخارجية",
+                "travel",
+                "fas fa-passport",
+            ),
+            ("design", "Design", "التصميم والجرافيك", "freelance", "fas fa-pen-nib"),
+            (
+                "programming",
+                "Programming",
+                "البرمجة وتطوير المواقع",
+                "freelance",
+                "fas fa-code",
+            ),
+            (
+                "markets",
+                "Grocery Markets",
+                "البقالة والمواد الغذائية",
+                "grocery",
+                "fas fa-store-alt",
+            ),
+            ("mens-fashion", "Men's Fashion", "ملابس رجالي", "fashion", "fas fa-male"),
+            (
+                "womens-fashion",
+                "Women's Fashion",
+                "ملابس حريمي",
+                "fashion",
+                "fas fa-female",
+            ),
+            (
+                "car-maintenance",
+                "Car Maintenance",
+                "صيانة السيارات",
+                "automotive",
+                "fas fa-car-side",
+            ),
+            ("photography", "Photography", "التصوير", "events", "fas fa-camera"),
+        ]
+        start_order = len(parent_data) + 1
+        for offset, (key, en, ar, parent_key, icon) in enumerate(child_data):
+            categories[key] = Category.objects.create(
+                name_en=f"Demo {en}",
+                name_ar=f"{ar} (تجريبي)",
+                slug=f"{DEMO_SLUG_PREFIX}{key}",
+                parent=categories[parent_key],
+                icon=icon,
+                order=start_order + offset,
+                description_ar=f"قسم فرعي تجريبي لاختبار {ar}.",
+                description_en=f"Demo subcategory for testing {en}.",
+            )
         return categories
 
     def _create_businesses(self, owners, districts, categories):
@@ -262,11 +376,75 @@ class Command(BaseCommand):
             ),
             ("store", "بيت الهدايا", "Gift House", "shop", "shopping"),
             ("cafe", "كافيه المرسى", "Al Marsa Cafe", "shop", "food"),
+            (
+                "tech-one",
+                "تِك وان للإلكترونيات",
+                "Tech One Electronics",
+                "shop",
+                "phones",
+            ),
+            ("digital-market", "ديجيتال ماركت", "Digital Market", "shop", "phones"),
+            ("smart-zone", "سمارت زون", "Smart Zone", "shop", "phones"),
+            (
+                "home-center",
+                "هوم سنتر للأجهزة",
+                "Home Center Appliances",
+                "shop",
+                "appliances",
+            ),
+            (
+                "family-appliances",
+                "أجهزة العائلة",
+                "Family Appliances",
+                "shop",
+                "appliances",
+            ),
+            ("save-market", "ماركت التوفير", "Save Market", "shop", "markets"),
+            ("city-market", "سيتي ماركت", "City Market", "shop", "markets"),
+            ("family-market", "فاميلي ماركت", "Family Market", "shop", "markets"),
+            ("blue-resort", "منتجع بلو سي", "Blue Sea Resort", "public", "resorts"),
+            ("canal-hotel", "فندق القناة", "Canal Hotel", "public", "hotels"),
+            (
+                "sendoo-travel-demo",
+                "سندو ترافيل للرحلات",
+                "Sendoo Travel",
+                "public",
+                "domestic-trips",
+            ),
+            ("horizon-tours", "هورايزون للسياحة", "Horizon Tours", "public", "travel"),
+            (
+                "pixel-freelancer",
+                "بيكسل للتصميم الحر",
+                "Pixel Freelance Design",
+                "craft",
+                "design",
+            ),
+            (
+                "web-freelancer",
+                "مطور الويب الحر",
+                "Freelance Web Developer",
+                "craft",
+                "programming",
+            ),
+            (
+                "modern-furniture",
+                "المودرن للأثاث",
+                "Modern Furniture",
+                "shop",
+                "furniture",
+            ),
+            (
+                "style-house",
+                "ستايل هاوس للملابس",
+                "Style House Fashion",
+                "shop",
+                "fashion",
+            ),
         ]
         businesses = []
         for index, (key, ar, en, business_type, category_key) in enumerate(data):
             business = Business.objects.create(
-                owner=owners[index],
+                owner=owners[index % len(owners)],
                 business_type=business_type,
                 name_en=en,
                 name_ar=ar,
@@ -287,12 +465,12 @@ class Command(BaseCommand):
                 working_hours_ar="السبت–الخميس: 9 صباحًا–9 مساءً",
                 latitude=Decimal("30.590000") + Decimal(index) / 100,
                 longitude=Decimal("32.270000") + Decimal(index) / 100,
-                is_active=index != 5,
-                is_verified=index != 4,
-                is_featured=index in (0, 2, 3),
-                is_promoted=index in (1, 3),
-                view_count=1250 - index * 137,
-                click_count=280 - index * 23,
+                is_active=True,
+                is_verified=True,
+                is_featured=index in (0, 2, 3, 6, 9, 14),
+                is_promoted=index in (1, 3, 7, 11, 16),
+                view_count=max(90, 1250 - index * 55),
+                click_count=max(15, 280 - index * 11),
             )
             businesses.append(business)
         return businesses
@@ -334,6 +512,88 @@ class Command(BaseCommand):
                 ("قهوة مختصة", "Specialty coffee", "product", 85),
                 ("إفطار المرسى", "Marsa breakfast", "product", 240),
             ],
+            "tech-one": [
+                ("هاتف ذكي 256 جيجابايت", "Smartphone 256 GB", "product", 28999),
+                ("سماعات لاسلكية", "Wireless earbuds", "product", 2199),
+                ("لابتوب 15 بوصة", "15-inch laptop", "product", 32499),
+            ],
+            "digital-market": [
+                ("هاتف ذكي 256 جيجابايت", "Smartphone 256 GB", "product", 27950),
+                ("سماعات لاسلكية", "Wireless earbuds", "product", 2350),
+                ("لابتوب 15 بوصة", "15-inch laptop", "product", 31900),
+            ],
+            "smart-zone": [
+                ("هاتف ذكي 256 جيجابايت", "Smartphone 256 GB", "product", 29450),
+                ("سماعات لاسلكية", "Wireless earbuds", "product", 1999),
+                ("لابتوب 15 بوصة", "15-inch laptop", "product", 32990),
+            ],
+            "home-center": [
+                ("غسالة أوتوماتيك 10 كجم", "10 kg washing machine", "product", 21999),
+                ("شاشة ذكية 55 بوصة", "55-inch smart TV", "product", 18499),
+                ("تكييف بارد 1.5 حصان", "1.5 HP air conditioner", "product", 26499),
+            ],
+            "family-appliances": [
+                ("غسالة أوتوماتيك 10 كجم", "10 kg washing machine", "product", 21250),
+                ("شاشة ذكية 55 بوصة", "55-inch smart TV", "product", 17990),
+                ("تكييف بارد 1.5 حصان", "1.5 HP air conditioner", "product", 26950),
+            ],
+            "save-market": [
+                ("زيت طعام 1 لتر", "Cooking oil 1 litre", "product", 79),
+                ("أرز مصري 5 كجم", "Egyptian rice 5 kg", "product", 265),
+                ("قهوة سادة 250 جرام", "Plain coffee 250 g", "product", 185),
+            ],
+            "city-market": [
+                ("زيت طعام 1 لتر", "Cooking oil 1 litre", "product", 76),
+                ("أرز مصري 5 كجم", "Egyptian rice 5 kg", "product", 279),
+                ("قهوة سادة 250 جرام", "Plain coffee 250 g", "product", 179),
+            ],
+            "family-market": [
+                ("زيت طعام 1 لتر", "Cooking oil 1 litre", "product", 82),
+                ("أرز مصري 5 كجم", "Egyptian rice 5 kg", "product", 259),
+                ("قهوة سادة 250 جرام", "Plain coffee 250 g", "product", 192),
+            ],
+            "blue-resort": [
+                ("غرفة مزدوجة بإطلالة بحرية", "Sea-view double room", "service", 3850),
+                ("إقامة عائلية ليلتين", "Two-night family stay", "service", 7200),
+            ],
+            "canal-hotel": [
+                ("غرفة مزدوجة بإطلالة بحرية", "Sea-view double room", "service", 3200),
+                ("إقامة عائلية ليلتين", "Two-night family stay", "service", 6500),
+            ],
+            "sendoo-travel-demo": [
+                (
+                    "رحلة شرم الشيخ 4 أيام",
+                    "Four-day Sharm El Sheikh trip",
+                    "service",
+                    6900,
+                ),
+                ("رحلة يوم واحد إلى القاهرة", "Cairo day trip", "service", 950),
+            ],
+            "horizon-tours": [
+                (
+                    "رحلة شرم الشيخ 4 أيام",
+                    "Four-day Sharm El Sheikh trip",
+                    "service",
+                    6450,
+                ),
+                ("رحلة يوم واحد إلى القاهرة", "Cairo day trip", "service", 1100),
+            ],
+            "pixel-freelancer": [
+                ("تصميم شعار احترافي", "Professional logo design", "service", 1500),
+                ("تصميم هوية بصرية", "Brand identity design", "service", 4200),
+            ],
+            "web-freelancer": [
+                ("تصميم متجر إلكتروني", "E-commerce website design", "service", 12000),
+                ("صفحة هبوط احترافية", "Professional landing page", "service", 4500),
+            ],
+            "modern-furniture": [
+                ("غرفة نوم مودرن", "Modern bedroom set", "product", 48500),
+                ("ركنة عائلية", "Family corner sofa", "product", 26900),
+            ],
+            "style-house": [
+                ("قميص رجالي كاجوال", "Men's casual shirt", "product", 699),
+                ("حذاء رياضي", "Sports shoes", "product", 1450),
+            ],
         }
         products = []
         for business in businesses:
@@ -350,14 +610,18 @@ class Command(BaseCommand):
                         description_en=f"Detailed demo description for {en}.",
                         price=Decimal(price),
                         old_price=(
-                            Decimal(price) * Decimal("1.20") if order == 1 else None
+                            Decimal(price) * Decimal("1.12") if order == 1 else None
                         ),
-                        is_available=not (business.slug == "demo-store" and order == 2),
+                        is_available=True,
                         stock_quantity=25 if product_type == "product" else None,
                         has_delivery=product_type == "product",
-                        delivery_cost=35 if product_type == "product" else None,
-                        delivery_time_ar="خلال يومين",
-                        delivery_time_en="Within two days",
+                        delivery_cost=(
+                            Decimal(25 + (business.pk % 4) * 10)
+                            if product_type == "product"
+                            else None
+                        ),
+                        delivery_time_ar=f"خلال {1 + business.pk % 3} يوم",
+                        delivery_time_en=f"Within {1 + business.pk % 3} days",
                         order=order,
                         is_featured=order == 1,
                         view_count=240 - order * 35,
@@ -548,24 +812,118 @@ class Command(BaseCommand):
 <text x="50%" y="62%" fill="white" opacity=".8" font-size="{max(18, height // 22)}" font-family="Arial" text-anchor="middle">Daliil Ay Khidma • Demo</text></svg>"""
         return ContentFile(svg.encode("utf-8"))
 
+    def _asset_content(self, asset_name):
+        """Return one optimized, generated demo photo as an uploadable file."""
+        return ContentFile((DEMO_ASSET_DIR / asset_name).read_bytes())
+
+    def _photo_for(self, text):
+        """Choose a reusable generated photo for a category, business, or product."""
+        text = text.lower()
+        groups = (
+            (
+                "electronics.webp",
+                (
+                    "phone",
+                    "mobile",
+                    "smartphone",
+                    "earbud",
+                    "laptop",
+                    "tech",
+                    "digital",
+                    "هاتف",
+                    "سماعات",
+                    "لابتوب",
+                ),
+            ),
+            (
+                "appliances.webp",
+                (
+                    "appliance",
+                    "washing",
+                    "television",
+                    "smart tv",
+                    "air conditioner",
+                    "home center",
+                    "غسالة",
+                    "شاشة",
+                    "تكييف",
+                ),
+            ),
+            (
+                "groceries.webp",
+                (
+                    "grocery",
+                    "market",
+                    "cooking oil",
+                    "rice",
+                    "coffee",
+                    "زيت",
+                    "أرز",
+                    "قهوة",
+                ),
+            ),
+            (
+                "hotel-travel.webp",
+                (
+                    "hotel",
+                    "resort",
+                    "travel",
+                    "trip",
+                    "room",
+                    "stay",
+                    "فندق",
+                    "منتجع",
+                    "رحلة",
+                    "غرفة",
+                    "إقامة",
+                ),
+            ),
+        )
+        for asset_name, keywords in groups:
+            if any(keyword in text for keyword in keywords):
+                return asset_name
+        return None
+
+    def _image_content(self, title, color, width, height):
+        asset_name = self._photo_for(title)
+        if asset_name:
+            return self._asset_content(asset_name), "webp"
+        return self._svg(title, color, width, height), "svg"
+
     def _add_images(self, categories, businesses, products, deals):
         colors = ["#0f766e", "#2563eb", "#7c3aed", "#db2777", "#ea580c", "#0891b2"]
         for index, category in enumerate(categories.values()):
+            content, extension = self._image_content(
+                f"{category.slug} {category.name_en} {category.name_ar}",
+                colors[index % len(colors)],
+                800,
+                500,
+            )
             category.image.save(
-                f"{category.slug}.svg",
-                self._svg(category.name_en, colors[index], 800, 500),
+                f"{category.slug}.{extension}",
+                content,
                 save=True,
             )
         for index, business in enumerate(businesses):
             color = colors[index % len(colors)]
+            image_title = (
+                f"{business.slug} {business.name_en} {business.name_ar} "
+                f"{business.category.slug}"
+            )
+            logo_content, logo_extension = self._image_content(
+                image_title, color, 500, 500
+            )
             business.logo.save(
-                f"{business.slug}-logo.svg",
-                self._svg(business.name_en, color, 500, 500),
+                f"{business.slug}-logo.{logo_extension}",
+                logo_content,
                 save=False,
             )
+            cover_content, cover_extension = self._image_content(
+                image_title, color, 1200, 600
+            )
             business.cover_image.save(
-                f"{business.slug}-cover.svg",
-                self._svg(business.name_en, color),
+                f"{business.slug}-cover.{cover_extension}",
+                cover_content,
                 save=True,
             )
             for image_order in range(2):
@@ -575,9 +933,12 @@ class Command(BaseCommand):
                     caption_en="Demo gallery image",
                     order=image_order,
                 )
+                gallery_content, gallery_extension = self._image_content(
+                    image_title, color, 1200, 600
+                )
                 image.image.save(
-                    f"{business.slug}-gallery-{image_order + 1}.svg",
-                    self._svg(f"{business.name_en} Gallery {image_order + 1}", color),
+                    f"{business.slug}-gallery-{image_order + 1}.{gallery_extension}",
+                    gallery_content,
                     save=True,
                 )
         for index, product in enumerate(products):
@@ -587,9 +948,15 @@ class Command(BaseCommand):
                 alt_text_en=product.name_en,
                 is_primary=True,
             )
+            product_content, product_extension = self._image_content(
+                f"{product.name_en} {product.name_ar} {product.business.name_en}",
+                colors[index % len(colors)],
+                800,
+                600,
+            )
             image.image.save(
-                f"{product.slug}.svg",
-                self._svg(product.name_en, colors[index % len(colors)], 800, 600),
+                f"{product.slug}.{product_extension}",
+                product_content,
                 save=True,
             )
         for index, deal in enumerate(deals):
@@ -603,7 +970,8 @@ class Command(BaseCommand):
         """Restore one missing demo file while preserving its database path."""
         if not field.name or field.storage.exists(field.name):
             return 0
-        field.storage.save(field.name, self._svg(title, color, width, height))
+        content, _extension = self._image_content(title, color, width, height)
+        field.storage.save(field.name, content)
         return 1
 
     def _repair_demo_images(self):
@@ -616,7 +984,11 @@ class Command(BaseCommand):
         ).order_by("order", "pk")
         for index, category in enumerate(categories):
             restored += self._restore_image(
-                category.image, category.name_en, colors[index % len(colors)], 800, 500
+                category.image,
+                f"{category.slug} {category.name_en} {category.name_ar}",
+                colors[index % len(colors)],
+                800,
+                500,
             )
 
         businesses = Business.objects.filter(
@@ -624,16 +996,16 @@ class Command(BaseCommand):
         ).order_by("pk")
         for index, business in enumerate(businesses):
             color = colors[index % len(colors)]
-            restored += self._restore_image(
-                business.logo, business.name_en, color, 500, 500
+            image_title = (
+                f"{business.slug} {business.name_en} {business.name_ar} "
+                f"{business.category.slug}"
             )
-            restored += self._restore_image(
-                business.cover_image, business.name_en, color
-            )
+            restored += self._restore_image(business.logo, image_title, color, 500, 500)
+            restored += self._restore_image(business.cover_image, image_title, color)
             for image in business.images.all().order_by("order", "pk"):
                 restored += self._restore_image(
                     image.image,
-                    f"{business.name_en} Gallery {image.order + 1}",
+                    image_title,
                     color,
                 )
 
@@ -644,7 +1016,7 @@ class Command(BaseCommand):
             for image in product.images.all().order_by("pk"):
                 restored += self._restore_image(
                     image.image,
-                    product.name_en,
+                    f"{product.name_en} {product.name_ar} {product.business.name_en}",
                     colors[index % len(colors)],
                     800,
                     600,

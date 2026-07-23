@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
@@ -55,9 +56,7 @@ class ProductionMediaStorageTests(TestCase):
         backend = self._default_storage_backend(
             "cloudinary://1234567890:test-secret@test-cloud"
         )
-        self.assertEqual(
-            backend, "cloudinary_storage.storage.MediaCloudinaryStorage"
-        )
+        self.assertEqual(backend, "cloudinary_storage.storage.MediaCloudinaryStorage")
 
     def test_local_storage_remains_the_safe_fallback(self):
         self.assertEqual(
@@ -74,26 +73,36 @@ class SeedDemoDataCommandTests(TestCase):
         self.assertEqual(
             get_user_model().objects.filter(username__startswith="demo_").count(), 11
         )
-        self.assertEqual(Business.objects.filter(slug__startswith="demo-").count(), 6)
-        self.assertEqual(Product.objects.filter(slug__startswith="demo-").count(), 12)
+        self.assertEqual(Category.objects.filter(slug__startswith="demo-").count(), 33)
+        self.assertEqual(Business.objects.filter(slug__startswith="demo-").count(), 22)
+        self.assertEqual(Product.objects.filter(slug__startswith="demo-").count(), 52)
         self.assertEqual(Deal.objects.filter(slug__startswith="demo-deal-").count(), 3)
         self.assertEqual(
             Review.objects.filter(business__slug__startswith="demo-").count(), 15
         )
         self.assertEqual(
-            Subscription.objects.filter(business__slug__startswith="demo-").count(), 6
+            Subscription.objects.filter(business__slug__startswith="demo-").count(), 22
         )
         self.assertEqual(
             Notification.objects.filter(user__username__startswith="demo_").count(), 6
         )
-        self.assertTrue(
-            Business.objects.filter(
-                logo__endswith=".svg", cover_image__endswith=".svg"
-            ).exists()
+        self.assertTrue(Business.objects.filter(cover_image__endswith=".webp").exists())
+        self.assertTrue(Product.objects.filter(image__image__endswith=".webp").exists())
+
+        comparable_offers = Product.objects.filter(
+            name_ar="هاتف ذكي 256 جيجابايت"
+        ).order_by("price")
+        self.assertEqual(comparable_offers.count(), 3)
+        self.assertEqual(
+            comparable_offers.values_list("price", flat=True).distinct().count(), 3
+        )
+        self.assertEqual(
+            comparable_offers.values_list("business_id", flat=True).distinct().count(),
+            3,
         )
 
         call_command("seed_demo_data", stdout=output)
-        self.assertEqual(Business.objects.filter(slug__startswith="demo-").count(), 6)
+        self.assertEqual(Business.objects.filter(slug__startswith="demo-").count(), 22)
         self.assertIn("موجودة بالفعل", output.getvalue())
 
     def test_clear_removes_only_demo_data(self):
@@ -108,6 +117,24 @@ class SeedDemoDataCommandTests(TestCase):
         )
         self.assertFalse(Business.objects.filter(slug__startswith="demo-").exists())
         self.assertTrue(Category.objects.filter(pk=real_category.pk).exists())
+
+    def test_unified_search_returns_comparable_product_prices(self):
+        call_command("seed_demo_data", stdout=StringIO())
+
+        response = self.client.get(
+            reverse("directory:business_search"),
+            {"q": "هاتف ذكي 256 جيجابايت"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["product_count"], 3)
+        self.assertEqual(
+            [product.price for product in response.context["products"]],
+            [Decimal("27950"), Decimal("28999"), Decimal("29450")],
+        )
+        self.assertContains(response, "تِك وان للإلكترونيات")
+        self.assertContains(response, "ديجيتال ماركت")
+        self.assertContains(response, "سمارت زون")
 
     def test_repeated_seed_restores_missing_media_without_recreating_records(self):
         with TemporaryDirectory() as media_root, override_settings(
