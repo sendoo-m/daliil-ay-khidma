@@ -14,6 +14,7 @@ final class AuthRepository {
     required String password,
     required String firstName,
     required String lastName,
+    required String phone,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       'auth/register/',
@@ -24,6 +25,7 @@ final class AuthRepository {
         'password_confirm': password,
         'first_name': firstName.trim(),
         'last_name': lastName.trim(),
+        if (phone.trim().isNotEmpty) 'phone': phone.trim(),
       },
     );
     final tokens = response.data?['tokens'] as Map<String, dynamic>;
@@ -33,6 +35,21 @@ final class AuthRepository {
         refresh: tokens['refresh'] as String,
       ),
     );
+  }
+
+  Future<bool> restoreSession() async {
+    if (await _tokens.readRefresh() == null) return false;
+    try {
+      await _dio.get<Map<String, dynamic>>('auth/profile/');
+      return true;
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 401) {
+        await _tokens.clear();
+        return false;
+      }
+      // لا نحذف جلسة صالحة لمجرد أن الهاتف غير متصل مؤقتًا.
+      return true;
+    }
   }
 
   Future<void> login({

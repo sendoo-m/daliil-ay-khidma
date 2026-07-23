@@ -52,11 +52,9 @@ final authRepositoryProvider = Provider(
 final passwordResetRepositoryProvider = Provider(
   (ref) => PasswordResetRepository(ref.watch(apiClientProvider).dio),
 );
-final authControllerProvider = StateNotifierProvider<AuthController, AsyncValue<bool>>(
-  (ref) => AuthController(
-    ref.watch(authRepositoryProvider),
-    ref.watch(tokenStoreProvider).hasSession,
-  ),
+final authControllerProvider =
+    StateNotifierProvider<AuthController, AsyncValue<bool>>(
+  (ref) => AuthController(ref.watch(authRepositoryProvider)),
 );
 final homeRepositoryProvider = Provider(
   (ref) => HomeRepository(ref.watch(apiClientProvider).dio),
