@@ -286,7 +286,11 @@ class _MessageState extends StatelessWidget {
           padding: const EdgeInsets.all(32),
           child: Column(
             children: [
-              Icon(icon, size: 64, color: Theme.of(context).colorScheme.primary),
+              Icon(
+                icon,
+                size: 64,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               const SizedBox(height: 18),
               Text(
                 title,

@@ -273,7 +273,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     suffixIcon: IconButton(
                       onPressed: () =>
                           setDialogState(() => hideOld = !hideOld),
-                      icon: Icon(hideOld ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                        hideOld ? Icons.visibility : Icons.visibility_off,
+                      ),
                     ),
                   ),
                 ),
@@ -286,7 +288,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     suffixIcon: IconButton(
                       onPressed: () =>
                           setDialogState(() => hideNew = !hideNew),
-                      icon: Icon(hideNew ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                        hideNew ? Icons.visibility : Icons.visibility_off,
+                      ),
                     ),
                   ),
                 ),
@@ -343,6 +347,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             );
                         if (!dialogContext.mounted) return;
                         Navigator.pop(dialogContext);
+                        if (!mounted) return;
                         ScaffoldMessenger.of(this.context).showSnackBar(
                           const SnackBar(
                             content: Text('تم تغيير كلمة المرور بنجاح'),
