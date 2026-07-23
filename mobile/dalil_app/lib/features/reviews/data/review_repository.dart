@@ -6,6 +6,9 @@ final class BusinessReview {
     required this.rating,
     required this.comment,
     required this.username,
+    required this.isApproved,
+    required this.isOwn,
+    required this.createdAt,
   });
 
   factory BusinessReview.fromJson(Map<String, dynamic> json) => BusinessReview(
@@ -15,12 +18,18 @@ final class BusinessReview {
         username: json['user_name'] as String? ??
             json['user_username'] as String? ??
             '',
+        isApproved: json['is_approved'] as bool? ?? false,
+        isOwn: json['is_own'] as bool? ?? false,
+        createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
       );
 
   final int id;
   final int rating;
   final String comment;
   final String username;
+  final bool isApproved;
+  final bool isOwn;
+  final DateTime? createdAt;
 }
 
 final class ReviewRepository {
@@ -51,4 +60,22 @@ final class ReviewRepository {
           'comment': comment.trim(),
         },
       );
+
+  Future<void> update({
+    required int reviewId,
+    required int businessId,
+    required int rating,
+    required String comment,
+  }) =>
+      _dio.patch<void>(
+        'reviews/$reviewId/',
+        data: {
+          'business': businessId,
+          'rating': rating,
+          'comment': comment.trim(),
+        },
+      );
+
+  Future<void> delete(int reviewId) =>
+      _dio.delete<void>('reviews/$reviewId/');
 }

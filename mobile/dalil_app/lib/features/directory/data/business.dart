@@ -29,6 +29,7 @@ final class Business {
     this.latitude,
     this.longitude,
     this.distanceKm,
+    this.isFavorite = false,
   });
 
   factory Business.fromJson(Map<String, dynamic> json) => Business(
@@ -66,6 +67,7 @@ final class Business {
         latitude: _coordinate(json['latitude']),
         longitude: _coordinate(json['longitude']),
         distanceKm: (json['distance_km'] as num?)?.toDouble(),
+        isFavorite: json['is_favorite'] as bool? ?? false,
       );
 
   final int id;
@@ -97,6 +99,7 @@ final class Business {
   final double? latitude;
   final double? longitude;
   final double? distanceKm;
+  final bool isFavorite;
 
   bool get hasCoordinates => latitude != null && longitude != null;
 
