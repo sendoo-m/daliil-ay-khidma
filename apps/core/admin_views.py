@@ -46,7 +46,19 @@ def demo_data_admin(request):
                 messages.error(request, "اكتب عبارة التأكيد كما هي قبل حذف الداتا.")
                 return redirect("admin_demo_data")
             command_options["clear"] = True
-        elif action != "create":
+        elif action == "reset":
+            command_options["reset"] = True
+        elif action == "create":
+            pass
+        elif action in {
+            "images_all",
+            "images_categories",
+            "images_businesses",
+            "images_products",
+            "images_deals",
+        }:
+            command_options["images_only"] = action.removeprefix("images_")
+        else:
             messages.error(request, "العملية المطلوبة غير معروفة.")
             return redirect("admin_demo_data")
 
@@ -74,6 +86,13 @@ def demo_data_admin(request):
         "title": "إدارة الداتا التجريبية",
         "counts": _demo_counts(),
         "has_demo_data": Business.objects.filter(slug__startswith="demo-").exists(),
+        "image_actions": (
+            ("images_categories", "صور وأيقونات الأقسام"),
+            ("images_businesses", "صور وشعارات المحلات"),
+            ("images_products", "صور المنتجات والخدمات"),
+            ("images_deals", "صور العروض"),
+            ("images_all", "معالجة جميع الصور"),
+        ),
         "admin_index_url": reverse("admin:index"),
     }
     return render(request, "admin/demo_data.html", context)
