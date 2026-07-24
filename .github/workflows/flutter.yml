@@ -60,6 +60,11 @@ jobs:
           name: daliil-web
           path: mobile/dalil_app/build/web
           if-no-files-found: error
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Upload GitHub Pages artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v3
