@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,6 +42,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   var _kind = _SearchKind.businesses;
   var _comparePrices = false;
   var _revision = 0;
+  Timer? _searchDebounce;
 
   bool get _hasFilters =>
       _categoryId != null ||
@@ -52,8 +55,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _scheduleSearch() {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 450), _runSearch);
   }
 
   void _runSearch() {
@@ -105,6 +114,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               hintText: 'اسم محل، منتج أو خدمة',
               leading: const Icon(Icons.search),
               trailing: [
+                IconButton(
+                  tooltip: 'تنفيذ البحث',
+                  onPressed: _runSearch,
+                  icon: const Icon(Icons.arrow_back),
+                ),
                 if (_controller.text.isNotEmpty)
                   IconButton(
                     tooltip: 'مسح',
@@ -115,7 +129,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     icon: const Icon(Icons.close),
                   ),
               ],
-              onChanged: (_) => setState(() {}),
+              onChanged: (_) {
+                setState(() {});
+                _scheduleSearch();
+              },
               onSubmitted: (_) => _runSearch(),
             ),
           ),
