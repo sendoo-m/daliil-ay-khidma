@@ -522,7 +522,7 @@ class _HomeError extends StatelessWidget {
                     ),
               ),
               const SizedBox(height: 8),
-              const Text('تحقق من اتصال الإنترنت ثم حاول مرة أخرى.'),
+              const Text(\n                'قد يستغرق الخادم التجريبي لحظات عند أول تشغيل. سنعيد الاتصال تلقائيًا، ويمكنك المحاولة مرة أخرى.',\n                textAlign: TextAlign.center,\n              ),
               const SizedBox(height: 20),
               FilledButton.icon(
                 onPressed: onRetry,
