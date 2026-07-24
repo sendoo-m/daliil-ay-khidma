@@ -5,6 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/providers.dart';
 import '../../auth/presentation/login_page.dart';
+import '../../catalog/data/catalog_models.dart';
+import '../../catalog/presentation/catalog_detail_pages.dart';
 import '../../reviews/presentation/reviews_page.dart';
 import '../data/business.dart';
 
@@ -145,6 +147,8 @@ class _BusinessDetailPageState extends ConsumerState<BusinessDetailPage> {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 24),
+                  _BusinessProducts(businessId: business.id),
                   if (business.images.isNotEmpty) ...[
                     const SizedBox(height: 24),
                     _Gallery(images: business.images),
@@ -501,6 +505,145 @@ class _BusinessMapState extends State<_BusinessMap> {
   }
 }
 
+class _BusinessProducts extends ConsumerWidget {
+  const _BusinessProducts({required this.businessId});
+  final int businessId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => FutureBuilder<List<ProductSummary>>(
+        future: ref.read(catalogRepositoryProvider).searchProducts(
+              '',
+              businessId: businessId,
+              ordering: '-is_featured',
+            ),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const _Section(
+              title: 'المنتجات والخدمات',
+              icon: Icons.inventory_2_outlined,
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(18),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            );
+          }
+          if (snapshot.hasError) {
+            return _Section(
+              title: 'المنتجات والخدمات',
+              icon: Icons.inventory_2_outlined,
+              child: Text(
+                'تعذر تحميل المنتجات حاليًا',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            );
+          }
+          final products = snapshot.data ?? const [];
+          if (products.isEmpty) {
+            return const _Section(
+              title: 'المنتجات والخدمات',
+              icon: Icons.inventory_2_outlined,
+              child: Text('لم يضف هذا المكان منتجات أو خدمات بعد.'),
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'المنتجات والخدمات',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 218,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: products.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 10),
+                  itemBuilder: (_, index) {
+                    final product = products[index];
+                    return SizedBox(
+                      width: 180,
+                      child: Card(
+                        clipBehavior: Clip.antiAlias,
+                        margin: EdgeInsets.zero,
+                        child: InkWell(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => ProductDetailPage(
+                                slug: product.slug,
+                              ),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: product.image == null
+                                    ? const ColoredBox(
+                                        color: Color(0xFFE7ECEA),
+                                        child: Icon(
+                                          Icons.inventory_2_outlined,
+                                          size: 42,
+                                        ),
+                                      )
+                                    : Image.network(
+                                        product.image!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            const ColoredBox(
+                                          color: Color(0xFFE7ECEA),
+                                          child: Icon(
+                                            Icons.broken_image_outlined,
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      product.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      product.numericPrice.isFinite
+                                          ? '${product.price} ج.م'
+                                          : 'السعر عند التواصل',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      );
+}
+
 class _Gallery extends StatelessWidget {
   const _Gallery({required this.images});
   final List<BusinessImage> images;
@@ -519,17 +662,37 @@ class _Gallery extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(width: 10),
               itemBuilder: (_, index) {
                 final item = images[index];
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: Image.network(
-                    item.url,
-                    width: 250,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const SizedBox(
-                      width: 250,
-                      child: ColoredBox(
-                        color: Color(0xFFE7ECEA),
-                        child: Icon(Icons.broken_image_outlined),
+                return Semantics(
+                  button: true,
+                  label: item.caption.isEmpty
+                      ? 'فتح الصورة ${index + 1}'
+                      : item.caption,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => _GalleryViewer(
+                          images: images,
+                          initialIndex: index,
+                        ),
+                      ),
+                    ),
+                    child: Hero(
+                      tag: 'business-gallery-${item.url}',
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: Image.network(
+                          item.url,
+                          width: 250,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox(
+                            width: 250,
+                            child: ColoredBox(
+                              color: Color(0xFFE7ECEA),
+                              child: Icon(Icons.broken_image_outlined),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -537,7 +700,87 @@ class _Gallery extends StatelessWidget {
               },
             ),
           ),
+          const SizedBox(height: 8),
+          const Text('اضغط على أي صورة لفتح المعرض'),
         ],
+      );
+}
+
+class _GalleryViewer extends StatefulWidget {
+  const _GalleryViewer({
+    required this.images,
+    required this.initialIndex,
+  });
+  final List<BusinessImage> images;
+  final int initialIndex;
+
+  @override
+  State<_GalleryViewer> createState() => _GalleryViewerState();
+}
+
+class _GalleryViewerState extends State<_GalleryViewer> {
+  late final PageController _controller =
+      PageController(initialPage: widget.initialIndex);
+  late int _index = widget.initialIndex;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.black,
+          title: Text('${_index + 1} / ${widget.images.length}'),
+        ),
+        body: PageView.builder(
+          controller: _controller,
+          itemCount: widget.images.length,
+          onPageChanged: (value) => setState(() => _index = value),
+          itemBuilder: (_, index) {
+            final image = widget.images[index];
+            return Column(
+              children: [
+                Expanded(
+                  child: InteractiveViewer(
+                    minScale: 0.8,
+                    maxScale: 4,
+                    child: Center(
+                      child: Hero(
+                        tag: 'business-gallery-${image.url}',
+                        child: Image.network(
+                          image.url,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.broken_image_outlined,
+                            color: Colors.white,
+                            size: 64,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (image.caption.isNotEmpty)
+                  SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        image.caption,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       );
 }
 

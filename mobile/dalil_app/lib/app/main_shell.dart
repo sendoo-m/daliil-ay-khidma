@@ -18,6 +18,7 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   int _index = 0;
+  int _favoritesRevision = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,10 @@ class _MainShellState extends ConsumerState<MainShell> {
       const SearchPage(embedded: true),
       const DealsPage(),
       isAuthenticated
-          ? const FavoritesPage(embedded: true)
+          ? FavoritesPage(
+              key: ValueKey('favorites-$_favoritesRevision'),
+              embedded: true,
+            )
           : const _GuestGate(
               icon: Icons.favorite_outline,
               title: 'احتفظ بالأماكن التي تحبها',
@@ -49,7 +53,10 @@ class _MainShellState extends ConsumerState<MainShell> {
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (value) => setState(() => _index = value),
+        onDestinationSelected: (value) => setState(() {
+          _index = value;
+          if (value == 3) _favoritesRevision++;
+        }),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
