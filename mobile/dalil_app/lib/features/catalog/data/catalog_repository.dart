@@ -14,6 +14,7 @@ final class CatalogRepository {
   Future<List<ProductSummary>> searchProducts(
     String query, {
     int? categoryId,
+    int? businessId,
     int? governorateId,
     String? productType,
     double? minPrice,
@@ -25,6 +26,7 @@ final class CatalogRepository {
       queryParameters: {
         if (query.isNotEmpty) 'search': query,
         if (categoryId != null) 'category': categoryId,
+        if (businessId != null) 'business': businessId,
         if (governorateId != null) 'governorate': governorateId,
         if (productType != null) 'product_type': productType,
         if (minPrice != null) 'min_price': minPrice,
