@@ -1,6 +1,12 @@
 name: Flutter
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/flutter.yml'
   pull_request:
     paths:
       - 'mobile/**'
@@ -13,6 +19,8 @@ concurrency:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
   quality:
@@ -33,7 +41,7 @@ jobs:
           channel: stable
           cache: true
       - name: Generate native projects
-        run: flutter create --empty --platforms=android,ios --org=com.daliilaykhidma --project-name=dalil_app .
+        run: flutter create --empty --platforms=android,ios,web --org=com.daliilaykhidma --project-name=dalil_app .
       - name: Configure password-reset deep links
         run: python3 tool/configure_deep_links.py
       - name: Configure Firebase clients
@@ -44,6 +52,19 @@ jobs:
         run: dart format lib test
       - run: flutter analyze
       - run: flutter test
+      - name: Build Flutter Web preview
+        run: flutter build web --release --base-href=/daliil-ay-khidma/ --dart-define=API_BASE_URL=https://daliil-ay-khidma.onrender.com
+      - name: Upload Flutter Web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: daliil-web
+          path: mobile/dalil_app/build/web
+          if-no-files-found: error
+      - name: Upload GitHub Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: mobile/dalil_app/build/web
       - name: Build Android debug APK
         run: flutter build apk --debug --dart-define=API_BASE_URL=https://daliil-ay-khidma.onrender.com
       - name: Upload Android debug APK
@@ -83,3 +104,16 @@ jobs:
       - run: flutter gen-l10n
       - name: Build iOS
         run: flutter build ios --debug --no-codesign --dart-define=API_BASE_URL=https://daliil-ay-khidma.onrender.com
+
+  deploy-web:
+    name: Deploy Flutter Web preview
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: quality
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
